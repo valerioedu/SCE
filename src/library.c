@@ -1,6 +1,7 @@
 #include "library.h"
 
 void insert_char(char c) {
+    save_undo_state();
     if (current_col < MAX_COLS - 1) {
         memmove(&lines[current_line][current_col + 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
         lines[current_line][current_col] = c;

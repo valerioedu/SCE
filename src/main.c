@@ -12,8 +12,11 @@
 #include "variables.h"
 #include "editorfile.h"
 
-editor_config config = {0};
+EditorConfig config = {0};
 
+UndoState undo_history[MAX_UNDO] = {0};
+int undo_count = 0;
+int undo_position = 0;
 char lines[MAX_LINES][MAX_COLS];
 int line_count = 1;
 int current_line = 0;
@@ -213,6 +216,7 @@ void editor() {
             break;
         case KEY_F(9): console(); break;
         case 6: ctrl_f(); break;
+        case 26: ctrl_z(); break;
         default:
             if (c >= 32 && c <= 126) {
                 insert_char(c);

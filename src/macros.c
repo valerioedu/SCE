@@ -155,3 +155,44 @@ void ctrl_f() {
         }
     }
 }
+
+void save_undo_state() {
+    if (undo_count >= MAX_UNDO) {
+        memmove(&undo_history[0], &undo_history[1], (MAX_UNDO - 1) * sizeof(UndoState));
+        undo_count = MAX_UNDO - 1;
+    }
+
+    for (int i = 0; i < line_count; i++) {
+        strncpy(undo_history[undo_count].text[i], lines[i], MAX_COLS - 1);
+        undo_history[undo_count].text[i][MAX_COLS - 1] = '\0';
+    }
+
+    undo_history[undo_count].line_count = line_count;
+    undo_history[undo_count].cursor_line = current_line;
+    undo_history[undo_count].cursor_col = current_col;
+    
+    undo_count++;
+    undo_position = undo_count;
+}
+
+void ctrl_z() {
+    if (undo_position <= 0) return;
+
+    undo_position--;
+
+    line_count = undo_history[undo_position].line_count;
+    current_line = undo_history[undo_position].cursor_line;
+    current_col = undo_history[undo_position].cursor_col;
+
+    for (int i = 0; i < line_count; i++) {
+        strncpy(lines[i], undo_history[undo_position].text[i], MAX_COLS - 1);
+        lines[i][MAX_COLS - 1] = '\0';
+    }
+
+    int start_line = (current_line > LINES / 2)
+                     ? current_line - LINES / 2 : 0;
+    update_screen_content(start_line);
+
+    move(current_line - start_line, 6 + current_col);
+    refresh();
+}

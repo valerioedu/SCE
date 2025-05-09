@@ -6,20 +6,34 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "macros.h"
+
 #define MAX_LINES 32*1024
 #define MAX_COLS 128
 #define ESCAPE 27
 
+#define MAX_UNDO 25
+
 #define TABS_SIZE 4 //temporary
 
-typedef struct editor_config {
+typedef struct EditorConfig {
     int tab_size;
-    bool parenthesis_autocomplete;
-    bool quotations_autocomplete;
     int keywords_color;
     int var_color;
-} editor_config;
+    bool parenthesis_autocomplete;
+    bool quotations_autocomplete;
+} EditorConfig;
 
+typedef struct UndoState {
+    int line_count;
+    int cursor_line;
+    int cursor_col;
+    char text[MAX_LINES][MAX_COLS];
+} UndoState;
+
+extern UndoState undo_history[MAX_UNDO];
+extern int undo_count;
+extern int undo_position;
 extern char lines[MAX_LINES][MAX_COLS];
 extern int line_count;
 extern int current_line;
@@ -30,9 +44,7 @@ extern char file_name[64];
 extern char text[MAX_LINES * MAX_COLS];
 
 void insert_char(char c);
-
 void tab();
-
 void transcribe_to_text();
 
 #endif
