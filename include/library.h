@@ -9,10 +9,10 @@
 #include "macros.h"
 
 #define MAX_LINES 32*1024
-#define MAX_COLS 128
+#define MAX_COLS 256
 #define ESCAPE 27
 
-#define MAX_UNDO 25
+#define MAX_UNDO 64
 
 #define TABS_SIZE 4 //temporary
 
@@ -46,5 +46,6 @@ extern char text[MAX_LINES * MAX_COLS];
 void insert_char(char c);
 void tab();
 void transcribe_to_text();
+void update_screen_content(int start_line);
 
 #endif

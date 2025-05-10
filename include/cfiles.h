@@ -7,7 +7,7 @@
 #include <string.h>
 
 #define MAX_DEFINITIONS 1024
-#define MAX_COLS 128
+#define MAX_COLS 256
 #define C_PRIMITIVE_TYPES_SIZE 16
 #define C_BLUE_KEYWORDS_SIZE 12
 #define C_PURPLE_KEYWORDS_SIZE 12

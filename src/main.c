@@ -50,8 +50,9 @@ void update_screen_content(int start_line) {
         KeywordInfo function_info = check_functions(lines[i]);
         KeywordInfo parentheses_info = color_parentheses(lines[i]);
         KeywordInfo variable_info = check_variables(lines[i]);
+        KeywordInfo quotes_info = color_quotes(lines[i]);
 
-        int blue_idx = 0, purple_idx = 0, function_idx = 0, parentheses_idx = 0, variable_idx = 0;
+        int blue_idx = 0, purple_idx = 0, function_idx = 0, parentheses_idx = 0, variable_idx = 0, quotes_idx = 0;
         
         for (int j = 0; j < strlen(lines[i]); j++) {
             move(screen_line, line_offset + j);
@@ -66,6 +67,8 @@ void update_screen_content(int start_line) {
                 attron(COLOR_PAIR(4));
             } else if (variable_idx < variable_info.count && j == variable_info.keywords[variable_idx].start) {
                 attron(COLOR_PAIR(5));
+            } else if (quotes_idx < quotes_info.count && j == quotes_info.keywords[quotes_idx].start) {
+                attron(COLOR_PAIR(6));
             }
 
             addch(lines[i][j]);
@@ -85,6 +88,9 @@ void update_screen_content(int start_line) {
             } else if (variable_idx < variable_info.count && j == variable_info.keywords[variable_idx].end - 1) {
                 attroff(COLOR_PAIR(5));
                 variable_idx++;
+            } else if (quotes_idx < quotes_info.count && j == quotes_info.keywords[quotes_idx].end - 1) {
+                attroff(COLOR_PAIR(6));
+                quotes_idx++;
             }
         }
     }
@@ -267,10 +273,11 @@ void init_editor() {
     start_color();
     memset(variables, 0, sizeof(variables));
     if (can_change_color()) {
-        init_color(8, 0, 0, 800);       // Dark blue
+        init_color(8, 150, 250, 900);       // Dark blue
         init_color(9, 600, 0, 600);     // Purple
         init_color(10, 1000, 1000, 0);  // Bright yellow for functions
         init_color(11, 800, 800, 0);    // Dark yellow for parentheses
+        init_color(12, 1000, 500, 0);   // Orange for strings
     }
     
     init_pair(1, 8, COLOR_BLACK);   // Dark blue for type keywords
@@ -278,6 +285,8 @@ void init_editor() {
     init_pair(3, 11, COLOR_BLACK);  // Bright yellow for functions
     init_pair(4, 10, COLOR_BLACK);  // Dark yellow for parentheses
     init_pair(5, COLOR_CYAN, COLOR_BLACK);  // Cyan for variables
+    init_pair(6, 12, COLOR_BLACK);      // Orange for strings
+    init_pair(7, COLOR_GREEN, COLOR_BLACK); // Green for comments
 }
 
 int main() {

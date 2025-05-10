@@ -18,7 +18,7 @@ const char* blue_keywords[] = {
 };
 
 const char* purple_keywords[] = { 
-    "if", "else", "switch", "case", "default", "for", "while", "do", "goto", "continue", "break", "return"
+    "if", "else", "switch", "case", "default", "for", "while", "do", "goto", "continue", "break", "return", "#define", "#include", "#ifndef", "ifdef", "#endif", "#if"
 };
 
 KeywordInfo check_keyword(char* line, const char* keyword) {
@@ -79,26 +79,43 @@ KeywordInfo check_purple_keywords(char* line) {
     char* word_start = line;
     char* word_end;
     while (*word_start) {
-        while (*word_start && !isalnum(*word_start)) {
-            word_start++;
-        }
-        if (!*word_start) break;
-        word_end = word_start;
-        while (*word_end && isalnum(*word_end)) {
-            word_end++;
-        }
-        for (int i = 0; i < num_keywords; i++) {
-            if (strncmp(word_start, purple_keywords[i], word_end - word_start) == 0 &&
-                strlen(purple_keywords[i]) == (size_t)(word_end - word_start)) {
-                if (total_info.count < MAX_KEYWORDS) {
+        if (*word_start == '#') {
+            word_end = word_start + 1;
+            while (*word_end && isalnum(*word_end)) {
+                word_end++;
+            }
+            for (int i = 0; i < num_keywords; i++) {
+                if (strncmp(word_start, purple_keywords[i], word_end - word_start) == 0 &&
+                    strlen(purple_keywords[i]) == (size_t)(word_end - word_start)) {
                     total_info.keywords[total_info.count].start = word_start - line;
                     total_info.keywords[total_info.count].end = word_end - line;
                     total_info.count++;
+                    break;
                 }
-                break;
             }
+            word_start = word_end;
+        } else {
+            while (*word_start && !isalnum(*word_start)) {
+                word_start++;
+            }
+            if (!*word_start) break;
+            word_end = word_start;
+            while (*word_end && isalnum(*word_end)) {
+                word_end++;
+            }
+            for (int i = 0; i < num_keywords; i++) {
+                if (strncmp(word_start, purple_keywords[i], word_end - word_start) == 0 &&
+                    strlen(purple_keywords[i]) == (size_t)(word_end - word_start)) {
+                    if (total_info.count < MAX_KEYWORDS) {
+                        total_info.keywords[total_info.count].start = word_start - line;
+                        total_info.keywords[total_info.count].end = word_end - line;
+                        total_info.count++;
+                    }
+                    break;
+                }
+            }
+            word_start = word_end;
         }
-        word_start = word_end;
     }
     return total_info;
 }
@@ -148,6 +165,49 @@ KeywordInfo color_parentheses(char* line) {
     return total_info;
 }
 
+KeywordInfo color_quotes(char* line) {
+    KeywordInfo total_info = {0};
+    char* current = line;
+    
+    while (*current && total_info.count < MAX_KEYWORDS) {
+        if (*current == '\'') {
+            int start = current - line;
+            current++;
+            
+            if (*current == '\\') current += 2;
+            else if (*current) current++;
+            
+            if (*current == '\'') {
+                total_info.keywords[total_info.count].start = start;
+                total_info.keywords[total_info.count].end = (current - line) + 1;
+                total_info.count++;
+                current++;
+            }
+        } 
+        else if (*current == '"') {
+            int start = current - line;
+            current++;
+            
+            while (*current && *current != '"') {
+                if (*current == '\\' && *(current+1)) current += 2;
+                else current++;
+            }
+            
+            if (*current == '"') {
+                total_info.keywords[total_info.count].start = start;
+                total_info.keywords[total_info.count].end = (current - line) + 1;
+                total_info.count++;
+                current++;
+            }
+        }
+        else {
+            current++;
+        }
+    }
+    
+    return total_info;
+}
+
 KeywordInfo check_variables(char* line) {
     KeywordInfo total_info = {0};
     char* word_start = line;
@@ -177,12 +237,13 @@ KeywordInfo check_variables(char* line) {
 
 KeywordInfo check_syntax(char* line) {
     KeywordInfo total_info = {0};
+    KeywordInfo quotes_info = color_quotes(line);
     KeywordInfo blue_info = check_blue_keywords(line);
     KeywordInfo purple_info = check_purple_keywords(line);
     KeywordInfo function_info = check_functions(line);
     KeywordInfo parentheses_info = color_parentheses(line);
     KeywordInfo variable_info = check_variables(line);
-    KeywordInfo all_infos[] = {blue_info, purple_info, function_info, parentheses_info, variable_info};
+    KeywordInfo all_infos[] = {blue_info, purple_info, function_info, parentheses_info, variable_info, quotes_info};
     for (int i = 0; i < 5; i++) {
         for (int j = 0; j < all_infos[i].count && total_info.count < MAX_KEYWORDS; j++) {
             total_info.keywords[total_info.count++] = all_infos[i].keywords[j];

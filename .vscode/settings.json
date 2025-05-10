@@ -6,6 +6,6 @@
         "scminput": false
     },
     "files.associations": {
-        "random": "c"
+        "random": "c",
     }
 }

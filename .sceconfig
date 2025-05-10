@@ -1,0 +1,31 @@
+# size for tabs (spaces)
+tab_size=4
+
+# auto completion for parentheses, quotes etc
+autocomplete=1
+
+# auto tab when pressing enter in between parentheses
+autotab=1
+
+# color sets are based on vs code
+# color 1: types;             vs code blue
+# color 2: control flow;      vs code purple
+# color 3: variables;         vs code cyan
+# color 4: function calls;    vs code light yellow
+# color 5: numbers;           vs code light green
+# color 6: parentheses;       vs code variable
+# color 7: strings;           vs code orange
+# color 8: typedef (c);       vs code green
+# color 9: escape sequences;  vs code dark yellow
+# color 0: comments;          vs code dark green
+
+color_0=
+color_1=
+color_2=
+color_3=
+color_4=
+color_5=
+color_6=
+color_7=
+color_8=
+color_9=
