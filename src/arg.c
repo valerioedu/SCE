@@ -18,22 +18,18 @@ void print_version() {
 
 bool is_directory(const char* path) {
     struct stat statbuf;
-    if (stat(path, &statbuf) != 0)
-        return false;
+    if (stat(path, &statbuf) != 0) return false;
     return S_ISDIR(statbuf.st_mode);
 }
 
 bool is_file(const char* path) {
     struct stat statbuf;
-    if (stat(path, &statbuf) != 0)
-        return false;
+    if (stat(path, &statbuf) != 0) return false;
     return S_ISREG(statbuf.st_mode);
 }
 
 void args(int argc, char* argv[]) {
-    if (argc < 2) {
-        return;
-    }
+    if (argc < 2) return;
     
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {

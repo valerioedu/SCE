@@ -158,18 +158,41 @@ void ctrl_f() {
 
 void save_undo_state() {
     if (undo_count >= MAX_UNDO) {
+        // Free memory of the oldest state
+        if (undo_history[0].lines) {
+            for (int i = 0; i < undo_history[0].line_count; i++) {
+                free(undo_history[0].lines[i]);
+            }
+            free(undo_history[0].lines);
+        }
+        
+        // Shift states down
         memmove(&undo_history[0], &undo_history[1], (MAX_UNDO - 1) * sizeof(UndoState));
         undo_count = MAX_UNDO - 1;
     }
-
-    for (int i = 0; i < line_count; i++) {
-        strncpy(undo_history[undo_count].text[i], lines[i], MAX_COLS - 1);
-        undo_history[undo_count].text[i][MAX_COLS - 1] = '\0';
-    }
-
+    
+    // Allocate memory for the new state
     undo_history[undo_count].line_count = line_count;
     undo_history[undo_count].cursor_line = current_line;
     undo_history[undo_count].cursor_col = current_col;
+    
+    // Allocate array of line pointers
+    undo_history[undo_count].lines = malloc(line_count * sizeof(char*));
+    if (!undo_history[undo_count].lines) return; // Handle allocation failure
+    
+    // Allocate and copy each line
+    for (int i = 0; i < line_count; i++) {
+        undo_history[undo_count].lines[i] = strdup(lines[i]);
+        if (!undo_history[undo_count].lines[i]) {
+            // Handle allocation failure: free already allocated lines
+            for (int j = 0; j < i; j++) {
+                free(undo_history[undo_count].lines[j]);
+            }
+            free(undo_history[undo_count].lines);
+            undo_history[undo_count].lines = NULL;
+            return;
+        }
+    }
     
     undo_count++;
     undo_position = undo_count;
@@ -185,14 +208,26 @@ void ctrl_z() {
     current_col = undo_history[undo_position].cursor_col;
 
     for (int i = 0; i < line_count; i++) {
-        strncpy(lines[i], undo_history[undo_position].text[i], MAX_COLS - 1);
+        strncpy(lines[i], undo_history[undo_position].lines[i], MAX_COLS - 1);
         lines[i][MAX_COLS - 1] = '\0';
     }
 
-    int start_line = (current_line > LINES / 2)
+    int start_line = (current_line > LINES / 2) 
                      ? current_line - LINES / 2 : 0;
     update_screen_content(start_line);
 
     move(current_line - start_line, 6 + current_col);
     refresh();
+}
+
+void cleanup_undo_history() {
+    for (int i = 0; i < undo_count; i++) {
+        if (undo_history[i].lines) {
+            for (int j = 0; j < undo_history[i].line_count; j++) {
+                free(undo_history[i].lines[j]);
+            }
+            free(undo_history[i].lines);
+            undo_history[i].lines = NULL;
+        }
+    }
 }

@@ -153,6 +153,7 @@ void editor() {
     
     switch (c) {
         case KEY_DC:
+            save_undo_state();
             if (current_col < strlen(lines[current_line])) {
                 memmove(&lines[current_line][current_col], &lines[current_line][current_col + 1], strlen(lines[current_line]) - current_col);
                 need_redraw = true;
@@ -214,6 +215,7 @@ void editor() {
             if (current_col < strlen(lines[current_line])) current_col++;
             break;
         case '\n':
+            save_undo_state();
             if (line_count < MAX_LINES - 1) {
                 memmove(&lines[current_line + 2], &lines[current_line + 1], (line_count - current_line - 1) * MAX_COLS);
                 strncpy(lines[current_line + 1], &lines[current_line][current_col], MAX_COLS - 1);
@@ -318,6 +320,11 @@ int main(int argc, char* argv[]) {
         filesystem(current_path);
     }
 
+    for (int i = 0; i < MAX_UNDO; i++) {
+        undo_history[i].lines = NULL;
+        undo_history[i].line_count = 0;
+    }
+
     for (int i = 0; i < line_count; i++) detect_variables(lines[i]);
 
     display_lines();
@@ -325,6 +332,7 @@ int main(int argc, char* argv[]) {
 
     while (1) editor();
 
+    cleanup_undo_history();
     endwin();
     return 0;
 }

@@ -29,7 +29,7 @@ typedef struct UndoState {
     int line_count;
     int cursor_line;
     int cursor_col;
-    char text[MAX_LINES][MAX_COLS];
+    char** lines;
 } UndoState;
 
 extern UndoState undo_history[MAX_UNDO];
