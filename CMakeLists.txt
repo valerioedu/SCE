@@ -28,3 +28,5 @@ pkg_check_modules(NCURSES REQUIRED ncurses)
 include_directories(${NCURSES_INCLUDE_DIRS})
 link_directories(${NCURSES_LIBRARY_DIRS})
 target_link_libraries(SCE ${NCURSES_LIBRARIES})
+
+install(TARGETS SCE DESTINATION bin)

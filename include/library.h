@@ -22,6 +22,7 @@ typedef struct EditorConfig {
     int var_color;
     bool parenthesis_autocomplete;
     bool quotations_autocomplete;
+    char* default_spath;
 } EditorConfig;
 
 typedef struct UndoState {
