@@ -1,5 +1,7 @@
 #include "library.h"
 
+bool open_file_browser = false;
+
 void insert_char(char c) {
     save_undo_state();
     if (current_col < MAX_COLS - 1) {

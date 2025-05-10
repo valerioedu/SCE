@@ -19,7 +19,7 @@
 extern char current_path[MAX_PATH];
 
 void file_explorer_help();
-char* filesystem();
+char* filesystem(const char* dir_path);
 void load_file(const char* filepath);
 void create_file(const char* current_path);
 void create_dir(const char* current_path);

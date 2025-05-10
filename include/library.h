@@ -43,6 +43,7 @@ extern int start_line;
 extern char copy[128*128];
 extern char file_name[64];
 extern char text[MAX_LINES * MAX_COLS];
+extern bool open_file_browser;
 
 void insert_char(char c);
 void tab();

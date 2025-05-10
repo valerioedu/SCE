@@ -17,6 +17,7 @@ set(SOURCES
     src/cc.c
     src/console.c
     src/modules/cfiles.c
+    src/arg.c
 )
 
 add_executable(SCE ${SOURCES})

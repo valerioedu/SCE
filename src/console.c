@@ -18,15 +18,20 @@ void terminal() {
 }
 
 void console() {
-    int x,y;
+    int x, y;
     getmaxyx(stdscr, y, x);
-    move(y-1, 0);
-    clrtoeol();
-    printw("Console: ");
+    
+    attron(COLOR_PAIR(10));
+    for (int i = 0; i < x; i++) {
+        mvaddch(y-1, i, ' ');
+    }
+    
+    mvprintw(y-1, 0, "Console: ");
     keypad(stdscr, true);
     char buffer[24] = {0};
     char c = 0;
     uint8_t i = 0;
+    
     do {
         c = getch();
     
@@ -40,20 +45,30 @@ void console() {
             i++;
             buffer[i] = '\0';
         }
+        
         move(y-1, 0);
-        clrtoeol();
+        for (int j = 0; j < x; j++) {
+            mvaddch(y-1, j, ' ');
+        }
+        
         mvprintw(y-1, 0, "Console: %s", buffer);
         move(y-1, 9 + i);
         refresh();
+        
         if (i == 24) {
             clear();
             mvprintw(y-1, 0, "Only 24 characters allowed");
             getch();
-            move(y-1,0);
-            clrtoeol();
+
+            for (int j = 0; j < x; j++) {
+                mvaddch(y-1, j, ' ');
+            }
+            mvprintw(y-1, 0, "Console: ");
             return;
         }
     } while (c != '\n' && c != ESCAPE && i < 24);
+
+    attroff(COLOR_PAIR(10));
 
     if (c == ESCAPE) return;
 

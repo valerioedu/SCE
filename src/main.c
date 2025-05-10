@@ -11,6 +11,7 @@
 #include "console.h"
 #include "variables.h"
 #include "editorfile.h"
+#include "arg.h"
 
 EditorConfig config = {0};
 
@@ -96,6 +97,24 @@ void update_screen_content(int start_line) {
     }
 }
 
+void update_status_bar() {
+    int row, col;
+    getmaxyx(stdscr, row, col);
+    
+    move(row - 1, 0);
+    clrtoeol();
+    
+    for (int i = 0; i < col; i++) {
+        mvaddch(row - 1, i, ' ');
+    }
+    
+    mvprintw(row - 1, 2, "Line: %d, Column: %d", current_line + 1, current_col + 1);
+    
+    if (file_name[0] != '\0') {
+        mvprintw(row - 1, col - strlen(file_name) - 6, "File: %s", file_name);
+    }
+}
+
 void display_lines() {
     clear();
     int row, col;
@@ -120,8 +139,10 @@ void display_lines() {
         }
     }
 
-    mvprintw(row - 1, 0, "Line: %d, Column: %d", current_line + 1, current_col + 1);
-    mvprintw(row - 1, col - strlen(file_name) - 6, "File: %s", file_name);
+    move(row - 1, 0);
+    clrtoeol();
+
+    update_status_bar();
 }
 
 void editor() {
@@ -153,7 +174,7 @@ void editor() {
             need_redraw = true;
             break;
         case KEY_F(3):
-            filesystem();
+            filesystem(NULL);
             need_redraw = true;
             break;
         case '\t':
@@ -254,8 +275,7 @@ void editor() {
     
     if (need_redraw) update_screen_content(start_line);
     
-    mvprintw(row - 1, 0, "Line: %d, Column: %d", current_line + 1, current_col + 1);
-    mvprintw(row - 1, col - strlen(file_name) - 6, "File: %s", file_name);
+    update_status_bar();
     
     move(screen_line, 6 + current_col);
     
@@ -289,10 +309,14 @@ void init_editor() {
     init_pair(7, COLOR_GREEN, COLOR_BLACK); // Green for comments
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    args(argc, argv);
     init_editor();
     lines[0][0] = '\0';
     display_info();
+    if (open_file_browser) {
+        filesystem(current_path);
+    }
 
     for (int i = 0; i < line_count; i++) detect_variables(lines[i]);
 
