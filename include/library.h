@@ -35,7 +35,7 @@ typedef struct UndoState {
 extern UndoState undo_history[MAX_UNDO];
 extern int undo_count;
 extern int undo_position;
-extern char lines[MAX_LINES][MAX_COLS];
+extern char** lines;
 extern int line_count;
 extern int current_line;
 extern int current_col;
@@ -49,5 +49,6 @@ void insert_char(char c);
 void tab();
 void transcribe_to_text();
 void update_screen_content(int start_line);
+void cleanup_lines();
 
 #endif

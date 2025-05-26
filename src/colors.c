@@ -221,7 +221,7 @@ KeywordInfo check_variables(char* line) {
         while (*word_end && (isalnum(*word_end) || *word_end == '_')) {
             word_end++;
         }
-        for (int i = 0; i < MAX_VARIABLES && variables[i] != NULL; i++) {
+        for (int i = 0; i < variables_count; i++) {
             if (strncmp(word_start, variables[i], word_end - word_start) == 0 &&
                 strlen(variables[i]) == (size_t)(word_end - word_start)) {
                 total_info.keywords[total_info.count].start = word_start - line;

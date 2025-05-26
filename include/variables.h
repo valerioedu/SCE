@@ -9,11 +9,12 @@
 #include "cfiles.h"
 #include "library.h"
 
-#define MAX_VARIABLES 128*128
-
-extern char* variables[MAX_VARIABLES];
+extern char** variables;
+extern size_t variables_count;
 
 void save_variables(char* var);
 void detect_variables(char* line);
+void cleanup_variables();
+void init_lines();
 
 #endif

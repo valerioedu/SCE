@@ -186,7 +186,10 @@ void load_file(const char* filepath) {
         getch();
         return;
     }
-    memset(lines, 0, sizeof(lines));
+
+    cleanup_lines();
+    init_lines();
+    
     line_count = 0;
     current_line = 0;
     current_col = 0;

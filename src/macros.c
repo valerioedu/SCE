@@ -97,7 +97,8 @@ void ctrl_f() {
             int index = 0;
             current_line = matches[index];
             mvprintw(1, col - 30, "Found %d matches", matches_count);
-            mvprintw(2, col - 30, "Press X to replace the match");
+            mvprintw(2, col - 30, "Press X to replace match");
+            mvprintw(3, col - 30, "Press C to replace all");
             refresh();
 
             int ch;
@@ -158,7 +159,6 @@ void ctrl_f() {
 
 void save_undo_state() {
     if (undo_count >= MAX_UNDO) {
-        // Free memory of the oldest state
         if (undo_history[0].lines) {
             for (int i = 0; i < undo_history[0].line_count; i++) {
                 free(undo_history[0].lines[i]);
@@ -166,25 +166,20 @@ void save_undo_state() {
             free(undo_history[0].lines);
         }
         
-        // Shift states down
         memmove(&undo_history[0], &undo_history[1], (MAX_UNDO - 1) * sizeof(UndoState));
         undo_count = MAX_UNDO - 1;
     }
     
-    // Allocate memory for the new state
     undo_history[undo_count].line_count = line_count;
     undo_history[undo_count].cursor_line = current_line;
     undo_history[undo_count].cursor_col = current_col;
     
-    // Allocate array of line pointers
     undo_history[undo_count].lines = malloc(line_count * sizeof(char*));
-    if (!undo_history[undo_count].lines) return; // Handle allocation failure
+    if (!undo_history[undo_count].lines) return;
     
-    // Allocate and copy each line
     for (int i = 0; i < line_count; i++) {
         undo_history[undo_count].lines[i] = strdup(lines[i]);
         if (!undo_history[undo_count].lines[i]) {
-            // Handle allocation failure: free already allocated lines
             for (int j = 0; j < i; j++) {
                 free(undo_history[undo_count].lines[j]);
             }

@@ -18,7 +18,9 @@ EditorConfig config = {0};
 UndoState undo_history[MAX_UNDO] = {0};
 int undo_count = 0;
 int undo_position = 0;
-char lines[MAX_LINES][MAX_COLS];
+char** lines = NULL;
+size_t lines_capacity = 0;
+size_t count = 1;
 int line_count = 1;
 int current_line = 0;
 int current_col = 0;
@@ -26,6 +28,56 @@ int start_line = 0;
 char copy[128*128] = {0};
 char file_name[64] = {0};
 char text[MAX_LINES * MAX_COLS] = {0};
+
+void init_lines() {
+    lines_capacity = 100;  // Initial capacity of 100 lines
+    lines = malloc(lines_capacity * sizeof(char*));
+    if (!lines) {
+        endwin();
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(1);
+    }
+    
+    for (size_t i = 0; i < lines_capacity; i++) {
+        lines[i] = malloc(MAX_COLS);
+        if (!lines[i]) {
+            endwin();
+            fprintf(stderr, "Memory allocation failed\n");
+            exit(1);
+        }
+        lines[i][0] = '\0';
+    }
+}
+
+void ensure_lines_capacity(size_t needed_lines) {
+    if (needed_lines <= lines_capacity) return;
+    
+    size_t new_capacity = lines_capacity * 2;
+    while (new_capacity < needed_lines) new_capacity *= 2;
+    
+    char **new_lines = realloc(lines, new_capacity * sizeof(char*));
+    if (!new_lines) return;
+    
+    lines = new_lines;
+    
+    for (size_t i = lines_capacity; i < new_capacity; i++) {
+        lines[i] = malloc(MAX_COLS);
+        if (!lines[i]) return;
+        lines[i][0] = '\0';
+    }
+    
+    lines_capacity = new_capacity;
+}
+
+void cleanup_lines() {
+    if (!lines) return;
+    
+    for (size_t i = 0; i < lines_capacity; i++) {
+        free(lines[i]);
+    }
+    free(lines);
+    lines = NULL;
+}
 
 void update_screen_content(int start_line) {
     int row, col;
@@ -160,7 +212,11 @@ void editor() {
             } else if (current_line < line_count - 1) {
                 if (strlen(lines[current_line]) + strlen(lines[current_line + 1]) < MAX_COLS) {
                     strcat(lines[current_line], lines[current_line + 1]);
-                    memmove(&lines[current_line + 1], &lines[current_line + 2], (line_count - current_line - 2) * MAX_COLS);
+
+                    for (int i = current_line; i < line_count - 1; i++) {
+                        strcpy(lines[i], lines[i + 1]);
+                    }
+
                     line_count--;
                     need_redraw = true;
                 }
@@ -216,15 +272,54 @@ void editor() {
             break;
         case '\n':
             save_undo_state();
-            if (line_count < MAX_LINES - 1) {
-                memmove(&lines[current_line + 2], &lines[current_line + 1], (line_count - current_line - 1) * MAX_COLS);
-                strncpy(lines[current_line + 1], &lines[current_line][current_col], MAX_COLS - 1);
-                lines[current_line][current_col] = '\0';
-                line_count++;
-                current_line++;
-                current_col = 0;
-                need_redraw = true;
+            ensure_lines_capacity(line_count + 1);
+            bool between_braces = false;
+            int indent = 0;
+
+            while (indent < strlen(lines[current_line]) && lines[current_line][indent] == ' ') {
+                indent++;
             }
+
+            if (current_col > 0 && current_col < strlen(lines[current_line])) {
+                if (lines[current_line][current_col - 1] == '{' && lines[current_line][current_col] == '}') {
+                    between_braces = true;
+                }
+            }
+
+            for (int i = line_count; i > current_line + 1; i--) {
+                strcpy(lines[i], lines[i-1]);
+            }
+            
+            strncpy(lines[current_line + 1], &lines[current_line][current_col], MAX_COLS - 1);
+            lines[current_line + 1][MAX_COLS - 1] = '\0';
+            lines[current_line][current_col] = '\0';
+            
+            line_count++;
+            current_line++;
+
+            if (between_braces) {
+                char temp[MAX_COLS];
+                snprintf(temp, MAX_COLS, "%*s", indent + 4, "");
+                strcpy(lines[current_line], temp);
+                
+                ensure_lines_capacity(line_count + 1);
+                for (int i = line_count; i > current_line + 1; i--) {
+                    strcpy(lines[i], lines[i-1]);
+                }
+                
+                snprintf(temp, MAX_COLS, "%*s}", indent, "");
+                strcpy(lines[current_line + 1], temp);
+                
+                current_col = indent + 4;
+                line_count++;
+            } else {
+                char temp[MAX_COLS];
+                snprintf(temp, MAX_COLS, "%*s%s", indent, "", lines[current_line]);
+                strcpy(lines[current_line], temp);
+                current_col = indent;
+            }
+            
+            need_redraw = true;
             break;
         case KEY_BACKSPACE:
         case 127:
@@ -293,7 +388,6 @@ void init_editor() {
     keypad(stdscr, TRUE);
     noecho();
     start_color();
-    memset(variables, 0, sizeof(variables));
     if (can_change_color()) {
         init_color(8, 150, 250, 900);       // Dark blue
         init_color(9, 600, 0, 600);     // Purple
@@ -314,7 +408,7 @@ void init_editor() {
 int main(int argc, char* argv[]) {
     args(argc, argv);
     init_editor();
-    lines[0][0] = '\0';
+    init_lines();
     display_info();
     if (open_file_browser) {
         filesystem(current_path);
@@ -332,7 +426,9 @@ int main(int argc, char* argv[]) {
 
     while (1) editor();
 
+    cleanup_lines();
     cleanup_undo_history();
+    cleanup_variables();
     endwin();
     return 0;
 }

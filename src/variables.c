@@ -1,16 +1,35 @@
 #include "variables.h"
 
-char* variables[MAX_VARIABLES];
+char** variables = NULL;
+size_t variables_capacity = 0;
+size_t variables_count = 0;
 
 void save_variables(char* var) {
-    for (int i = 0; i < MAX_VARIABLES; i++) {
-        if (variables[i] == NULL) {
-            variables[i] = strdup(var);
-            return;
-        } else if (strcmp(variables[i], var) == 0) {
+    if (variables == NULL) {
+        variables_capacity = 16;  // Start with 16
+        variables = malloc(variables_capacity * sizeof(char*));
+        if (variables == NULL) return;
+        memset(variables, 0, variables_capacity * sizeof(char*));
+    }
+    
+    for (size_t i = 0; i < variables_count; i++) {
+        if (strcmp(variables[i], var) == 0) {
             return;
         }
     }
+    
+    if (variables_count >= variables_capacity) {
+        size_t new_capacity = variables_capacity * 2;
+        char** new_vars = realloc(variables, new_capacity * sizeof(char*));
+        if (new_vars) {
+            variables = new_vars;
+            variables_capacity = new_capacity;
+        } else {
+            return;
+        }
+    }
+    
+    variables[variables_count++] = strdup(var);
 }
 
 void detect_variables(char* line) {
@@ -36,5 +55,15 @@ void detect_variables(char* line) {
         }
         
         word = strtok(NULL, " \t\n");
+    }
+}
+
+void cleanup_variables() {
+    if (variables) {
+        for (size_t i = 0; i < variables_count; i++) {
+            free(variables[i]);
+        }
+        free(variables);
+        variables = NULL;
     }
 }
