@@ -226,3 +226,50 @@ void cleanup_undo_history() {
         }
     }
 }
+
+void ctrl_right_arrow(char* line) {
+    int pos = current_col;
+    int len = strlen(line);
+    
+    if (pos >= len) return;
+    
+    if (line[pos] == ' ') {
+        while (pos < len && line[pos] == ' ') {
+            pos++;
+        }
+        
+        current_col = pos;
+        return;
+    }
+    
+    if (line[pos] != ' ') {
+        while (pos < len && line[pos] != ' ') {
+            pos++;
+        }
+    }
+    
+    current_col = pos;
+}
+
+void ctrl_left_arrow(char* line) {
+    int pos = current_col;
+    
+    if (pos <= 0) return;
+    
+    if (pos > 0 && line[pos-1] == ' ') {
+        while (pos > 0 && line[pos-1] == ' ') {
+            pos--;
+        }
+
+        current_col = pos;
+        return;
+    }
+    
+    if (pos > 0 && line[pos-1] != ' ') {
+        while (pos > 0 && line[pos-1] != ' ') {
+            pos--;
+        }
+    }
+    
+    current_col = pos;
+}

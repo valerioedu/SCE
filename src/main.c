@@ -341,6 +341,8 @@ void editor() {
         case KEY_F(9): console(); break;
         case 6: ctrl_f(); break;
         case 26: ctrl_z(); break;
+        case 546: ctrl_left_arrow(lines[current_line]); break;
+        case 561: ctrl_right_arrow(lines[current_line]); break;
         default:
             if (c >= 32 && c <= 126) {
                 insert_char(c);
