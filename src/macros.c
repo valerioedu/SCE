@@ -67,6 +67,7 @@ void ctrl_f() {
     getmaxyx(stdscr, row, col);
     char c = 0;
     uint8_t i = 0;
+    mvprintw(0, col - 30, "Find: %s", buffer);
     do {
         c = getch();
 
