@@ -49,17 +49,6 @@ int* search(char str[], int* matches) {
     return result;
 }
 
-void replace(char* src, char* dest) {
-    if (strcmp(src, dest) == 0) return;
-    size_t size = strlen(dest);
-    size_t size2 = strlen(src);
-    if (size == size2) {
-        memcpy(src, dest, size);
-    } else {
-        strcpy(src, dest);
-    }
-}
-
 void ctrl_f() {
     keypad(stdscr, true);
     char buffer[24] = {0};
@@ -113,26 +102,143 @@ void ctrl_f() {
                 } else if (ch == 120 || ch == 88) {
                     char cc = 0;
                     uint8_t k = 0;
+                    char replace[24] = {0};
+
+                    move(0, col - 30);
+                    clrtoeol();
+                    move(1, col - 30);
+                    clrtoeol();
+                    move(2, col - 30);
+                    clrtoeol();
+                    move(3, col - 30);
+                    clrtoeol();
+                    mvprintw(0, col - 30, "Replace: ");
+                    refresh();
                     do {
                         cc = getch();
-                        char replace[24];
                 
                         if ((cc == 7) && k > 0) {
                             k--;
-                            replace[i] = '\0';
+                            replace[k] = '\0';
                         }
                 
                         if (cc >= 32 && cc < 127) {
-                            replace[i] = cc;
+                            replace[k] = cc;
                             k++;
-                            replace[i] = '\0';
+                            replace[k] = '\0';
                         }
                         move(0, col - 30);
                         clrtoeol();
                         mvprintw(0, col - 30, "Replace: %s", replace);
-                        move(0, col - 24 + i);
+                        move(0, col - 21 + k);
                         refresh();
                     } while (cc != '\n' && cc != ESCAPE);
+
+                    if (cc == '\n' && k > 0) {
+                        int match_pos = -1;
+                        for (int j = 0; j < strlen(lines[current_line]); j++) {
+                            bool found = true;
+                            for (int m = 0; m < strlen(buffer); m++) {
+                                if (j + m >= strlen(lines[current_line]) || lines[current_line][j + m] != buffer[m]) {
+                                    found = false;
+                                    break;
+                                }
+                            }
+                            if (found) {
+                                match_pos = j;
+                                break;
+                            }
+                        }
+                        
+                        if (match_pos >= 0) {
+                            save_undo_state();
+                            
+                            char temp[MAX_COLS] = {0};
+                            strncpy(temp, lines[current_line], match_pos);
+                            strcat(temp, replace);
+                            strcat(temp, lines[current_line] + match_pos + strlen(buffer));
+                            
+                            strcpy(lines[current_line], temp);
+                        }
+                    }
+                } else if (ch == 99 || ch == 67) {
+                    char cc = 0;
+                    uint8_t k = 0;
+                    char replace[24] = {0};
+                
+                    move(0, col - 30);
+                    clrtoeol();
+                    move(1, col - 30);
+                    clrtoeol();
+                    move(2, col - 30);
+                    clrtoeol();
+                    move(3, col - 30);
+                    clrtoeol();
+                    mvprintw(0, col - 30, "Replace All: ");
+                    refresh();
+                    
+                    do {
+                        cc = getch();
+                        
+                        if ((cc == 7 || cc == 127 || cc == KEY_BACKSPACE) && k > 0) {
+                            k--;
+                            replace[k] = '\0';
+                        }
+                        
+                        if (cc >= 32 && cc < 127) {
+                            replace[k] = cc;
+                            k++;
+                            replace[k] = '\0';
+                        }
+                        
+                        move(0, col - 30);
+                        clrtoeol();
+                        mvprintw(0, col - 30, "Replace All: %s", replace);
+                        move(0, col - 17 + k);
+                        refresh();
+                    } while (cc != '\n' && cc != ESCAPE);
+                
+                    if (cc == '\n' && k > 0) {
+                        save_undo_state();
+                        int replacements = 0;
+                        
+                        for (int i = 0; i < matches_count; i++) {
+                            int line_idx = matches[i];
+                            int match_pos = -1;
+                            
+                            for (int j = 0; j < strlen(lines[line_idx]); j++) {
+                                bool found = true;
+                                for (int m = 0; m < strlen(buffer); m++) {
+                                    if (j + m >= strlen(lines[line_idx]) || lines[line_idx][j + m] != buffer[m]) {
+                                        found = false;
+                                        break;
+                                    }
+                                }
+                                if (found) {
+                                    match_pos = j;
+                                    break;
+                                }
+                            }
+                            
+                            if (match_pos >= 0) {
+                                char temp[MAX_COLS] = {0};
+                                strncpy(temp, lines[line_idx], match_pos);
+                                strcat(temp, replace);
+                                strcat(temp, lines[line_idx] + match_pos + strlen(buffer));
+                                
+                                strcpy(lines[line_idx], temp);
+                                replacements++;
+                            }
+                        }
+                        
+                        move(0, col - 30);
+                        clrtoeol();
+                        mvprintw(0, col - 30, "Replaced %d occurrences", replacements);
+                        refresh();
+                        
+                        int start_line = (current_line > LINES / 2) ? current_line - LINES / 2 : 0;
+                        update_screen_content(start_line);
+                    }
                 } else {
                     ungetch(ch);
                     break;
@@ -144,6 +250,8 @@ void ctrl_f() {
                                    ? current_line - LINES / 2 : 0;
                 update_screen_content(start_line);
 
+                move(row-1,0);
+                clrtoeol();
                 mvprintw(row - 1, 0, "Line: %d, Column: %d", current_line + 1, current_col + 1);
                 mvprintw(row - 1, col - strlen(file_name) - 6, "File: %s", file_name);
 
