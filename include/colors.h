@@ -19,6 +19,10 @@ extern const char* blue_keywords[];
 
 extern const char* purple_keywords[];
 
+extern const int blue_keywords_count;
+extern const int purple_keywords_count;
+extern int inside_multiline_comment;
+
 typedef struct {
     int start;
     int end;
@@ -37,5 +41,6 @@ KeywordInfo color_parentheses(char* line);
 KeywordInfo check_variables(char* line);
 KeywordInfo check_syntax(char* line);
 KeywordInfo color_quotes(char* line);
+KeywordInfo color_comments(char* line);
 
 #endif

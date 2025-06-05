@@ -21,6 +21,65 @@ const char* purple_keywords[] = {
     "if", "else", "switch", "case", "default", "for", "while", "do", "goto", "continue", "break", "return", "#define", "#include", "#ifndef", "ifdef", "#endif", "#if"
 };
 
+const int blue_keywords_count = sizeof(blue_keywords) / sizeof(blue_keywords[0]);
+const int purple_keywords_count = sizeof(purple_keywords) / sizeof(purple_keywords[0]);
+
+int inside_multiline_comment = 0;
+
+KeywordInfo color_comments(char* line) {
+    KeywordInfo total_info = {0};
+    int line_len = strlen(line);
+    
+    char* single_comment = strstr(line, "//");
+    if (single_comment && !inside_multiline_comment) {
+        if (total_info.count < MAX_KEYWORDS) {
+            total_info.keywords[total_info.count].start = single_comment - line;
+            total_info.keywords[total_info.count].end = line_len;
+            total_info.count++;
+        }
+        return total_info;
+    }
+    
+    if (inside_multiline_comment) {
+        char* end = strstr(line, "*/");
+        if (end) {
+            inside_multiline_comment = 0;
+            if (total_info.count < MAX_KEYWORDS) {
+                total_info.keywords[total_info.count].start = 0;
+                total_info.keywords[total_info.count].end = (end - line) + 2;
+                total_info.count++;
+            }
+        } else {
+            if (total_info.count < MAX_KEYWORDS) {
+                total_info.keywords[total_info.count].start = 0;
+                total_info.keywords[total_info.count].end = line_len;
+                total_info.count++;
+            }
+        }
+    } else {
+        char* start = strstr(line, "/*");
+        if (start) {
+            char* end = strstr(start + 2, "*/");
+            if (end) {
+                if (total_info.count < MAX_KEYWORDS) {
+                    total_info.keywords[total_info.count].start = start - line;
+                    total_info.keywords[total_info.count].end = (end - line) + 2;
+                    total_info.count++;
+                }
+            } else {
+                inside_multiline_comment = 1;
+                if (total_info.count < MAX_KEYWORDS) {
+                    total_info.keywords[total_info.count].start = start - line;
+                    total_info.keywords[total_info.count].end = line_len;
+                    total_info.count++;
+                }
+            }
+        }
+    }
+    
+    return total_info;
+}
+
 KeywordInfo check_keyword(char* line, const char* keyword) {
     KeywordInfo info = {0};
     int len = strlen(keyword);
@@ -243,8 +302,9 @@ KeywordInfo check_syntax(char* line) {
     KeywordInfo function_info = check_functions(line);
     KeywordInfo parentheses_info = color_parentheses(line);
     KeywordInfo variable_info = check_variables(line);
-    KeywordInfo all_infos[] = {blue_info, purple_info, function_info, parentheses_info, variable_info, quotes_info};
-    for (int i = 0; i < 5; i++) {
+    KeywordInfo comments_info = color_comments(line);
+    KeywordInfo all_infos[] = {blue_info, purple_info, function_info, parentheses_info, variable_info, quotes_info, comments_info};
+    for (int i = 0; i < 8; i++) {
         for (int j = 0; j < all_infos[i].count && total_info.count < MAX_KEYWORDS; j++) {
             total_info.keywords[total_info.count++] = all_infos[i].keywords[j];
         }
