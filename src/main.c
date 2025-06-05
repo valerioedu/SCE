@@ -353,6 +353,14 @@ void editor() {
         case 26: ctrl_z(); break;
         case 546: ctrl_left_arrow(lines[current_line]); break;
         case 561: ctrl_right_arrow(lines[current_line]); break;
+        case 544:                   // Alt+Left - Go to start of line, provisional
+            current_col = 0;
+            need_redraw = true;
+            break;
+        case 559:                   // Alt+Right - Go to end of line, provisional
+            current_col = strlen(lines[current_line]);
+            need_redraw = true;
+            break;
         default:
             if (c >= 32 && c <= 126) {
                 insert_char(c);
