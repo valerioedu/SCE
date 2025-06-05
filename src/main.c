@@ -266,9 +266,19 @@ void editor() {
             break;
         case KEY_LEFT:
             if (current_col > 0) current_col--;
+            else if (current_col == 0 && current_line > 0) {
+                current_line--;
+                current_col = strlen(lines[current_line]);
+                need_redraw = true;
+            }
             break;
         case KEY_RIGHT:
             if (current_col < strlen(lines[current_line])) current_col++;
+            else if (current_col == strlen(lines[current_line]) && current_line < line_count - 1) {
+                current_line++;
+                current_col = 0;
+                need_redraw = true;
+            }
             break;
         case '\n':
             save_undo_state();
