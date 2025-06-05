@@ -50,6 +50,5 @@ void tab();
 void transcribe_to_text();
 void update_screen_content(int start_line);
 void cleanup_lines();
-void update_status_bar();
 
 #endif
