@@ -1,5 +1,11 @@
 #include "colors.h"
 
+/*
+*   +--------------------------+
+*   | TODO: Implement typedefs |
+*   +--------------------------+
+*/
+
 const char* oop_blue_keywords[] = { 
     "private", "protected", "public"
 };
