@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 #include "library.h"
 #include "macros.h"
@@ -28,6 +29,10 @@ int start_line = 0;
 char copy[128*128] = {0};
 char file_name[64] = {0};
 char text[MAX_LINES * MAX_COLS] = {0};
+
+volatile sig_atomic_t resize_needed = 0;
+int prev_term_rows = 0;
+int prev_term_cols = 0;
 
 void init_lines() {
     lines_capacity = 100;  // Initial capacity of 100 lines
@@ -93,7 +98,6 @@ void update_screen_content(int start_line) {
 
     inside_multiline_comment = 0;
     
-    // Second pass to check for usage of typedefs and variables
     for (int i = 0; i < line_count; i++) {
         check_variables(lines[i]);
     }
@@ -260,7 +264,57 @@ void display_lines() {
     update_status_bar();
 }
 
+void handle_resize(int sig) {
+    resize_needed = 1;
+}
+
+void apply_resize() {
+    int row, col;
+    getmaxyx(stdscr, row, col);
+    
+    if (row == prev_term_rows && col == prev_term_cols && !resize_needed) {
+        return;
+    }
+    
+    prev_term_rows = row;
+    prev_term_cols = col;
+    
+    endwin();
+    refresh();
+    clear();
+    
+    int max_display_lines = row - 1;
+    int start_line = 0;
+    
+    if (line_count > max_display_lines) {
+        if (current_line <= max_display_lines / 2) {
+            start_line = 0;
+        } else if (current_line >= line_count - max_display_lines / 2) {
+            start_line = line_count - max_display_lines;
+        } else {
+            start_line = current_line - max_display_lines / 2;
+        }
+    }
+    
+    update_screen_content(start_line);
+    update_status_bar();
+    
+    int screen_line = current_line - start_line;
+    move(screen_line, 6 + current_col);
+    
+    resize_needed = 0;
+}
+
 void editor() {
+    if (resize_needed) apply_resize();
+
+    int rows, cols;
+    getmaxyx(stdscr, rows, cols);
+    if (rows != prev_term_rows || cols != prev_term_cols) {
+        resize_needed = 1;
+        apply_resize();
+    }
+
     int c = getch();
     bool need_redraw = false;
     int row, col;
@@ -471,12 +525,15 @@ void editor() {
     doupdate();
 }
 
-void init_editor() {
+void init_editor() {    
     initscr();
     raw();
     keypad(stdscr, TRUE);
     noecho();
+    timeout(100);
     start_color();
+    getmaxyx(stdscr, prev_term_rows, prev_term_cols);
+
     if (can_change_color()) {
         init_color(8, 150, 250, 900);       // Dark blue
         init_color(9, 600, 0, 600);     // Purple
@@ -499,6 +556,7 @@ void init_editor() {
 int main(int argc, char* argv[]) {
     args(argc, argv);
     init_editor();
+    signal(SIGWINCH, handle_resize);
     init_lines();
     display_info();
     if (open_file_browser) {
