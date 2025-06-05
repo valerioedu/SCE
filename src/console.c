@@ -18,6 +18,7 @@ void terminal() {
 }
 
 void console() {
+    init_pair(10, COLOR_WHITE, COLOR_BLUE);
     int x, y;
     getmaxyx(stdscr, y, x);
     
@@ -64,6 +65,7 @@ void console() {
                 mvaddch(y-1, j, ' ');
             }
             mvprintw(y-1, 0, "Console: ");
+            attroff(COLOR_PAIR(10));
             return;
         }
     } while (c != '\n' && c != ESCAPE && i < 24);
@@ -72,6 +74,55 @@ void console() {
 
     if (c == ESCAPE) return;
 
-    if (strcmp(buffer, "term") == 0) terminal();
-    if (strcmp(buffer, "search") == 0) ctrl_f();
+    char* tokens[3] = {NULL};
+    char buffer_copy[24];
+    strcpy(buffer_copy, buffer);
+    
+    char* token = strtok(buffer_copy, " ");
+    int token_count = 0;
+    
+    while (token != NULL && token_count < 3) {
+        tokens[token_count++] = token;
+        token = strtok(NULL, " ");
+    }
+    
+    if (token_count > 0) {
+        if (strcmp(tokens[0], "term") == 0) terminal();
+        else if (strcmp(tokens[0], "search") == 0) ctrl_f();
+        else if (strcmp(tokens[0], "goto") == 0) {
+            if (token_count == 2 && (strcmp(tokens[1], "help")) || (strcmp(tokens[1], "-h"))) {
+                int rows,cols;
+                getmaxyx(stdscr, rows,cols);
+                move(rows -1, 0);
+                clrtoeol();
+                mvprintw(rows -1, 3, "goto use: goto <Lines> <Cols>");
+                getch();
+            }
+
+            if (token_count == 3) {
+                int col_num, line_num;
+                
+                if (sscanf(tokens[1], "%d", &line_num) == 1 && 
+                    sscanf(tokens[2], "%d", &col_num) == 1) {
+                    
+                    line_num--;
+                    col_num--;
+                    
+                    if (line_num >= 0 && line_num < line_count) {
+                        current_line = line_num;
+                        
+                        if (col_num < 0) col_num = 0;
+                        if (col_num > strlen(lines[current_line])) 
+                            col_num = strlen(lines[current_line]);
+                        
+                        current_col = col_num;
+                        
+                        int start_line = (current_line > LINES/2) ? 
+                                current_line - LINES/2 : 0;
+                        update_screen_content(start_line);
+                    }
+                }
+            }
+        }
+    }
 }
