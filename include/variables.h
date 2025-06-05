@@ -16,5 +16,7 @@ void save_variables(char* var);
 void detect_variables(char* line);
 void cleanup_variables();
 void init_lines();
+void begin_variable_scan();
+void finish_variable_scan();
 
 #endif
