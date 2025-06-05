@@ -16,8 +16,9 @@ set(SOURCES
     src/library.c
     src/cc.c
     src/console.c
-    src/modules/cfiles.c
+    src/cfiles.c
     src/arg.c
+    src/sceconfig.c
 )
 
 add_executable(SCE ${SOURCES})
