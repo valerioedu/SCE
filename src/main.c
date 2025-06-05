@@ -82,13 +82,27 @@ void cleanup_lines() {
 void update_screen_content(int start_line) {
     int row, col;
     getmaxyx(stdscr, row, col);
+
+    inside_multiline_comment = 0;
     
+    begin_variable_scan();
+
+    for (int i = 0; i < line_count; i++) {
+        detect_variables(lines[i]);
+    }
+
+    inside_multiline_comment = 0;
+    
+    // Second pass to check for usage of typedefs and variables
+    for (int i = 0; i < line_count; i++) {
+        check_variables(lines[i]);
+    }
+
     for (int i = 0; i < row - 1; i++) {
         move(i, 0);
         clrtoeol();
         if (i + start_line < line_count) {
             mvprintw(i, 0, "%4d: %s", i + start_line + 1, lines[i + start_line]);
-            detect_variables(lines[i + start_line]);
         }
     }
 
@@ -104,49 +118,98 @@ void update_screen_content(int start_line) {
         KeywordInfo parentheses_info = color_parentheses(lines[i]);
         KeywordInfo variable_info = check_variables(lines[i]);
         KeywordInfo quotes_info = color_quotes(lines[i]);
+        KeywordInfo comments_info = color_comments(lines[i]);
 
-        int blue_idx = 0, purple_idx = 0, function_idx = 0, parentheses_idx = 0, variable_idx = 0, quotes_idx = 0;
-        
         for (int j = 0; j < strlen(lines[i]); j++) {
             move(screen_line, line_offset + j);
             
-            if (blue_idx < blue_info.count && j == blue_info.keywords[blue_idx].start) {
-                attron(COLOR_PAIR(1));
-            } else if (purple_idx < purple_info.count && j == purple_info.keywords[purple_idx].start) {
-                attron(COLOR_PAIR(2));
-            } else if (function_idx < function_info.count && j == function_info.keywords[function_idx].start) {
-                attron(COLOR_PAIR(3));
-            } else if (parentheses_idx < parentheses_info.count && j == parentheses_info.keywords[parentheses_idx].start) {
-                attron(COLOR_PAIR(4));
-            } else if (variable_idx < variable_info.count && j == variable_info.keywords[variable_idx].start) {
-                attron(COLOR_PAIR(5));
-            } else if (quotes_idx < quotes_info.count && j == quotes_info.keywords[quotes_idx].start) {
-                attron(COLOR_PAIR(6));
+            bool colored = false;
+            
+            for (int k = 0; k < comments_info.count; k++) {
+                if (j >= comments_info.keywords[k].start && j < comments_info.keywords[k].end) {
+                    attron(COLOR_PAIR(7));
+                    colored = true;
+                    break;
+                }
             }
-
+            
+            if (!colored) {
+                if (!colored) {
+                    for (int k = 0; k < quotes_info.count; k++) {
+                        if (j >= quotes_info.keywords[k].start && j < quotes_info.keywords[k].end) {
+                            attron(COLOR_PAIR(6));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!colored) {
+                    for (int k = 0; k < blue_info.count; k++) {
+                        if (j >= blue_info.keywords[k].start && j < blue_info.keywords[k].end) {
+                            attron(COLOR_PAIR(1));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!colored) {
+                    for (int k = 0; k < purple_info.count; k++) {
+                        if (j >= purple_info.keywords[k].start && j < purple_info.keywords[k].end) {
+                            attron(COLOR_PAIR(2));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!colored) {
+                    for (int k = 0; k < function_info.count; k++) {
+                        if (j >= function_info.keywords[k].start && j < function_info.keywords[k].end) {
+                            attron(COLOR_PAIR(3));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!colored) {
+                    for (int k = 0; k < parentheses_info.count; k++) {
+                        if (j >= parentheses_info.keywords[k].start && j < parentheses_info.keywords[k].end) {
+                            attron(COLOR_PAIR(4));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!colored) {
+                    for (int k = 0; k < variable_info.count; k++) {
+                        if (j >= variable_info.keywords[k].start && j < variable_info.keywords[k].end) {
+                            attron(COLOR_PAIR(5));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
             addch(lines[i][j]);
 
-            if (blue_idx < blue_info.count && j == blue_info.keywords[blue_idx].end - 1) {
-                attroff(COLOR_PAIR(1));
-                blue_idx++;
-            } else if (purple_idx < purple_info.count && j == purple_info.keywords[purple_idx].end - 1) {
-                attroff(COLOR_PAIR(2));
-                purple_idx++;
-            } else if (function_idx < function_info.count && j == function_info.keywords[function_idx].end - 1) {
-                attroff(COLOR_PAIR(3));
-                function_idx++;
-            } else if (parentheses_idx < parentheses_info.count && j == parentheses_info.keywords[parentheses_idx].end - 1) {
-                attroff(COLOR_PAIR(4));
-                parentheses_idx++;
-            } else if (variable_idx < variable_info.count && j == variable_info.keywords[variable_idx].end - 1) {
-                attroff(COLOR_PAIR(5));
-                variable_idx++;
-            } else if (quotes_idx < quotes_info.count && j == quotes_info.keywords[quotes_idx].end - 1) {
-                attroff(COLOR_PAIR(6));
-                quotes_idx++;
+            if (colored) {
+                attroff(COLOR_PAIR(1)); // Blue keywords
+                attroff(COLOR_PAIR(2)); // Purple keywords
+                attroff(COLOR_PAIR(3)); // Functions
+                attroff(COLOR_PAIR(4)); // Parentheses
+                attroff(COLOR_PAIR(5)); // Variables
+                attroff(COLOR_PAIR(6)); // Strings
+                attroff(COLOR_PAIR(7)); // Comments
+                attroff(COLOR_PAIR(8)); // Typedefs
             }
         }
     }
+    finish_variable_scan();
 }
 
 void update_status_bar() {
@@ -207,13 +270,15 @@ void editor() {
         case KEY_DC:
             save_undo_state();
             if (current_col < strlen(lines[current_line])) {
-                memmove(&lines[current_line][current_col], &lines[current_line][current_col + 1], strlen(lines[current_line]) - current_col);
-                need_redraw = true;
+                memmove(&lines[current_line][current_col], 
+                    &lines[current_line][current_col + 1], 
+                    strlen(lines[current_line]) - current_col + 1);
+                    need_redraw = true;
             } else if (current_line < line_count - 1) {
                 if (strlen(lines[current_line]) + strlen(lines[current_line + 1]) < MAX_COLS) {
                     strcat(lines[current_line], lines[current_line + 1]);
 
-                    for (int i = current_line; i < line_count - 1; i++) {
+                    for (int i = current_line + 1; i < line_count - 1; i++) {
                         strcpy(lines[i], lines[i + 1]);
                     }
 
@@ -341,7 +406,11 @@ void editor() {
                 current_col = strlen(lines[current_line - 1]);
                 if (current_col + strlen(lines[current_line]) < MAX_COLS) {
                     strcat(lines[current_line - 1], lines[current_line]);
-                    memmove(&lines[current_line], &lines[current_line + 1], (line_count - current_line) * MAX_COLS);
+            
+                    for (int i = current_line; i < line_count - 1; i++) {
+                        strcpy(lines[i], lines[i + 1]);
+                    }
+                    
                     line_count--;
                     current_line--;
                     need_redraw = true;
@@ -414,6 +483,7 @@ void init_editor() {
         init_color(10, 1000, 1000, 0);  // Bright yellow for functions
         init_color(11, 800, 800, 0);    // Dark yellow for parentheses
         init_color(12, 1000, 500, 0);   // Orange for strings
+        init_color(13, 700, 150, 250);
     }
     
     init_pair(1, 8, COLOR_BLACK);   // Dark blue for type keywords
@@ -423,6 +493,7 @@ void init_editor() {
     init_pair(5, COLOR_CYAN, COLOR_BLACK);  // Cyan for variables
     init_pair(6, 12, COLOR_BLACK);      // Orange for strings
     init_pair(7, COLOR_GREEN, COLOR_BLACK); // Green for comments
+    init_pair(8, 13, COLOR_BLACK); // Light green for typedefs potentially
 }
 
 int main(int argc, char* argv[]) {
