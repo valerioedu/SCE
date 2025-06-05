@@ -332,7 +332,7 @@ void editor() {
             need_redraw = true;
             break;
         case KEY_BACKSPACE:
-        case 127:
+            save_undo_state();
             if (current_col > 0) {
                 memmove(&lines[current_line][current_col - 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
                 current_col--;
