@@ -71,8 +71,8 @@ SCE -v
 
 - term: open a shell instance
 - config: configure your options
-- search: equivalent to cTRL+F
-- goto <Lines> <Cols>: move to (Lines, Cols) position
+- search: equivalent to CTRL+F
+- goto \<Lines\> \<Cols\>: move to (Lines, Cols) position
 
 ## File Explorer
 
