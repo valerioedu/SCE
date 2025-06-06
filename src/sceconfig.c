@@ -15,6 +15,12 @@
 #define MAX_CONFIG_ITEMS 15
 #define MAX_VALUE_LENGTH 32
 
+/*
+*   +-----------------------+
+*   |TODO: implement colors |
+*   +-----------------------+
+*/
+
 extern EditorConfig config;
 extern int current_line;
 extern int current_col;
