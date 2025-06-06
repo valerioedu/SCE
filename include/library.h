@@ -22,7 +22,7 @@ typedef struct EditorConfig {
     int var_color;
     bool parenthesis_autocomplete;
     bool quotations_autocomplete;
-    char* default_spath;
+    char* default_path;
 } EditorConfig;
 
 typedef struct UndoState {
@@ -43,12 +43,15 @@ extern int start_line;
 extern char copy[128*128];
 extern char file_name[64];
 extern char text[MAX_LINES * MAX_COLS];
+extern EditorConfig config;
 extern bool open_file_browser;
+extern char* selected_path_from_browser;
 
 void insert_char(char c);
 void tab();
 void transcribe_to_text();
 void update_screen_content(int start_line);
 void cleanup_lines();
+void ensure_lines_capacity(size_t needed_lines);
 
 #endif
