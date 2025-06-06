@@ -1,6 +1,6 @@
 # SCE - Simple Code Editor
 
-SCE is a lightweight, terminal-based code editor built with ncurses. It's designed to provide a straightforward yet powerful editing experience with syntax highlighting, file browsing, and basic IDE features.
+SCE, pronounced as C, is a lightweight, terminal-based code editor built with ncurses. It's designed to provide a straightforward yet powerful editing experience with syntax highlighting, file browsing, and basic IDE features.
 
 ## Features
 
@@ -12,6 +12,7 @@ SCE is a lightweight, terminal-based code editor built with ncurses. It's design
 - Terminal integration
 - Memory-efficient design
 - Responsive UI with status bar
+- Configuration Editor
 
 ## Installation
 
@@ -66,6 +67,13 @@ SCE -v
 - Esc: Exit editor
 - Tab: Insert tab
 
+## Console Commands
+
+- term: open a shell instance
+- config: configure your options
+- search: equivalent to cTRL+F
+- goto <Lines> <Cols>: move to (Lines, Cols) position
+
 ## File Explorer
 
 - ↑/↓: Navigate through files and directories
@@ -86,7 +94,32 @@ SCE -v
 
 ## Configuration
 
-SCE is designed to be simple to use out of the box. Configuration options will be added in future versions.
+SCE is fully customizable through its built-in configuration editor:
+
+- Press F5 to access the configuration menu
+- Navigate options with Up/Down arrows
+- Edit values with Enter
+- Save changes with F10
+
+### Configurable Options:
+
+- **Tab Size**: Number of spaces for tab indentation
+- **Parentheses Autocompletion**: Toggle automatic closing of parentheses
+- **Quotes Autocompletion**: Toggle automatic closing of quotation marks
+- **Color Schemes**: Customize syntax highlighting colors:
+  - Comments
+  - Types
+  - Control flow keywords
+  - Variables
+  - Functions
+  - Numbers
+  - Parentheses
+  - Strings
+  - Typedefs
+  - Escape sequences
+- **Default Path**: Set your preferred starting directory
+
+All settings are stored in the `.sceconfig` file in your home directory.
 
 ## Memory Usage
 
@@ -98,4 +131,4 @@ SCE is licensed under the GNU General Public License v3.0 (GPL-3.0). See the LIC
 
 ## Contributing
 
-Contributions are welcome! Feel free to submit pull requests or open issues to improve SCE.
+Contributions are welcome! Feel free to submit pull requests or open issues to improve SCE. For any clarification such as more documentation, reach me out creating an issue!
