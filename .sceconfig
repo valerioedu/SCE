@@ -1,11 +1,9 @@
 # size for tabs (spaces)
 tab_size=4
 
-# auto completion for parentheses, quotes etc
-autocomplete=1
-
-# auto tab when pressing enter in between parentheses
-autotab=1
+# specific autocompletion settings
+parenthesis_autocomplete=1
+quotations_autocomplete=1
 
 # color sets are based on vs code
 # color 1: types;             vs code blue
@@ -19,16 +17,16 @@ autotab=1
 # color 9: escape sequences;  vs code dark yellow
 # color 0: comments;          vs code dark green
 
-color_0=
-color_1=
-color_2=
-color_3=
-color_4=
-color_5=
-color_6=
-color_7=
-color_8=
-color_9=
+color_0=0
+color_1=0
+color_2=0
+color_3=0
+color_4=0
+color_5=0
+color_6=0
+color_7=0
+color_8=0
+color_9=0
 
 # default path for files
 
