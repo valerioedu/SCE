@@ -555,6 +555,16 @@ void init_editor() {
 
 int main(int argc, char* argv[]) {
     args(argc, argv);
+int main(int argc, char* argv[]) {    
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+            print_usage();
+            exit(0);
+        } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
+            print_version();
+            exit(0);
+        }
+    }
     init_editor();
     signal(SIGWINCH, handle_resize);
     init_lines();
@@ -562,6 +572,7 @@ int main(int argc, char* argv[]) {
     if (open_file_browser) {
         filesystem(current_path);
     }
+    args(argc, argv);
 
     for (int i = 0; i < MAX_UNDO; i++) {
         undo_history[i].lines = NULL;

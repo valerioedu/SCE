@@ -1,4 +1,5 @@
 #include "arg.h"
+#include "library.h"
 #include <sys/stat.h>
 
 void print_usage() {
@@ -31,33 +32,25 @@ bool is_file(const char* path) {
 void args(int argc, char* argv[]) {
     if (argc < 2) return;
     
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-            print_usage();
-            exit(0);
-        } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
-            print_version();
-            exit(0);
-        } else {
-            char resolved_path[MAX_PATH];
+    for (int i = 1; i < argc; i++) {        
+        char resolved_path[MAX_PATH];
             
-            if (realpath(argv[i], resolved_path) != NULL) {
-                if (is_directory(resolved_path)) {
-                    strncpy(current_path, resolved_path, MAX_PATH - 1);
-                    current_path[MAX_PATH - 1] = '\0';
-                    open_file_browser = true;
-                    return;
-                } else if (is_file(resolved_path)) {
-                    load_file(resolved_path);
-                    return;
-                } else {
-                    printf("Error: '%s' is not a valid file or directory.\n", argv[i]);
-                    exit(1);
-                }
+        if (realpath(argv[i], resolved_path) != NULL) {
+            if (is_directory(resolved_path)) {
+                strncpy(current_path, resolved_path, MAX_PATH - 1);
+                current_path[MAX_PATH - 1] = '\0';
+                open_file_browser = true;
+                return;
+            } else if (is_file(resolved_path)) {
+                load_file(resolved_path);
+                return;
             } else {
-                printf("Error: Could not resolve path '%s': %s\n", argv[i], strerror(errno));
+                printf("Error: '%s' is not a valid file or directory.\n", argv[i]);
                 exit(1);
             }
+        } else {
+            printf("Error: Could not resolve path '%s': %s\n", argv[i], strerror(errno));
+            exit(1);
         }
     }
 }

@@ -344,6 +344,7 @@ void create_dir(const char* current_path) {
 
 void file_save() {
     char temp_name[64] = {0};
+    char full_path[MAX_PATH] = {0};
     int i = 0;
     
     WINDOW *dialog = newwin(8, 60, LINES/2 - 4, COLS/2 - 30);
@@ -380,8 +381,17 @@ void file_save() {
     }
     
     if (strlen(temp_name) > 0) {
+        if (config.default_path != NULL && strlen(config.default_path) > 0) {
+            if (config.default_path[strlen(config.default_path) - 1] == '/') {
+                snprintf(full_path, MAX_PATH, "%s%s", config.default_path, temp_name);
+            } else {
+                snprintf(full_path, MAX_PATH, "%s/%s", config.default_path, temp_name);
+            }
+            strcpy(file_name, full_path);
+        } else {
+            strcpy(file_name, temp_name);
+        }
         transcribe_to_text();
-        strcpy(file_name, temp_name);
         FILE *fp = fopen(file_name, "w");
         if (fp == NULL) {
             mvwprintw(dialog, 6, 2, "Error: Unable to open file for writing");

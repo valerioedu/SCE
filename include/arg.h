@@ -5,4 +5,7 @@
 #include "editorfile.h"
 
 void args(int argc, char* argv[]);
+void print_version();
+void print_usage();
+
 #endif
