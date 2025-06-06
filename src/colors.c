@@ -114,12 +114,12 @@ KeywordInfo check_blue_keywords(char* line) {
     char* word_start = line;
     char* word_end;
     while (*word_start) {
-        while (*word_start && !isalnum(*word_start)) {
+        while (*word_start && !isalnum(*word_start) && *word_start != '_') {
             word_start++;
         }
         if (!*word_start) break;
         word_end = word_start;
-        while (*word_end && isalnum(*word_end)) {
+        while (*word_end && (isalnum(*word_end) || *word_end == '_')) {
             word_end++;
         }
         for (int i = 0; i < num_keywords; i++) {
@@ -190,12 +190,12 @@ KeywordInfo check_functions(char* line) {
     char* word_start = line;
     char* word_end;
     while (*word_start) {
-        while (*word_start && !isalnum(*word_start)) {
+        while (*word_start && !isalnum(*word_start) && *word_start != '_') {
             word_start++;
         }
         if (!*word_start) break;
         word_end = word_start;
-        while (*word_end && isalnum(*word_end)) {
+        while (*word_end && (isalnum(*word_end) || *word_end == '_')) {
             word_end++;
         }
         char* next_char = word_end;
