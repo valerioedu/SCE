@@ -15,6 +15,7 @@
 #include "arg.h"
 
 EditorConfig config = {0};
+int horizontal_offset = 0;
 
 UndoState undo_history[MAX_UNDO] = {0};
 int undo_count = 0;
@@ -106,12 +107,13 @@ void update_screen_content(int start_line) {
         move(i, 0);
         clrtoeol();
         if (i + start_line < line_count) {
-            mvprintw(i, 0, "%4d: %s", i + start_line + 1, lines[i + start_line]);
+            mvprintw(i, 0, "%4d: ", i + start_line + 1);
         }
     }
 
     int end_line = line_count - 1;
     int line_offset = 6;
+    int display_width = col - line_offset;
 
     for (int i = start_line, screen_line = 0; i <= end_line; i++, screen_line++) {
         mvprintw(screen_line, 0, "%4d: ", i + 1);
@@ -124,8 +126,8 @@ void update_screen_content(int start_line) {
         KeywordInfo quotes_info = color_quotes(lines[i]);
         KeywordInfo comments_info = color_comments(lines[i]);
 
-        for (int j = 0; j < strlen(lines[i]); j++) {
-            move(screen_line, line_offset + j);
+        for (int j = horizontal_offset; j < strlen(lines[i]) && j - horizontal_offset < display_width; j++) {
+            move(screen_line, line_offset + j - horizontal_offset);
             
             bool colored = false;
             
@@ -282,27 +284,30 @@ void apply_resize() {
     endwin();
     refresh();
     clear();
-    
-    int max_display_lines = row - 1;
+
+    int rows, cols;
+    getmaxyx(stdscr, rows, cols);
+
+    int max_display_lines = rows - 1;
     int start_line = 0;
-    
+
     if (line_count > max_display_lines) {
-        if (current_line <= max_display_lines / 2) {
-            start_line = 0;
-        } else if (current_line >= line_count - max_display_lines / 2) {
-            start_line = line_count - max_display_lines;
-        } else {
-            start_line = current_line - max_display_lines / 2;
-        }
+        if (current_line <= max_display_lines / 2) start_line = 0;
+        else if (current_line >= line_count - max_display_lines / 2) start_line = line_count - max_display_lines;
+        else start_line = current_line - max_display_lines / 2;
     }
-    
+
+    int visible_cols = cols - 6;
+
+    if (current_col < horizontal_offset) horizontal_offset = current_col;
+    else if (current_col >= horizontal_offset + visible_cols) horizontal_offset = current_col - visible_cols + 1;
+
     update_screen_content(start_line);
     update_status_bar();
-    
-    int screen_line = current_line - start_line;
-    move(screen_line, 6 + current_col);
-    
-    resize_needed = 0;
+
+    move(current_line - start_line, 6 + current_col - horizontal_offset);
+
+    refresh();
 }
 
 void editor() {
@@ -497,6 +502,17 @@ void editor() {
             }
             break;
     }
+
+    getmaxyx(stdscr, rows, cols);
+    int visible_width = cols - 6;
+    
+    if (current_col < horizontal_offset) {
+        horizontal_offset = current_col;
+        need_redraw = true;
+    } else if (current_col >= horizontal_offset + visible_width) {
+        horizontal_offset = current_col - visible_width + 1;
+        need_redraw = true;
+    }
     
     int screen_line = current_line;
     int start_line = 0;
@@ -511,13 +527,13 @@ void editor() {
         }
     }
     
-    move(screen_line, 6 + current_col);
+    move(screen_line, 6 + current_col - horizontal_offset);
     
     if (need_redraw) update_screen_content(start_line);
     
     update_status_bar();
     
-    move(screen_line, 6 + current_col);
+    move(screen_line, 6 + current_col - horizontal_offset);
     
     curs_set(1);
     
