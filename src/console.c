@@ -89,6 +89,7 @@ void console() {
     if (token_count > 0) {
         if (strcmp(tokens[0], "term") == 0) terminal();
         else if (strcmp(tokens[0], "search") == 0) ctrl_f();
+        else if (strcmp(tokens[0], "config") == 0) config_editor();
         else if (strcmp(tokens[0], "goto") == 0) {
             if (token_count == 2 && (strcmp(tokens[1], "help")) || (strcmp(tokens[1], "-h"))) {
                 int rows,cols;

@@ -14,12 +14,20 @@
 
 #define MAX_UNDO 64
 
-#define TABS_SIZE 4 //temporary
+#define TABS_SIZE config.tab_size
 
 typedef struct EditorConfig {
     int tab_size;
-    int keywords_color;
-    int var_color;
+    int color_0;
+    int color_1;
+    int color_2;
+    int color_3;
+    int color_4;
+    int color_5;
+    int color_6;
+    int color_7;
+    int color_8;
+    int color_9;
     bool parenthesis_autocomplete;
     bool quotations_autocomplete;
     char* default_path;

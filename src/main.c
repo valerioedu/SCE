@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <signal.h>
 
 #include "library.h"
 #include "macros.h"
@@ -13,6 +12,7 @@
 #include "variables.h"
 #include "editorfile.h"
 #include "arg.h"
+#include "sceconfig.h"
 
 EditorConfig config = {0};
 int horizontal_offset = 0;
@@ -30,10 +30,6 @@ int start_line = 0;
 char copy[128*128] = {0};
 char file_name[64] = {0};
 char text[MAX_LINES * MAX_COLS] = {0};
-
-volatile sig_atomic_t resize_needed = 0;
-int prev_term_rows = 0;
-int prev_term_cols = 0;
 
 void init_lines() {
     lines_capacity = 100;  // Initial capacity of 100 lines
@@ -266,23 +262,9 @@ void display_lines() {
     update_status_bar();
 }
 
-void handle_resize(int sig) {
-    resize_needed = 1;
-}
-
 void apply_resize() {
-    int row, col;
-    getmaxyx(stdscr, row, col);
-    
-    if (row == prev_term_rows && col == prev_term_cols && !resize_needed) {
-        return;
-    }
-    
-    prev_term_rows = row;
-    prev_term_cols = col;
-    
-    endwin();
-    refresh();
+    timeout(0);
+    if (resizeterm(0, 0) == ERR) return;
     clear();
 
     int rows, cols;
@@ -311,14 +293,8 @@ void apply_resize() {
 }
 
 void editor() {
-    if (resize_needed) apply_resize();
-
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
-    if (rows != prev_term_rows || cols != prev_term_cols) {
-        resize_needed = 1;
-        apply_resize();
-    }
 
     int c = getch();
     bool need_redraw = false;
@@ -481,6 +457,7 @@ void editor() {
         case 26: ctrl_z(); break;
         case 546: ctrl_left_arrow(lines[current_line]); break;
         case 561: ctrl_right_arrow(lines[current_line]); break;
+        case KEY_RESIZE: apply_resize(); break;
         case 544:                   // Alt+Left - Go to start of line, provisional
             current_col = 0;
             need_redraw = true;
@@ -546,10 +523,7 @@ void init_editor() {
     raw();
     keypad(stdscr, TRUE);
     noecho();
-    timeout(100);
     start_color();
-    getmaxyx(stdscr, prev_term_rows, prev_term_cols);
-
     if (can_change_color()) {
         init_color(8, 150, 250, 900);       // Dark blue
         init_color(9, 600, 0, 600);     // Purple
@@ -569,8 +543,6 @@ void init_editor() {
     init_pair(8, 13, COLOR_BLACK); // Light green for typedefs potentially
 }
 
-int main(int argc, char* argv[]) {
-    args(argc, argv);
 int main(int argc, char* argv[]) {    
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
@@ -582,7 +554,7 @@ int main(int argc, char* argv[]) {
         }
     }
     init_editor();
-    signal(SIGWINCH, handle_resize);
+    load_config(&config);
     init_lines();
     display_info();
     if (open_file_browser) {
