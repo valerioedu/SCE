@@ -187,8 +187,22 @@ void load_file(const char* filepath) {
         return;
     }
 
+    size_t file_line_count = 0;
+    char count_buffer[MAX_COLS];
+    while (fgets(count_buffer, MAX_COLS, file) != NULL && file_line_count < MAX_LINES) {
+        file_line_count++;
+    }
+    
+    if (file_line_count >= MAX_LINES) {
+        mvprintw(LINES-1, 0, "Warning: File has more than %d lines, truncating", MAX_LINES);
+        getch();
+    }
+
+    rewind(file);
+
     cleanup_lines();
     init_lines();
+    ensure_lines_capacity(file_line_count + 1);
     
     line_count = 0;
     current_line = 0;
