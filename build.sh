@@ -122,8 +122,14 @@ echo "Setting up build directory..."
 mkdir -p build
 cd build
 
+BUILD_TEST_FLAG=""
+if [ "$1" == "--test" ] || [ "$1" == "-t" ]; then
+    BUILD_TEST_FLAG="-DBUILD_TESTING=ON"
+    echo "Testing mode enabled."
+fi
+
 echo "Configuring project..."
-cmake ..
+cmake $BUILD_TEST_FLAG ..
 
 echo "Building project..."
 make
