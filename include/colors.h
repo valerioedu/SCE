@@ -13,12 +13,8 @@
 
 #define MAX_KEYWORDS 1000
 
-extern const char* oop_blue_keywords[];
-
 extern const char* blue_keywords[];
-
 extern const char* purple_keywords[];
-
 extern const int blue_keywords_count;
 extern const int purple_keywords_count;
 extern int inside_multiline_comment;

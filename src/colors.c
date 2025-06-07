@@ -6,10 +6,6 @@
 *   +--------------------------+
 */
 
-const char* oop_blue_keywords[] = { 
-    "private", "protected", "public"
-};
-
 const char* blue_keywords[] = { 
     "void", "char", "short", "int", "long", "float", "double",
     
@@ -21,6 +17,10 @@ const char* blue_keywords[] = {
     "inline", "virtual", "explicit", "friend", "typedef", "namespace",
     "template", "typename", "mutable", "using", "asm", "alignas", "alignof",
     "decltype", "constexpr", "noexcept", "thread_local", "nullptr"
+
+    // other words that are usually blue
+    "NULL", "true", "false", "uint8_t", "uint16_t", "uint32_t", "uint64_t",
+    "int8_t", "int16_t", "int32_t", "int64_t", "size_t", "intptr_t", "uintptr_t" 
 };
 
 const char* purple_keywords[] = { 

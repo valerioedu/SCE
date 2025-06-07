@@ -13,7 +13,6 @@
 bool check_parentheses(char text);
 bool check_brackets(char text);
 bool check_braces(char text);
-bool check_comments(char* text);
 bool checks(char text);
 
 #endif
