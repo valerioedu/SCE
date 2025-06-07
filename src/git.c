@@ -714,13 +714,14 @@ void git_status_window() {
                 
             case 'q':
             case 'Q':
-            case 27:
+            case 27: {
                 int max_y, max_x;
                 getmaxyx(win, max_y, max_x);
                 mvwprintw(win, max_y / 2, (max_x - strlen("Press Enter")) / 2, "Press Enter");
                 wrefresh(win);
                 delwin(win);
                 return;
+                }
             case 'h':
             case 'H':
                 git_history_window();
