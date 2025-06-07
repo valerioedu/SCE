@@ -27,7 +27,6 @@ int line_count = 1;
 int current_line = 0;
 int current_col = 0;
 int start_line = 0;
-char copy[128*128] = {0};
 char file_name[64] = {0};
 char text[MAX_LINES * MAX_COLS] = {0};
 
