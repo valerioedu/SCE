@@ -15,6 +15,7 @@ SCE, pronounced as C, is a lightweight, terminal-based code editor built with nc
 - Responsive UI with status bar
 - Configuration Editor
 - Git integration
+- Cross-platform (Linux and macOS compatible)
 
 ## Installation
 
@@ -140,6 +141,12 @@ All settings are stored in the `.sceconfig` file in your home directory.
 ## Memory Usage
 
 SCE is optimized for memory efficiency, with dynamic allocation used for the undo history system to minimize memory footprint while maintaining functionality. Soon it will be implemented test and benchmark directories.
+
+## System Requirements
+
+### Compatible Operating Systems
+- Linux distributions (Debian, Ubuntu, Kali Linux, Fedora, Arch)
+- macOS 10.13 or later
 
 ## License
 
