@@ -7,12 +7,14 @@ SCE, pronounced as C, is a lightweight, terminal-based code editor built with nc
 - Syntax highlighting for C/C++
 - File browser with directory navigation
 - Variable detection and highlighting
+- Automatic indentation
 - Undo/redo functionality
 - Search and replace
 - Terminal integration
 - Memory-efficient design
 - Responsive UI with status bar
 - Configuration Editor
+- Git integration
 
 ## Installation
 
@@ -22,6 +24,7 @@ SCE, pronounced as C, is a lightweight, terminal-based code editor built with nc
 - cmake
 - pkg-config
 - C compiler
+- git (optional, for Git integration features)
 
 ### Build from source
 ```bash
@@ -61,9 +64,15 @@ SCE -v
 - F2: Info page
 - F3: File explorer
 - F4: Save file
+- F7: Git status window
 - F9: Open console
 - Ctrl+F: Search within file
 - Ctrl+Z: Undo
+- Ctrl+Right Arrow: Move cursor to the beginning of the previous word
+- Ctrl+Left Arrow: Move cursor to the beginning of the next word
+
+- Alt+Right Arrow: Goes to the end of the line
+- Alt+Left Arrow:  Goes to the start of the line
 - Esc: Exit editor
 - Tab: Insert tab
 
@@ -85,6 +94,14 @@ SCE -v
 - F3: Open selected file
 - H: Show help
 
+## Git Integration
+
+When working in a Git repository, SCE provides:
+
+- Status bar information showing repository name, current branch and git user
+- Git status window (F7) to view pending changes and commit history
+- Automatic detection of Git repositories
+
 ## Search
 
 - Enter: Search for text
@@ -96,7 +113,6 @@ SCE -v
 
 SCE is fully customizable through its built-in configuration editor:
 
-- Press F5 to access the configuration menu
 - Navigate options with Up/Down arrows
 - Edit values with Enter
 - Save changes with F10
@@ -123,7 +139,7 @@ All settings are stored in the `.sceconfig` file in your home directory.
 
 ## Memory Usage
 
-SCE is optimized for memory efficiency, with dynamic allocation used for the undo history system to minimize memory footprint while maintaining functionality.
+SCE is optimized for memory efficiency, with dynamic allocation used for the undo history system to minimize memory footprint while maintaining functionality. Soon it will be implemented test and benchmark directories.
 
 ## License
 
