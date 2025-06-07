@@ -305,6 +305,15 @@ END_TEST
 void restore_undo_state() {
     if (undo_position <= 0) return;
     undo_position--;
+
+    line_count = undo_history[undo_position].line_count;
+    current_line = undo_history[undo_position].cursor_line;
+    current_col = undo_history[undo_position].cursor_col;
+
+    for (int i = 0; i < line_count; i++) {
+        strncpy(lines[i], undo_history[undo_position].lines[i], MAX_COLS - 1);
+        lines[i][MAX_COLS - 1] = '\0';
+    }
 }
 
 START_TEST(test_undo) {
