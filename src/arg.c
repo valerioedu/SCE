@@ -1,6 +1,7 @@
 #include "arg.h"
 #include "library.h"
 #include <sys/stat.h>
+#include "git.h"
 
 void print_usage() {
     printf("Usage: SCE [OPTIONS] [FILE|DIRECTORY]\n\n");
@@ -40,8 +41,19 @@ void args(int argc, char* argv[]) {
                 strncpy(current_path, resolved_path, MAX_PATH - 1);
                 current_path[MAX_PATH - 1] = '\0';
                 open_file_browser = true;
+                if (is_git_repository(resolved_path))  update_git_status(resolved_path);
                 return;
             } else if (is_file(resolved_path)) {
+                char file_dir[MAX_PATH];
+                strncpy(file_dir, resolved_path, MAX_PATH - 1);
+                file_dir[MAX_PATH - 1] = '\0';
+                
+                char *last_slash = strrchr(file_dir, '/');
+                if (last_slash != NULL) {
+                    *last_slash = '\0';
+                    
+                    if (is_git_repository(file_dir)) update_git_status(file_dir);
+                }
                 load_file(resolved_path);
                 return;
             } else {

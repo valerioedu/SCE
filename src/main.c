@@ -28,7 +28,7 @@ int line_count = 1;
 int current_line = 0;
 int current_col = 0;
 int start_line = 0;
-char file_name[64] = {0};
+char file_name[512] = {0};
 char text[MAX_LINES * MAX_COLS] = {0};
 
 void init_lines() {
@@ -227,23 +227,40 @@ void update_status_bar() {
     
     mvprintw(row - 1, 2, "Line: %d, Column: %d", current_line + 1, current_col + 1);
 
-    if (is_git_repository()) {
-        const char* repo_name = git_get_repo_name();
-        const char* branch = git_get_branch();
-        const char* user = git_get_user();
+    char file_dir[MAX_PATH] = {0};
+    if (file_name[0] != '\0') {
+        strncpy(file_dir, file_name, sizeof(file_dir) - 1);
+        char *last_slash = strrchr(file_dir, '/');
+        if (last_slash != NULL) {
+            *last_slash = '\0';
+        }
+    } else {
+        getcwd(file_dir, MAX_PATH);
+    }
+
+    if (is_git_repository(file_dir)) {
+        const char* repo_name = git_get_repo_name_in_dir(file_dir);
+        const char* branch = git_get_branch_in_dir(file_dir);
+        const char* user = git_get_user_in_dir(file_dir);
         
-        // Calculate center position for git info
-        int git_info_len = strlen(repo_name) + strlen(branch) + strlen(user) + 8; // 8 for formatting
+        int git_info_len = strlen(repo_name) + strlen(branch) + strlen(user) + 8;
         int git_pos = (col - git_info_len) / 2;
-        if (git_pos < 30) git_pos = 30; // Avoid overlap with line/column info
+        if (git_pos < 30) git_pos = 30;
         
         attron(A_BOLD);
         mvprintw(row - 1, git_pos, "[%s:%s@%s]", repo_name, branch, user);
         attroff(A_BOLD);
     }
-    
+
     if (file_name[0] != '\0') {
-        mvprintw(row - 1, col - strlen(file_name) - 6, "File: %s", file_name);
+        char display_name[64] = {0};
+        char* basename = strrchr(file_name, '/');
+        if (basename) {
+            strncpy(display_name, basename + 1, sizeof(display_name) - 1);
+        } else {
+            strncpy(display_name, file_name, sizeof(display_name) - 1);
+        }
+        mvprintw(row - 1, col - strlen(display_name) - 6, "File: %s", display_name);
     }
 }
 
@@ -467,7 +484,25 @@ void editor() {
                 }
             }
             break;
-        case KEY_F(7): git_status_window(); break;
+        case KEY_F(7):
+            char file_dir[MAX_PATH] = {0};
+            if (file_name[0] != '\0') {
+                strncpy(file_dir, file_name, sizeof(file_dir) - 1);
+                char *last_slash = strrchr(file_dir, '/');
+                if (last_slash != NULL) {
+                    *last_slash = '\0';
+                    update_git_status(file_dir);
+                } else {
+                    getcwd(file_dir, MAX_PATH);
+                    update_git_status(file_dir);
+                }
+            } else {
+                getcwd(file_dir, MAX_PATH);
+                update_git_status(file_dir);
+            }
+            git_status_window();
+            need_redraw = true;
+            break;
         case KEY_F(9): console(); break;
         case 6: ctrl_f(); break;
         case 26: ctrl_z(); break;

@@ -17,6 +17,7 @@
 #define COMMIT_MSG_LENGTH 256
 #define COMMIT_DATE_LENGTH 32
 #define COMMIT_AUTHOR_LENGTH 64
+#define MAX_PATH 512
 
 typedef struct {
     char filename[256];
@@ -36,6 +37,27 @@ static int commit_count = 0;
 static GitStatusItem status_items[MAX_STATUS_ITEMS];
 static int status_count = 0;
 static char current_branch[MAX_BRANCH_LENGTH] = "";
+
+char* execute_git_command_in_dir(const char* path, const char* command) {
+    static char buffer[BUFFER_SIZE];
+    char full_command[MAX_COMMAND_LENGTH];
+    
+    snprintf(full_command, MAX_COMMAND_LENGTH, 
+             "cd \"%s\" && git %s 2>&1", path, command);
+    
+    FILE* pipe = popen(full_command, "r");
+    if (!pipe) return "ERROR: Git command execution failed";
+    
+    char* result = fgets(buffer, BUFFER_SIZE, pipe);
+    pclose(pipe);
+    
+    if (result == NULL) return "";
+    
+    size_t len = strlen(buffer);
+    if (len > 0 && buffer[len-1] == '\n') buffer[len-1] = '\0';
+    
+    return buffer;
+}
 
 char* execute_git_command(const char* command) {
     static char buffer[BUFFER_SIZE];
@@ -57,12 +79,41 @@ char* execute_git_command(const char* command) {
     return buffer;
 }
 
-bool is_git_repository() {
+bool is_git_repository(const char* path) {
+    char command[MAX_COMMAND_LENGTH];
+    snprintf(command, MAX_COMMAND_LENGTH, 
+             "cd \"%s\" && git rev-parse --is-inside-work-tree > /dev/null 2>&1", path);
+    return system(command) == 0;
+}
+
+bool is_git_repository_current() {
     return system("git rev-parse --is-inside-work-tree > /dev/null 2>&1") == 0;
 }
 
+const char* git_get_branch_in_dir(const char* path) {
+    static char branch[MAX_BRANCH_LENGTH];
+    
+    if (!is_git_repository(path)) {
+        strcpy(branch, "Not a git repository");
+        return branch;
+    }
+    
+    char* result = execute_git_command_in_dir(path, "rev-parse --abbrev-ref HEAD");
+    if (result && strlen(result) > 0) {
+        strncpy(branch, result, MAX_BRANCH_LENGTH - 1);
+        branch[MAX_BRANCH_LENGTH - 1] = '\0';
+    } else {
+        strcpy(branch, "unknown");
+    }
+    
+    strncpy(current_branch, branch, MAX_BRANCH_LENGTH - 1);
+    current_branch[MAX_BRANCH_LENGTH - 1] = '\0';
+    
+    return branch;
+}
+
 const char* git_get_branch() {
-    if (!is_git_repository()) {
+    if (!is_git_repository_current()) {
         strcpy(current_branch, "Not a git repository");
         return current_branch;
     }
@@ -76,8 +127,47 @@ const char* git_get_branch() {
     return current_branch;
 }
 
+void git_parse_status_in_dir(const char* path) {
+    if (!is_git_repository(path)) {
+        status_count = 0;
+        return;
+    }
+    
+    char line[BUFFER_SIZE];
+    status_count = 0;
+    
+    FILE* pipe = popen(execute_git_command_in_dir(path, "status --porcelain"), "r");
+    if (!pipe) return;
+    
+    while (fgets(line, BUFFER_SIZE, pipe) && status_count < MAX_STATUS_ITEMS) {
+        size_t len = strlen(line);
+        if (len > 0 && line[len-1] == '\n') {
+            line[len-1] = '\0';
+            len--;
+        }
+        
+        if (len < 3) continue;
+        
+        char status_code[3] = {line[0], line[1], '\0'};
+        strncpy(status_items[status_count].status, status_code, sizeof(status_items[status_count].status) - 1);
+        status_items[status_count].status[sizeof(status_items[status_count].status) - 1] = '\0';
+        
+        int filename_start = 2;
+        while (filename_start < len && line[filename_start] == ' ')
+            filename_start++;
+        
+        strncpy(status_items[status_count].filename, &line[filename_start], 
+                sizeof(status_items[status_count].filename) - 1);
+        status_items[status_count].filename[sizeof(status_items[status_count].filename) - 1] = '\0';
+        
+        status_count++;
+    }
+    
+    pclose(pipe);
+}
+
 void git_parse_status() {
-    if (!is_git_repository()) {
+    if (!is_git_repository_current()) {
         status_count = 0;
         return;
     }
@@ -120,7 +210,7 @@ void git_parse_status() {
 }
 
 bool git_add_file(const char* filename) {
-    if (!is_git_repository()) return false;
+    if (!is_git_repository_current()) return false;
     
     char command[MAX_COMMAND_LENGTH];
     snprintf(command, MAX_COMMAND_LENGTH, "add \"%s\"", filename);
@@ -130,7 +220,7 @@ bool git_add_file(const char* filename) {
 }
 
 bool git_commit(const char* message) {
-    if (!is_git_repository()) return false;
+    if (!is_git_repository_current()) return false;
     
     char command[MAX_COMMAND_LENGTH];
     snprintf(command, MAX_COMMAND_LENGTH, "commit -m \"%s\"", message);
@@ -140,13 +230,13 @@ bool git_commit(const char* message) {
 }
 
 bool git_push() {
-    if (!is_git_repository()) return false;
+    if (!is_git_repository_current()) return false;
 
     return system("git push 2> /dev/null") == 0;
 }
 
 bool git_pull() {
-    if (!is_git_repository()) return false;
+    if (!is_git_repository_current()) return false;
 
     return system("git pull 2> /dev/null") == 0;
 }
@@ -161,8 +251,52 @@ const char* git_get_file_status(const char* filename) {
     return "";
 }
 
+void git_parse_history_in_dir(const char* path) {
+    if (!is_git_repository(path)) {
+        commit_count = 0;
+        return;
+    }
+    
+    char line[BUFFER_SIZE];
+    commit_count = 0;
+    
+    FILE* pipe = popen(execute_git_command_in_dir(path, "log --pretty=format:\"%H|%an|%ad|%s\" --date=short"), "r");
+    if (!pipe) return;
+    
+    while (fgets(line, BUFFER_SIZE, pipe) && commit_count < MAX_COMMITS) {
+        size_t len = strlen(line);
+        if (len > 0 && line[len-1] == '\n') {
+            line[len-1] = '\0';
+            len--;
+        }
+        
+        char* hash = strtok(line, "|");
+        char* author = strtok(NULL, "|");
+        char* date = strtok(NULL, "|");
+        char* message = strtok(NULL, "|");
+        
+        if (hash && author && date && message) {
+            strncpy(commits[commit_count].hash, hash, COMMIT_HASH_LENGTH - 1);
+            commits[commit_count].hash[COMMIT_HASH_LENGTH - 1] = '\0';
+            
+            strncpy(commits[commit_count].author, author, COMMIT_AUTHOR_LENGTH - 1);
+            commits[commit_count].author[COMMIT_AUTHOR_LENGTH - 1] = '\0';
+            
+            strncpy(commits[commit_count].date, date, COMMIT_DATE_LENGTH - 1);
+            commits[commit_count].date[COMMIT_DATE_LENGTH - 1] = '\0';
+            
+            strncpy(commits[commit_count].message, message, COMMIT_MSG_LENGTH - 1);
+            commits[commit_count].message[COMMIT_MSG_LENGTH - 1] = '\0';
+            
+            commit_count++;
+        }
+    }
+    
+    pclose(pipe);
+}
+
 void git_parse_history() {
-    if (!is_git_repository()) {
+    if (!is_git_repository_current()) {
         commit_count = 0;
         return;
     }
@@ -379,10 +513,31 @@ void git_history_window() {
     }
 }
 
+const char* git_get_repo_name_in_dir(const char* path) {
+    static char repo_name[256] = {0};
+    
+    if (!is_git_repository(path)) return "";
+    
+    char* result = execute_git_command_in_dir(path, "rev-parse --show-toplevel");
+    
+    if (result && strlen(result) > 0) {
+        char* last_slash = strrchr(result, '/');
+        if (last_slash) {
+            strncpy(repo_name, last_slash + 1, sizeof(repo_name) - 1);
+            repo_name[sizeof(repo_name) - 1] = '\0';
+        } else {
+            strncpy(repo_name, result, sizeof(repo_name) - 1);
+            repo_name[sizeof(repo_name) - 1] = '\0';
+        }
+    } else return "";
+    
+    return repo_name;
+}
+
 const char* git_get_repo_name() {
     static char repo_name[256] = {0};
     
-    if (!is_git_repository()) return "";
+    if (!is_git_repository_current()) return "";
     
     char* result = execute_git_command("rev-parse --show-toplevel");
     
@@ -400,10 +555,25 @@ const char* git_get_repo_name() {
     return repo_name;
 }
 
+const char* git_get_user_in_dir(const char* path) {
+    static char user_name[256] = {0};
+    
+    if (!is_git_repository(path)) return "";
+    
+    char* result = execute_git_command_in_dir(path, "config user.name");
+    
+    if (result && strlen(result) > 0) {
+        strncpy(user_name, result, sizeof(user_name) - 1);
+        user_name[sizeof(user_name) - 1] = '\0';
+    } else return "";
+    
+    return user_name;
+}
+
 const char* git_get_user() {
     static char user_name[256] = {0};
     
-    if (!is_git_repository()) return "";
+    if (!is_git_repository_current()) return "";
     
     char* result = execute_git_command("config user.name");
     
@@ -560,4 +730,27 @@ void git_status_window() {
                 break;
         }
     }
+}
+
+void update_git_status(const char* path) {
+    if (!is_git_repository(path)) return;
+    
+    char cwd[MAX_PATH];
+    getcwd(cwd, MAX_PATH);
+    
+    chdir(path);
+    git_get_branch();
+    git_parse_status();
+    git_get_repo_name();
+    git_get_user();
+    chdir(cwd);
+}
+
+void update_git_status_current() {
+    if (!is_git_repository_current()) return;
+    
+    git_get_branch();
+    git_parse_status();
+    git_get_repo_name();
+    git_get_user();
 }
