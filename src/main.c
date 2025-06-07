@@ -567,8 +567,12 @@ void editor() {
     
     curs_set(1);
     
+#ifdef __APPLE__
+    refresh();
+#else
     wnoutrefresh(stdscr);
     doupdate();
+#endif
 }
 
 void init_editor() {    
