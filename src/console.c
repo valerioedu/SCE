@@ -6,6 +6,7 @@
 #include "console.h"
 #include "library.h"
 #include "macros.h"
+#include "sceconfig.h"
 
 void terminal() {
     def_prog_mode();
