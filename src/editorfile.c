@@ -111,7 +111,7 @@ char* filesystem(const char* dir_path) {
             
             attron(COLOR_PAIR(10));
             for (int i = 0; i < COLS; i++) mvaddch(LINES-1, i, ' ');
-            mvprintw(LINES-1, 2, "Up/Down: Navigate | Enter: Select | Esc: Cancel | F1: New Dir | F2: New File");
+            mvprintw(LINES-1, 2, "Up/Down: Navigate | ->: Select Project Dir | Enter: Select | Esc: Cancel | F1: New Dir | F2: New File");
             attroff(COLOR_PAIR(10));
             
             int ch = getch();
