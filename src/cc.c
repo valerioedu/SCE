@@ -38,7 +38,6 @@ bool check_quotations(char text) {
 }
 
 bool checks(char text) {
-    bool check = false;
-    if (check_parentheses(text) || check_braces(text) ||
-     check_brackets(text) || check_quotations(text)) check = true;
+     return check_parentheses(text) || check_braces(text) ||
+     check_brackets(text) || check_quotations(text);
 }
