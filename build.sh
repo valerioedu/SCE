@@ -1,9 +1,7 @@
 echo "SCE Editor Build Script"
 echo "======================="
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "Detected macOS system"
-    
+if [[ "$OSTYPE" == "darwin"* ]]; then    
     echo "Checking dependencies..."
     if ! command -v cmake &> /dev/null; then
         echo "Installing cmake..."
