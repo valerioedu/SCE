@@ -4,10 +4,15 @@ project(SCE)
 set (CMAKE_C_STANDARD 11)
 set (CMAKE_C_STANDARD_REQUIRED ON)
 
-include_directories(include)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(NCURSES REQUIRED ncurses)
 
-set(SOURCES
-    src/main.c
+pkg_check_modules(CHECK check)
+
+include_directories(include ${NCURSES_INCLUDE_DIRS} src)
+link_directories(${NCURSES_LIBRARY_DIRS})
+
+set(LIB_SOURCES
     src/editorfile.c
     src/colors.c
     src/variables.c
@@ -22,14 +27,30 @@ set(SOURCES
     src/git.c
 )
 
-add_executable(SCE ${SOURCES})
+#   +----------------------------------------+
+#   | TODO: seperate tests in multiple files |
+#   +----------------------------------------+
+
+add_library(sce_lib SHARED ${LIB_SOURCES})
+target_link_libraries(sce_lib ${NCURSES_LIBRARIES})
+
+add_executable(SCE src/main.c)
+target_link_libraries(SCE sce_lib)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(NCURSES REQUIRED ncurses)
-include_directories(${NCURSES_INCLUDE_DIRS})
-link_directories(${NCURSES_LIBRARY_DIRS})
-target_link_libraries(SCE ${NCURSES_LIBRARIES})
+enable_testing()
+
+if(CHECK_FOUND)
+    add_subdirectory(tests)
+else()
+    message(WARNING "Check not found, tests will not be built")
+endif()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/CMakeLists.txt")
+    add_subdirectory(benchmarks)
+else()
+    message(STATUS "Benchmarks directory not set up yet")
+endif()
 
 install(TARGETS SCE DESTINATION bin)
