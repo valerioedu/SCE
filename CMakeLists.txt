@@ -19,6 +19,7 @@ set(SOURCES
     src/cfiles.c
     src/arg.c
     src/sceconfig.c
+    src/git.c
 )
 
 add_executable(SCE ${SOURCES})

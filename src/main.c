@@ -13,6 +13,7 @@
 #include "editorfile.h"
 #include "arg.h"
 #include "sceconfig.h"
+#include "git.h"
 
 EditorConfig config = {0};
 int horizontal_offset = 0;
@@ -225,6 +226,21 @@ void update_status_bar() {
     }
     
     mvprintw(row - 1, 2, "Line: %d, Column: %d", current_line + 1, current_col + 1);
+
+    if (is_git_repository()) {
+        const char* repo_name = git_get_repo_name();
+        const char* branch = git_get_branch();
+        const char* user = git_get_user();
+        
+        // Calculate center position for git info
+        int git_info_len = strlen(repo_name) + strlen(branch) + strlen(user) + 8; // 8 for formatting
+        int git_pos = (col - git_info_len) / 2;
+        if (git_pos < 30) git_pos = 30; // Avoid overlap with line/column info
+        
+        attron(A_BOLD);
+        mvprintw(row - 1, git_pos, "[%s:%s@%s]", repo_name, branch, user);
+        attroff(A_BOLD);
+    }
     
     if (file_name[0] != '\0') {
         mvprintw(row - 1, col - strlen(file_name) - 6, "File: %s", file_name);
@@ -451,6 +467,7 @@ void editor() {
                 }
             }
             break;
+        case KEY_F(7): git_status_window(); break;
         case KEY_F(9): console(); break;
         case 6: ctrl_f(); break;
         case 26: ctrl_z(); break;
