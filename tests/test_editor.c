@@ -332,6 +332,14 @@ START_TEST(test_undo) {
             strcpy(undo_history[0].lines[i], lines[i]);
         }
     }
+
+    undo_history[0].line_count = line_count;
+    undo_history[0].cursor_line = current_line;
+    undo_history[0].cursor_col = current_col;
+
+    for (int i = 0; i < line_count; i++) {
+        strcpy(undo_history[0].lines[i], lines[i]);
+    }
     
     undo_count = 1;
     undo_position = 1;
