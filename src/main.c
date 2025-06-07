@@ -484,7 +484,7 @@ void editor() {
                 }
             }
             break;
-        case KEY_F(7):
+        case KEY_F(7): {
             char file_dir[MAX_PATH] = {0};
             if (file_name[0] != '\0') {
                 strncpy(file_dir, file_name, sizeof(file_dir) - 1);
@@ -502,6 +502,7 @@ void editor() {
             }
             git_status_window();
             need_redraw = true;
+            }
             break;
         case KEY_F(9): console(); break;
         case 6: ctrl_f(); break;
