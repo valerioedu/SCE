@@ -1,0 +1,20 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install cppcheck
+      run: sudo apt-get install -y cppcheck
+    
+    - name: Run cppcheck
+      run: cppcheck --enable=all --std=c99 --suppress=missingIncludeSystem --error-exitcode=1 src/
