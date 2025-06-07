@@ -4,7 +4,7 @@ project(SCE)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# Define option for build type
+# Define option for build type - default to OFF
 option(BUILD_TESTING "Build tests" OFF)
 
 find_package(PkgConfig REQUIRED)
@@ -33,13 +33,13 @@ set(LIB_SOURCES
     src/git.c
 )
 
-# Set output directories
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
 #   +----------------------------------------+
 #   | TODO: separate tests in multiple files |
 #   +----------------------------------------+
+
+# Set output directories
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Determine build approach based on whether we're testing
 if(BUILD_TESTING)
@@ -51,6 +51,16 @@ if(BUILD_TESTING)
     add_executable(SCE src/main.c)
     target_link_libraries(SCE sce_lib)
     
+    # Enable testing
+    enable_testing()
+    
+    # Only include tests if Check was found
+    if(CHECK_FOUND)
+        add_subdirectory(tests)
+    else()
+        message(WARNING "Check not found, tests will not be built")
+    endif()
+    
     # Install the shared lib too
     install(TARGETS sce_lib DESTINATION lib)
 else()
@@ -59,21 +69,11 @@ else()
     target_link_libraries(SCE ${NCURSES_LIBRARIES})
 endif()
 
-# Only enable testing if requested and Check is found
-if(BUILD_TESTING)
-    enable_testing()
-    
-    if(CHECK_FOUND)
-        add_subdirectory(tests)
-    else()
-        message(WARNING "Check not found, tests will not be built")
-    endif()
-endif()
-
+# Check if benchmarks directory exists
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/CMakeLists.txt")
     add_subdirectory(benchmarks)
 else()
-    message(STATUS "Benchmarks directory not set up yet")
+    message(STATUS "Benchmarks will be added later")
 endif()
 
 # Install the SCE executable
