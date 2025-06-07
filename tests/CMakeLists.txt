@@ -1,5 +1,20 @@
 include_directories(${CHECK_INCLUDE_DIRS} ../src)
 
+# Special handling for Check on macOS
+if(APPLE)
+    # Try to find Check library directly
+    execute_process(
+        COMMAND brew --prefix check
+        OUTPUT_VARIABLE CHECK_PREFIX
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if(CHECK_PREFIX)
+        include_directories(${CHECK_PREFIX}/include)
+        link_directories(${CHECK_PREFIX}/lib)
+        set(CHECK_LIBRARIES check)
+    endif()
+endif()
+
 add_library(test_support STATIC
     ../src/editorfile.c
     ../src/colors.c
