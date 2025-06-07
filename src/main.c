@@ -464,6 +464,7 @@ void editor() {
             need_redraw = true;
             break;
         case 7:
+        case '\b':
         case KEY_BACKSPACE:
             save_undo_state();
             if (current_col > 0) {
