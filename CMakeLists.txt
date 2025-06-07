@@ -45,6 +45,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 if(BUILD_TESTING)
     # Testing mode: Build shared library for tests
     add_library(sce_lib SHARED ${LIB_SOURCES})
+
+    if(APPLE)
+        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+    endif()
+
     target_link_libraries(sce_lib ${NCURSES_LIBRARIES})
     
     # Main executable links against shared lib
