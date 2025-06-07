@@ -17,13 +17,23 @@ add_library(test_support STATIC
 
 add_executable(test_editor test_editor.c)
 
-target_link_libraries(test_editor
-    test_support
-    ${CHECK_LIBRARIES}
-    ${NCURSES_LIBRARIES}
-    m
-    rt
-    pthread
-)
+# Platform-specific libraries
+if(APPLE)
+    target_link_libraries(test_editor
+        test_support
+        ${CHECK_LIBRARIES}
+        ${NCURSES_LIBRARIES}
+        pthread
+    )
+else()
+    target_link_libraries(test_editor
+        test_support
+        ${CHECK_LIBRARIES}
+        ${NCURSES_LIBRARIES}
+        m
+        rt
+        pthread
+    )
+endif()
 
 add_test(NAME EditorTest COMMAND ${CMAKE_BINARY_DIR}/bin/test_editor)
