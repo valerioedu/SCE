@@ -32,7 +32,7 @@ SCE, pronounced as C, is a lightweight, terminal-based code editor built with nc
 ### Build from source
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/SCE2.git
+git clone https://github.com/valerioedu/SCE2
 cd SCE2
 
 # Build using the provided script
