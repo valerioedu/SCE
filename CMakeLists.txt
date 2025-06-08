@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.14)
 project(SCE)
 
+add_compile_options(
+    -O2
+    -Wno-unused-result
+    -Wno-format-truncation
+    -Wno-zero-length
+)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
