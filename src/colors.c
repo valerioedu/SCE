@@ -310,7 +310,7 @@ KeywordInfo check_syntax(char* line) {
     KeywordInfo variable_info = check_variables(line);
     KeywordInfo comments_info = color_comments(line);
     KeywordInfo all_infos[] = {blue_info, purple_info, function_info, parentheses_info, variable_info, quotes_info, comments_info};
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 7; i++) {
         for (int j = 0; j < all_infos[i].count && total_info.count < MAX_KEYWORDS; j++) {
             total_info.keywords[total_info.count++] = all_infos[i].keywords[j];
         }

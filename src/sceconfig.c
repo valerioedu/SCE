@@ -317,7 +317,6 @@ void config_editor() {
                     editing = 0;
                     edit_started = 0;
                     break;
-                    break;
                 case KEY_BACKSPACE:
                 case 127:
                 case '\b':

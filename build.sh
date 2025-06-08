@@ -25,7 +25,15 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         brew install pkg-config
     fi
     
-    brew install ncurses
+    if ! pkg-config --exists ncurses; then
+        echo "Installing ncurses development library..."
+        brew install ncurses
+    fi
+
+    if ! pkg-config --exists check; then
+        echo "Installing Check unit testing framework..."
+        brew install check
+    fi
 else
     PKG_MANAGER=$(detect_package_manager)
     echo "Using package manager: $PKG_MANAGER"
@@ -47,6 +55,11 @@ else
                 echo "Installing ncurses development library..."
                 sudo pacman -S --noconfirm ncurses
             fi
+
+            if ! pkg-config --exists check; then
+                echo "Installing Check unit testing framework..."
+                sudo pacman -S --noconfirm check
+            fi
             ;;
             
         "dnf")
@@ -64,6 +77,11 @@ else
             if ! pkg-config --exists ncurses; then
                 echo "Installing ncurses development library..."
                 sudo dnf install -y ncurses-devel
+            fi
+
+            if ! pkg-config --exists check; then
+                echo "Installing Check unit testing framework..."
+                sudo dnf install -y check-devel
             fi
             ;;
             
@@ -83,6 +101,11 @@ else
                 echo "Installing ncurses development library..."
                 sudo apt install -y libncurses-dev
             fi
+
+            if ! pkg-config --exists check; then
+                echo "Installing Check unit testing framework..."
+                sudo apt install -y check
+            fi
             ;;
             
         *)
@@ -99,11 +122,27 @@ echo "Setting up build directory..."
 mkdir -p build
 cd build
 
+BUILD_TEST_FLAG=""
+if [ "$1" == "--test" ] || [ "$1" == "-t" ]; then
+    BUILD_TEST_FLAG="-DBUILD_TESTING=ON"
+    echo "Testing mode enabled."
+fi
+
 echo "Configuring project..."
-cmake ..
+cmake $BUILD_TEST_FLAG ..
 
 echo "Building project..."
 make
+
+if [ "$1" == "--test" ] || [ "$1" == "-t" ]; then
+    echo "Running tests..."
+    make test
+
+    if [ "$2" == "--no-install" ]; then
+        echo "Tests completed. Skipping installation."
+        exit 0
+    fi
+fi
 
 echo "Installing SCE editor..."
 sudo make install
