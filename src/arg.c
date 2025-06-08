@@ -19,15 +19,15 @@ void print_version() {
 }
 
 bool is_directory(const char* path) {
-    struct stat statbuf;
-    if (stat(path, &statbuf) != 0) return false;
-    return S_ISDIR(statbuf.st_mode);
+    struct stat local_statbuf;
+    if (stat(path, &local_statbuf) != 0) return false;
+    return S_ISDIR(local_statbuf.st_mode);
 }
 
 bool is_file(const char* path) {
-    struct stat statbuf;
-    if (stat(path, &statbuf) != 0) return false;
-    return S_ISREG(statbuf.st_mode);
+    struct stat local_statbuf;
+    if (stat(path, &local_statbuf) != 0) return false;
+    return S_ISREG(local_statbuf.st_mode);
 }
 
 void args(int argc, char* argv[]) {

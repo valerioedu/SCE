@@ -136,57 +136,67 @@ void update_screen_content(int start_line) {
             }
             
             if (!colored) {
-                for (int k = 0; k < quotes_info.count; k++) {
-                    if (j >= quotes_info.keywords[k].start && j < quotes_info.keywords[k].end) {
-                        attron(COLOR_PAIR(6));
-                        colored = true;
-                        break;
-                    }
-                }
-                
-                
-                for (int k = 0; k < blue_info.count; k++) {
-                    if (j >= blue_info.keywords[k].start && j < blue_info.keywords[k].end) {
-                        attron(COLOR_PAIR(1));
-                        colored = true;
-                        break;
-                    }
-                }
-                
-                
-                for (int k = 0; k < purple_info.count; k++) {
-                    if (j >= purple_info.keywords[k].start && j < purple_info.keywords[k].end) {
-                        attron(COLOR_PAIR(2));
+                if (!colored) {
+                    for (int k = 0; k < quotes_info.count; k++) {
+                        if (j >= quotes_info.keywords[k].start && j < quotes_info.keywords[k].end) {
+                            attron(COLOR_PAIR(6));
                             colored = true;
-                        break;
-                    }
-                }
-        
-                for (int k = 0; k < function_info.count; k++) {
-                    if (j >= function_info.keywords[k].start && j < function_info.keywords[k].end) {
-                        attron(COLOR_PAIR(3));
-                        colored = true;
-                        break;
+                            break;
+                        }
                     }
                 }
                 
-                for (int k = 0; k < parentheses_info.count; k++) {
-                    if (j >= parentheses_info.keywords[k].start && j < parentheses_info.keywords[k].end) {
-                        attron(COLOR_PAIR(4));
-                        colored = true;
-                        break;
+                if (!colored) {
+                    for (int k = 0; k < blue_info.count; k++) {
+                        if (j >= blue_info.keywords[k].start && j < blue_info.keywords[k].end) {
+                            attron(COLOR_PAIR(1));
+                            colored = true;
+                            break;
+                        }
                     }
                 }
-
-                for (int k = 0; k < variable_info.count; k++) {
-                    if (j >= variable_info.keywords[k].start && j < variable_info.keywords[k].end) {
-                        attron(COLOR_PAIR(5));
-                        colored = true;
-                        break;
+                
+                if (!colored) {
+                    for (int k = 0; k < purple_info.count; k++) {
+                        if (j >= purple_info.keywords[k].start && j < purple_info.keywords[k].end) {
+                            attron(COLOR_PAIR(2));
+                            colored = true;
+                            break;
+                        }
                     }
                 }
-
+                
+                if (!colored) {
+                    for (int k = 0; k < function_info.count; k++) {
+                        if (j >= function_info.keywords[k].start && j < function_info.keywords[k].end) {
+                            attron(COLOR_PAIR(3));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!colored) {
+                    for (int k = 0; k < parentheses_info.count; k++) {
+                        if (j >= parentheses_info.keywords[k].start && j < parentheses_info.keywords[k].end) {
+                            attron(COLOR_PAIR(4));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!colored) {
+                    for (int k = 0; k < variable_info.count; k++) {
+                        if (j >= variable_info.keywords[k].start && j < variable_info.keywords[k].end) {
+                            attron(COLOR_PAIR(5));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
             }
+
             
             addch(lines[i][j]);
 
