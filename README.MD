@@ -2,6 +2,8 @@
 
 SCE, pronounced as C, is a lightweight, terminal-based code editor built with ncurses, designed for young C developers who want to approach CLI editors for the first time. It's designed to provide a straightforward yet powerful editing experience with syntax highlighting, file browsing, and basic IDE features.
 
+![General Example](screenshots/Screenshot%202025-06-08%20114048.png)
+
 ## Features
 
 - Syntax highlighting for C/C++
@@ -84,6 +86,8 @@ SCE -v
 - search: equivalent to CTRL+F
 - goto \<Lines\> \<Cols\>: move to (Lines, Cols) position
 
+![Goto Example](screenshots/Screenshot%202025-06-08%20114142.png)
+
 ## File Explorer
 
 - ↑/↓: Navigate through files and directories
@@ -95,6 +99,8 @@ SCE -v
 - F3: Open selected file
 - H: Show help
 
+![File Explorer Example](screenshots/Screenshot%202025-06-08%20114105.png)
+
 ## Git Integration
 
 When working in a Git repository, SCE provides:
@@ -103,12 +109,16 @@ When working in a Git repository, SCE provides:
 - Git status window (F7) to view pending changes and commit history
 - Automatic detection of Git repositories
 
+![Git Example](screenshots/Screenshot%202025-06-08%20114123.png)
+
 ## Search
 
 - Enter: Search for text
 - ↑/↓: Navigate between matches
 - X: Replace the current match
 - Esc: Cancel search
+
+![Search Example](screenshots/Screenshot%202025-06-08%20114201.png)
 
 ## Configuration
 
@@ -117,6 +127,8 @@ SCE is fully customizable through its built-in configuration editor:
 - Navigate options with Up/Down arrows
 - Edit values with Enter
 - Save changes with F10
+
+![Config Example](screenshots/Screenshot%202025-06-08%20114223.png)
 
 ### Configurable Options:
 
