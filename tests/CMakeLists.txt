@@ -1,8 +1,6 @@
 include_directories(${CHECK_INCLUDE_DIRS} ../src)
 
-# Special handling for Check on macOS
 if(APPLE)
-    # Try to find Check library directly
     execute_process(
         COMMAND brew --prefix check
         OUTPUT_VARIABLE CHECK_PREFIX
@@ -32,7 +30,6 @@ add_library(test_support STATIC
 
 add_executable(test_editor test_editor.c)
 
-# Platform-specific libraries
 if(APPLE)
     target_link_libraries(test_editor
         test_support
