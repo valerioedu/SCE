@@ -1,9 +1,11 @@
 #include "colors.h"
 
 /*
-*   +--------------------------+
-*   | TODO: Implement typedefs |
-*   +--------------------------+
+*   +-----------------------------+
+*   | TODO: Implement typedefs    |
+*   |                             |
+*   | Implement preprocessor defs |
+*   +-----------------------------+
 */
 
 const char* blue_keywords[] = { 
@@ -16,7 +18,7 @@ const char* blue_keywords[] = {
     "signed", "unsigned", "bool", "struct", "union", "enum", "class",
     "inline", "virtual", "explicit", "friend", "typedef", "namespace",
     "template", "typename", "mutable", "using", "asm", "alignas", "alignof",
-    "decltype", "constexpr", "noexcept", "thread_local", "nullptr"
+    "decltype", "constexpr", "noexcept", "thread_local", "nullptr",
 
     // other words that are usually blue
     "NULL", "true", "false", "uint8_t", "uint16_t", "uint32_t", "uint64_t",
