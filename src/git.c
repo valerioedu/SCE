@@ -450,7 +450,7 @@ void git_history_window() {
                         
                         while (*p && line < LINES - 10) {
                             if (*p == '\n') {
-                                mvwprintw(details_win, line++, 2, "");
+                                wmove(details_win, line++, 2);
                                 col = 2;
                             } else {
                                 mvwaddch(details_win, line, col++, *p);
