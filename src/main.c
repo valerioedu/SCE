@@ -511,6 +511,9 @@ void editor() {
         case 26: ctrl_z(); break;
         case 546: ctrl_left_arrow(lines[current_line]); break;
         case 561: ctrl_right_arrow(lines[current_line]); break;
+        case 18: save_cursor(current_line, current_col); break;
+        case 567: ctrl_up(); need_redraw = true; break;//ctrl_up(); break;
+        case 526: ctrl_down(); need_redraw = true; break;
         case KEY_RESIZE: apply_resize(); break;
         case 544:                   // Alt+Left - Go to start of line, provisional
             current_col = 0;

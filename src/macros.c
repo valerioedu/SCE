@@ -6,6 +6,15 @@
 #include "macros.h"
 #include "library.h"
 
+typedef struct Cursor {
+    int row;
+    int col;
+} Cursor;
+
+Cursor* cursors = NULL;
+int cursor_count = 0;
+int cursor_capacity = 0;
+
 int* search(char str[], int* matches) {
     size_t size = strlen(str);
     int capacity = 4;
@@ -381,4 +390,83 @@ void ctrl_left_arrow(char* line) {
     }
     
     current_col = pos;
+}
+
+void sort_cursors_by_row() {
+    for (int i = 1; i < cursor_count; i++) {
+        Cursor key = cursors[i];
+        int j = i - 1;
+        
+        while (j >= 0 && cursors[j].row > key.row) {
+            cursors[j + 1] = cursors[j];
+            j--;
+        }
+        cursors[j + 1] = key;
+    }
+}
+
+void save_cursor(int line, int col) {
+    Cursor cur = {line, col};
+    if (cursors == NULL) {
+        cursor_capacity = 4;
+        cursors = malloc(cursor_capacity * sizeof(Cursor));
+        if (cursors == NULL) return;
+        memset(cursors, 0, cursor_capacity * sizeof(Cursor));
+    }
+        
+    if (cursor_count >= cursor_capacity) {
+        size_t new_capacity = cursor_capacity * 2;
+        Cursor* new_curs = realloc(cursors, new_capacity * sizeof(Cursor));
+        if (new_curs) {
+            cursors = new_curs;
+            cursor_capacity = new_capacity;
+        } else {
+            return;
+        }
+    }
+
+    cursors[cursor_count++] = cur;
+    sort_cursors_by_row();
+}
+
+void ctrl_up() {
+    if (cursor_count == 0) return;
+    
+    int target_index = -1;
+    for (int i = 0; i < cursor_count; i++) {
+        if (cursors[i].row < current_line) {
+            if (target_index == -1 || cursors[i].row > cursors[target_index].row) {
+                target_index = i;
+            }
+        }
+    }
+    
+    if (target_index != -1) {
+        current_line = cursors[target_index].row;
+        current_col = cursors[target_index].col;
+        
+        int start_line = (current_line > LINES / 2) ? current_line - LINES / 2 : 0;
+        update_screen_content(start_line);
+    }
+}
+
+void ctrl_down() {
+    if (cursor_count == 0) return;
+    
+    int target_index = -1;
+    for (int i = 0; i < cursor_count; i++) {
+        if (cursors[i].row > current_line) {
+            if (target_index == -1 || cursors[i].row < cursors[target_index].row) {
+                target_index = i;
+            }
+        }
+    }
+    
+    if (target_index != -1) {
+        current_line = cursors[target_index].row;
+        current_col = cursors[target_index].col;
+        
+        int start_line = (current_line > LINES / 2) ? current_line - LINES / 2 : 0;
+        update_screen_content(start_line);
+    }
 }
