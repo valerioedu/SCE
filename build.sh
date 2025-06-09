@@ -118,7 +118,14 @@ else
     esac
 fi
 
-echo "Setting up build directory..."
+if [ -d "/build"]; then
+    echo "Removing old build directory..."
+    rm -rf build
+    echo "Setting up new build directory..."
+else 
+    echo "Setting up build directory..."
+fi
+
 mkdir -p build
 cd build
 
