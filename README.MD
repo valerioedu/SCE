@@ -18,6 +18,7 @@ SCE, pronounced as C, is a lightweight, terminal-based code editor built with nc
 - Configuration Editor
 - Git integration
 - Cross-platform (Linux and macOS compatible)
+- Multiple cursors
 
 ## Installation
 
@@ -71,13 +72,26 @@ SCE -v
 - F9: Open console
 - Ctrl+F: Search within file
 - Ctrl+Z: Undo
-- Ctrl+Right Arrow: Move cursor to the beginning of the previous word
-- Ctrl+Left Arrow: Move cursor to the beginning of the next word
+- Ctrl+R: Save current cursor
+- Ctrl+Left Arrow: Move cursor to the beginning of the previous word
+- Ctrl+Right Arrow: Move cursor to the beginning of the next word
+- Ctrl+Up Arrow: Move to previous cursor
+- Ctrl+Down Arrow: Move to next cursor
 
 - Alt+Right Arrow: Goes to the end of the line
 - Alt+Left Arrow:  Goes to the start of the line
 - Esc: Exit editor
 - Tab: Insert tab
+
+## Multiple Cursors
+
+SCE supports working with multiple cursors:
+
+- Ctrl+R: Save the current cursor position
+- Ctrl+Up Arrow: Navigate to the nearest saved cursor position above
+- Ctrl+Down Arrow: Navigate to the nearest saved cursor position below
+
+Multiple cursors allow you to quickly jump between different positions in your file.
 
 ## Console Commands
 
