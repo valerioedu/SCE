@@ -1,9 +1,10 @@
 echo "SCE Editor Build Script"
 echo "======================="
 
-if grep -q Microsoft /proc/version; then
-    echo "WSL detected, synchronizing clock..."
-    sudo hwclock -s
+if grep -q -E "Microsoft|WSL" /proc/version 2>/dev/null || [ -n "$WSL_DISTRO_NAME" ] || [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; then
+    echo "Updating file timestamps to fix clock skew..."
+    find . -type f -not -path "*/\.git/*" -exec touch {} \; 2>/dev/null || \
+    sudo find . -type f -not -path "*/\.git/*" -exec touch {} \;
 fi
 
 detect_package_manager() {
@@ -144,7 +145,21 @@ echo "Configuring project..."
 cmake $BUILD_TEST_FLAG ..
 
 echo "Building project..."
-make
+BUILD_OUTPUT=$(make 2>&1)
+BUILD_STATUS=$?
+
+if echo "$BUILD_OUTPUT" | grep -q "Clock skew detected" || echo "$BUILD_OUTPUT" | grep -q "modification time.*in the future"; then
+    echo "Clock skew warnings detected! Fixing timestamps..."
+    cd ..
+    find . -type f -not -path "*/\.git/*" -exec touch {} \; 2>/dev/null || \
+    sudo find . -type f -not -path "*/\.git/*" -exec touch {} \;
+    cd build
+    echo "Rebuilding after timestamp fix..."
+    make
+else
+    echo "Building project..."
+    make
+fi
 
 if [ "$1" == "--test" ] || [ "$1" == "-t" ]; then
     echo "Running tests..."
