@@ -1,0 +1,27 @@
+name: Building & Running
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  building_and_running:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Make build script executable
+      run: chmod +x build.sh
+      
+    - name: Build project
+      run: ./build.sh
+      
+    - name: Run SCE
+      run: SCE -h
