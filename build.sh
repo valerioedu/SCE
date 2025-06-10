@@ -23,6 +23,19 @@ detect_package_manager() {
 
 if [[ "$OSTYPE" == "darwin"* ]]; then    
     echo "Checking dependencies..."
+
+    if ! command -v brew &> /dev/null; then
+        echo "Homebrew is not installed. It's required to install dependencies."
+        
+        echo "Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            
+        if ! command -v brew &> /dev/null; then
+            echo "Failed to install Homebrew. Please install it manually from https://brew.sh"
+            exit 1
+        fi
+    fi
+
     if ! command -v cmake &> /dev/null; then
         echo "Installing cmake..."
         brew install cmake
@@ -49,6 +62,20 @@ else
     case $PKG_MANAGER in
         "pacman")
             echo "Checking dependencies..."
+
+            if command -v sudo &> /dev/null; then
+                PRIV_CMD="sudo"
+            else
+                echo "sudo not found. Using su instead."
+                PRIV_CMD="su -c"
+                echo "Would you like to install sudo? (y/n)"
+                read -r install_sudo
+                if [[ "$install_sudo" == "y" || "$install_sudo" == "Y" ]]; then
+                    su -c "pacman -S --noconfirm sudo"
+                    PRIV_CMD="sudo"
+                fi
+            fi
+            
             if ! command -v cmake &> /dev/null; then
                 echo "Installing cmake..."
                 sudo pacman -S --noconfirm cmake

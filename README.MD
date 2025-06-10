@@ -29,6 +29,7 @@ SCE, pronounced as C, is a lightweight, terminal-based code editor built with nc
 - pkg-config
 - C compiler
 - git (optional, for Git integration features)
+- Homebrew for macOS
 
 But don't worry, the build script will check and install them for you!
 
