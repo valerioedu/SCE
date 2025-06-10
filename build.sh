@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "SCE Editor Build Script"
 echo "======================="
 
