@@ -156,9 +156,6 @@ if echo "$BUILD_OUTPUT" | grep -q "Clock skew detected" || echo "$BUILD_OUTPUT" 
     cd build
     echo "Rebuilding after timestamp fix..."
     make
-else
-    echo "Building project..."
-    make
 fi
 
 if [ "$1" == "--test" ] || [ "$1" == "-t" ]; then
