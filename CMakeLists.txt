@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(SCE)
+project(SCE C)
 
 add_compile_options(
     -Wno-unused-result
