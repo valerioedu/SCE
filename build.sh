@@ -1,6 +1,11 @@
 echo "SCE Editor Build Script"
 echo "======================="
 
+if grep -q Microsoft /proc/version; then
+    echo "WSL detected, synchronizing clock..."
+    sudo hwclock -s
+fi
+
 detect_package_manager() {
     if command -v pacman &> /dev/null; then
         echo "pacman"
