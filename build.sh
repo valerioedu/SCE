@@ -118,7 +118,7 @@ else
     esac
 fi
 
-if [ -d "/build"]; then
+if [ -d "build" ]; then
     echo "Removing old build directory..."
     rm -rf build
     echo "Setting up new build directory..."
