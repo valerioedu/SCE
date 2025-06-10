@@ -169,7 +169,7 @@ All settings are stored in the `.sceconfig` file in your home directory.
 
 ## Memory Usage
 
-SCE is optimized for memory efficiency, with dynamic allocation used for the undo history system to minimize memory footprint while maintaining functionality. Soon it will be implemented test and benchmark directories.
+SCE is optimized for memory efficiency, with dynamic allocation used for the undo history system to minimize memory footprint while maintaining functionality. Soon a benchmark directory will be implemented.
 
 ## System Requirements
 
