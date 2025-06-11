@@ -101,6 +101,7 @@ Multiple cursors allow you to quickly jump between different positions in your f
 - term: open a shell instance
 - config: configure your options
 - search: equivalent to CTRL+F
+- exit/quit: exits the program
 - goto \<Lines\> \<Cols\>: move to (Lines, Cols) position
 
 ![Goto Example](screenshots/Screenshot%202025-06-08%20114142.png)

@@ -3,4 +3,6 @@
 
 void console();
 
+extern bool exit_command;
+
 #endif 

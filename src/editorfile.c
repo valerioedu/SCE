@@ -1,5 +1,11 @@
 #include "editorfile.h"
 
+/*
+*   +-----------------------------------------------+
+*   | TODO: implement better logic for default path |
+*   +-----------------------------------------------+
+*/
+
 char current_path[MAX_PATH];
 
 void create_dir(const char* current_path);
@@ -350,8 +356,16 @@ void file_save() {
     WINDOW *dialog = newwin(8, 60, LINES/2 - 4, COLS/2 - 30);
     box(dialog, 0, 0);
     wattron(dialog, A_BOLD);
+
     mvwprintw(dialog, 0, 20, " Save File ");
     wattroff(dialog, A_BOLD);
+
+    // TEMPORARY
+    if (config.default_path == NULL) {
+        mvwprintw(dialog, 3, 2, " Select the default path first!");
+        wgetch(dialog);
+        return;
+    }
     
     mvwprintw(dialog, 2, 2, "Enter file name to save:");
     mvwprintw(dialog, 4, 2, "File name: ");

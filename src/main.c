@@ -356,11 +356,7 @@ void editor() {
             }
             break;
         case KEY_F(4):
-            if (file_name[0] != '\0') {
-                save_file();
-            } else {
-                file_save();
-            }
+            save_file();
             need_redraw = true;
             break;
         case KEY_F(3):
@@ -512,7 +508,7 @@ void editor() {
         case 546: ctrl_left_arrow(lines[current_line]); break;
         case 561: ctrl_right_arrow(lines[current_line]); break;
         case 18: save_cursor(current_line, current_col); break;
-        case 567: ctrl_up(); need_redraw = true; break;//ctrl_up(); break;
+        case 567: ctrl_up(); need_redraw = true; break;
         case 526: ctrl_down(); need_redraw = true; break;
         case KEY_RESIZE: apply_resize(); break;
         case 544:                   // Alt+Left - Go to start of line, provisional
@@ -630,7 +626,12 @@ int main(int argc, char* argv[]) {
     display_lines();
     update_screen_content(0);
 
-    while (1) editor();
+    while (1 && !exit_command) editor();
+
+    if (exit_command) {
+        endwin();
+        exit(0);
+    }
 
     cleanup_lines();
     cleanup_undo_history();
