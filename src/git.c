@@ -7,6 +7,7 @@
 
 #include "git.h"
 #include "macros.h"
+#include "library.h"
 
 #define BUFFER_SIZE 1024
 #define MAX_COMMAND_LENGTH 2048
@@ -80,6 +81,7 @@ char* execute_git_command(const char* command) {
 }
 
 bool is_git_repository(const char* path) {
+    if (in_memory) return;
     char command[MAX_COMMAND_LENGTH];
     snprintf(command, MAX_COMMAND_LENGTH, 
              "cd \"%s\" && git rev-parse --is-inside-work-tree > /dev/null 2>&1", path);

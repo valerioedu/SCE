@@ -31,6 +31,8 @@ int start_line = 0;
 char file_name[512] = {0};
 char text[MAX_LINES * MAX_COLS] = {0};
 
+bool in_memory = false;
+
 void init_lines() {
     lines_capacity = 100;  // Initial capacity of 100 lines
     lines = malloc(lines_capacity * sizeof(char*));
@@ -616,6 +618,13 @@ int main(int argc, char* argv[]) {
     }
     args(argc, argv);
 
+    for (int i = 1; i < argc; i++) {
+        if (file_name[0] == '\0') {
+            strncpy(file_name, argv[i], sizeof(file_name) - 1);
+            in_memory = true;
+        }
+    }
+
     for (int i = 0; i < MAX_UNDO; i++) {
         undo_history[i].lines = NULL;
         undo_history[i].line_count = 0;
@@ -630,6 +639,9 @@ int main(int argc, char* argv[]) {
 
     if (exit_command) {
         endwin();
+        cleanup_lines();
+        cleanup_undo_history();
+        cleanup_variables();
         exit(0);
     }
 

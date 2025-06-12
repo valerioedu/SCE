@@ -31,6 +31,7 @@ typedef struct EditorConfig {
     bool parenthesis_autocomplete;
     bool quotations_autocomplete;
     char* default_path;
+    bool autosave;
 } EditorConfig;
 
 typedef struct UndoState {
@@ -53,6 +54,7 @@ extern char text[MAX_LINES * MAX_COLS];
 extern EditorConfig config;
 extern bool open_file_browser;
 extern char* selected_path_from_browser;
+extern bool in_memory;
 
 void insert_char(char c);
 void tab();

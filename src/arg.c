@@ -57,12 +57,10 @@ void args(int argc, char* argv[]) {
                 load_file(resolved_path);
                 return;
             } else {
+                endwin();
                 printf("Error: '%s' is not a valid file or directory.\n", argv[i]);
                 exit(1);
             }
-        } else {
-            printf("Error: Could not resolve path '%s': %s\n", argv[i], strerror(errno));
-            exit(1);
-        }
+        } 
     }
 }
