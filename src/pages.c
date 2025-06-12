@@ -19,13 +19,15 @@ void display_info() {
     row = row / 2;
     col = col / 2;
     int start = col - (strlen("press:   F1\t for instructions") + 6) / 2;
-    mvprintw(row - 4, col - strlen("Info") / 2, "Info");
-    mvprintw(row - 2, start, "press:   F1\t\t for instructions");
-    mvprintw(row -1, start, "press:   F2\t\t to display this page");
-    mvprintw(row, start, "press:   F3\t\t for the file explorer");
-    mvprintw(row + 2, start, "press:   esc\t\t to exit");
-    mvprintw(row + 1, start, "press:   F4\t\t to save new file");
-    mvprintw(row + 4, col - strlen("Press any key to continue...") / 2, "Press any key to continue...");
+    mvprintw(row - 5, col - strlen("Info") / 2, "Info");
+    mvprintw(row - 3, start, "press:   F1\t\t for instructions");
+    mvprintw(row -2, start, "press:   F2\t\t to display this page");
+    mvprintw(row - 1 , start, "press:   F3\t\t for the file explorer");
+    mvprintw(row + 3, start, "press:   esc\t\t to exit");
+    mvprintw(row , start, "press:   F4\t\t to save file");
+    mvprintw(row + 1, start, "press:   F7\t\t for the git page");
+    mvprintw(row + 2, start, "press:   F9\t\t to open the command input");
+    mvprintw(row + 5, col - strlen("Press any key to continue...") / 2, "Press any key to continue...");
     refresh();
     char c = getch();
 }
