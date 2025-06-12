@@ -1,6 +1,6 @@
 # SCE - Simple Code Editor
 
-SCE, pronounced as C, is a lightweight, terminal-based code editor built with ncurses, designed for young C developers who want to approach CLI editors for the first time. It's designed to provide a straightforward yet powerful editing experience with syntax highlighting, file browsing, and basic IDE features.
+SCE, pronounced C, is a lightweight, terminal-based code editor built with ncurses, designed for young C developers who want to approach CLI editors for the first time. It's designed to provide a straightforward yet powerful editing experience with syntax highlighting, file browsing, and basic IDE features.
 
 ![General Example](screenshots/Screenshot%202025-06-08%20115935.png)
 
