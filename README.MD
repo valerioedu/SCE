@@ -43,7 +43,7 @@ cd SCE2
 
 # Build using the provided script
 chmod +x build.sh
-./build.sh
+./build.sh              #or sudo ./build.sh
 ```
 
 The build script will handle the installation of dependencies, compilation, and system installation.
@@ -53,6 +53,9 @@ The build script will handle the installation of dependencies, compilation, and 
 ```bash
 # Open SCE in the current directory
 SCE
+
+# Generates a new file in memory if not present in path
+SCE file.c
 
 # Open a specific file
 SCE path/to/file.c
@@ -179,6 +182,19 @@ All settings are stored in the `.sceconfig` file in your home directory.
 ## Memory Usage
 
 SCE is optimized for memory efficiency, with dynamic allocation used for the undo history system to minimize memory footprint while maintaining functionality. Soon a benchmark directory will be implemented.
+
+```bash
+# Memory usage with a 700-line C file open
+858398 valerio+  20   0   11296   1792   1664 S   0.0   0.0   0:02.00 SCE
+
+# Memory usage with a 2,000-line file open
+870131 valerio+  20   0   11956   2176   1664 S   0.0   0.0   0:20.80 SCE
+```
+
+With only ~2.1 MB of resident memory used even while editing substantial source files (2,000+ lines of code), SCE is suitable for resource-constrained environments while maintaining full functionality. For reference, without any plugins and without any file open: 
+
+- Nano Virt: 4468   Res: 3328  Shr: 2176
+- Vim  Virt: 17580  Res: 9344  Shr: 5760
 
 ## System Requirements
 
