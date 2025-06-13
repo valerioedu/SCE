@@ -15,10 +15,12 @@ SCE, pronounced C, is a lightweight, terminal-based code editor built with ncurs
 - Terminal integration
 - Memory-efficient design
 - Responsive UI with status bar
+- Automatic window resizing
 - Configuration Editor
 - Git integration
 - Cross-platform (Linux and macOS compatible)
 - Multiple cursors
+- Automatic saving
 
 ## Installation
 
@@ -102,6 +104,7 @@ Multiple cursors allow you to quickly jump between different positions in your f
 - config: configure your options
 - search: equivalent to CTRL+F
 - exit/quit: exits the program
+- load: loads last automatic save
 - goto \<Lines\> \<Cols\>: move to (Lines, Cols) position
 
 ![Goto Example](screenshots/Screenshot%202025-06-08%20114142.png)
@@ -148,11 +151,16 @@ SCE is fully customizable through its built-in configuration editor:
 
 ![Config Example](screenshots/Screenshot%202025-06-08%20114223.png)
 
+## .sceconfig Directory:
+
+The shell script will automatically create a .sceconfig directory in your home environment which will store your configuration file (.sceconfig), and your latest automatic save (save.sce).
+
 ### Configurable Options:
 
 - **Tab Size**: Number of spaces for tab indentation
 - **Parentheses Autocompletion**: Toggle automatic closing of parentheses
 - **Quotes Autocompletion**: Toggle automatic closing of quotation marks
+- **Automatic Saving**: Toggle automatic saving
 - **Color Schemes**: Customize syntax highlighting colors:
   - Comments
   - Types
