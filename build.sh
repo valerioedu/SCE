@@ -75,7 +75,7 @@ else
                     PRIV_CMD="sudo"
                 fi
             fi
-            
+
             if ! command -v cmake &> /dev/null; then
                 echo "Installing cmake..."
                 sudo pacman -S --noconfirm cmake
@@ -155,7 +155,7 @@ fi
 
 if [ -d "build" ]; then
     echo "Removing old build directory..."
-    rm -rf build
+    rm -rf build 2>/dev/null || sudo rm -rf build
     echo "Setting up new build directory..."
 else 
     echo "Setting up build directory..."
@@ -163,6 +163,16 @@ fi
 
 mkdir -p build
 cd build
+
+if [ -d "$HOME/.sceconfig" ]; then 
+    echo "sceconfig directory detected"
+else 
+    echo "Setting up sceconfig directory..."
+    mkdir -p "$HOME/.sceconfig"
+fi
+
+echo "Moving sceconfig file into its directory..."
+cp ../.sceconfig "$HOME/.sceconfig"
 
 BUILD_TEST_FLAG=""
 if [ "$1" == "--test" ] || [ "$1" == "-t" ]; then
