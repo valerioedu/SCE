@@ -32,6 +32,12 @@ char file_name[512] = {0};
 char text[MAX_LINES * MAX_COLS] = {0};
 
 bool in_memory = false;
+int time = 0;
+
+void autosave() {
+    if (time % 100 != 0 || config.autosave == false ) return;
+    autosave_file();
+}
 
 void init_lines() {
     lines_capacity = 100;  // Initial capacity of 100 lines
@@ -356,6 +362,8 @@ void editor() {
                     need_redraw = true;
                 }
             }
+            time++;
+            autosave();
             break;
         case KEY_F(4):
             save_file();
@@ -368,6 +376,8 @@ void editor() {
         case '\t':
             tab();
             need_redraw = true;
+            time++;
+            autosave();
             break;
         case ESCAPE:
             endwin();
@@ -461,6 +471,8 @@ void editor() {
             }
             
             need_redraw = true;
+            time++;
+            autosave();
             break;
         case 127:
         case KEY_BACKSPACE:
@@ -483,6 +495,8 @@ void editor() {
                     need_redraw = true;
                 }
             }
+            time++;
+            autosave();
             break;
         case KEY_F(7): {
             char file_dir[MAX_PATH] = {0};
@@ -512,7 +526,7 @@ void editor() {
         case 18: save_cursor(current_line, current_col); break;
         case 567: ctrl_up(); need_redraw = true; break;
         case 526: ctrl_down(); need_redraw = true; break;
-        case KEY_RESIZE: apply_resize(); break;
+        case KEY_RESIZE: apply_resize(); need_redraw = true; break;
         case 544:                   // Alt+Left - Go to start of line, provisional
             current_col = 0;
             need_redraw = true;
@@ -532,6 +546,8 @@ void editor() {
                 need_redraw = true;
                 detect_variables(lines[current_line]);
             }
+                time++;
+                autosave();
             break;
     }
 

@@ -7,6 +7,7 @@
 #include "library.h"
 #include "macros.h"
 #include "sceconfig.h"
+#include "editorfile.h"
 
 bool exit_command = false;
 
@@ -94,6 +95,7 @@ void console() {
         else if (strcmp(tokens[0], "search") == 0) ctrl_f();
         else if (strcmp(tokens[0], "config") == 0) config_editor();
         else if (strcmp(tokens[0], "exit") == 0 || strcmp(tokens[0], "quit") == 0) exit_command = true;
+        else if (strcmp(tokens[0], "load") == 0) autosaved_load();
         else if (strcmp(tokens[0], "goto") == 0) {
             if (token_count == 2 && (strcmp(tokens[1], "help")) || (strcmp(tokens[1], "-h"))) {
                 int rows,cols;

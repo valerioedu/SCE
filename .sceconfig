@@ -5,6 +5,9 @@ tab_size=4
 parenthesis_autocomplete=1
 quotations_autocomplete=1
 
+# automatic file saving
+autosave=1
+
 # color sets are based on vs code
 # color 1: types;             vs code blue
 # color 2: control flow;      vs code purple

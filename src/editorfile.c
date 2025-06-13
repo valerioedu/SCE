@@ -431,7 +431,7 @@ void save_file() {
     
     FILE *fp = fopen(file_name, "w");
     if (fp == NULL) {
-        WINDOW *dialog = newwin(6, 60, LINES/2 - 3, COLS/2 - 30);
+        WINDOW* dialog = newwin(6, 60, LINES/2 - 3, COLS/2 - 30);
         box(dialog, 0, 0);
         wattron(dialog, A_BOLD);
         mvwprintw(dialog, 0, 24, " Error ");
@@ -463,6 +463,60 @@ void save_file() {
     mvwprintw(dialog, 2, 2, "File saved successfully: %s", file_name);
     mvwprintw(dialog, 4, 20, "Press any key to continue");
     
+    wrefresh(dialog);
+    wgetch(dialog);
+    delwin(dialog);
+}
+
+void autosave_file() {
+    char autosave_path[MAX_PATH];
+    char* home_dir = getenv("HOME");
+    
+    if (!home_dir) return;
+    
+    snprintf(autosave_path, MAX_PATH, "%s/.sceconfig/save.sce", home_dir);
+    
+    if (access(autosave_path, F_OK) == 0) remove(autosave_path);
+    
+    FILE *fp = fopen(autosave_path, "w");
+    if (fp == NULL) return;
+    
+    for (int i = 0; i < line_count; i++) {
+        fputs(lines[i], fp);
+        if (i < line_count - 1 || lines[i][strlen(lines[i]) - 1] != '\n') {
+            fputc('\n', fp);
+        }
+    }
+    
+    fclose(fp);
+}
+
+void autosaved_load() {
+    char autosave_path[MAX_PATH];
+    char* home_dir = getenv("HOME");
+    
+    if (!home_dir) return;
+
+    snprintf(autosave_path, MAX_PATH, "%s/.sceconfig/save.sce", home_dir);
+    
+    WINDOW* dialog = newwin(6, 60, LINES/2 - 3, COLS/2 - 30);
+    box(dialog, 0, 0);
+    wattron(dialog, A_BOLD);
+    
+    if (access(autosave_path, F_OK) == 0) {
+        mvwprintw(dialog, 0, 20, " Autosave Found ");
+        wattroff(dialog, A_BOLD);
+        mvwprintw(dialog, 2, 2, "Loading autosaved file...");
+        wrefresh(dialog);
+        load_file(autosave_path);
+        mvwprintw(dialog, 4, 2, "Autosaved file loaded successfully.");
+    } else {
+        mvwprintw(dialog, 0, 20, " No Autosave ");
+        wattroff(dialog, A_BOLD);
+        mvwprintw(dialog, 2, 2, "Autosaved file not found.");
+    }
+    
+    mvwprintw(dialog, 4, 20, "Press any key to continue");
     wrefresh(dialog);
     wgetch(dialog);
     delwin(dialog);

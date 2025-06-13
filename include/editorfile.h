@@ -25,5 +25,7 @@ void create_file(const char* current_path);
 void create_dir(const char* current_path);
 void file_save();
 void save_file();
+void autosave_file();
+void autosaved_load();
 
 #endif
