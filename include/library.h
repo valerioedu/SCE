@@ -50,7 +50,8 @@ extern int current_line;
 extern int current_col;
 extern int start_line;
 extern char file_name[512];
-extern char text[MAX_LINES * MAX_COLS];
+extern char* text;
+extern size_t text_capacity;
 extern EditorConfig config;
 extern bool open_file_browser;
 extern char* selected_path_from_browser;
@@ -62,5 +63,7 @@ void transcribe_to_text();
 void update_screen_content(int start_line);
 void cleanup_lines();
 void ensure_lines_capacity(size_t needed_lines);
+void ensure_text_capacity(size_t needed_size);
+void cleanup_text();
 
 #endif

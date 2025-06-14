@@ -29,7 +29,8 @@ int current_line = 0;
 int current_col = 0;
 int start_line = 0;
 char file_name[512] = {0};
-char text[MAX_LINES * MAX_COLS] = {0};
+char *text = NULL;
+size_t text_capacity = 0;
 
 bool in_memory = false;
 int time = 0;
@@ -658,12 +659,14 @@ int main(int argc, char* argv[]) {
         cleanup_lines();
         cleanup_undo_history();
         cleanup_variables();
+        cleanup_text();
         exit(0);
     }
 
     cleanup_lines();
     cleanup_undo_history();
     cleanup_variables();
+    cleanup_text();
     endwin();
     return 0;
 }
