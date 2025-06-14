@@ -185,13 +185,13 @@ SCE is optimized for memory efficiency, with dynamic allocation used for the und
 
 ```bash
 # Memory usage with a 700-line C file open
-858398 valerio+  20   0   11296   1792   1664 S   0.0   0.0   0:02.00 SCE
+924211 valerio+  20   0    3104   2048   1664 S   0.0   0.0   0:00.05 SCE
 
 # Memory usage with a 2,000-line file open
-870131 valerio+  20   0   11956   2176   1664 S   0.0   0.0   0:20.80 SCE
+924416 valerio+  20   0    3764   2816   1792 S   0.0   0.0   0:00.11 SCE
 ```
 
-With only ~2.1 MB of resident memory used even while editing substantial source files (2,000+ lines of code), SCE is suitable for resource-constrained environments while maintaining full functionality. For reference, without any plugins and without any file open: 
+With only ~2 MB of resident memory used even while editing substantial source files (~700 lines of code), SCE is suitable for resource-constrained environments while maintaining full functionality. For reference, without any plugins and without any file open: 
 
 - Nano Virt: 4468   Res: 3328  Shr: 2176
 - Vim  Virt: 17580  Res: 9344  Shr: 5760
