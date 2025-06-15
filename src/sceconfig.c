@@ -427,6 +427,62 @@ void config_editor() {
                         free(config.default_path);
                     }
                     config.default_path = strdup(current_config.default_path);
+
+                    if (config.color_0 > 0) {
+                        int red = ((config.color_0 >> 5) & 0x7) * 1000 / 7;
+                        int green = ((config.color_0 >> 2) & 0x7) * 1000 / 7;
+                        int blue = (config.color_0 & 0x3) * 1000 / 3;
+                        init_color(COLOR_GREEN, red, green, blue);             // Comments
+                    }
+                    
+                    if (config.color_1 >    0) {
+                        int red = ((config.color_1 >> 5) & 0x7) * 1000 / 7;
+                        int green = ((config.color_1 >> 2) & 0x7) * 1000 / 7;
+                        int blue = (config.color_1 & 0x3) * 1000 / 3;
+                        init_color(8, red, green, blue);                       // Types
+                    }
+                    
+                    if (config.color_2 > 0) {
+                        int red = ((config.color_2 >> 5) & 0x7) * 1000 / 7;
+                        int green = ((config.color_2 >> 2) & 0x7) * 1000 / 7;
+                        int blue = (config.color_2 & 0x3) * 1000 / 3;
+                        init_color(9, red, green, blue);                       // Control flow
+                    }
+
+                    if (config.color_3 > 0) {
+                        int red = ((config.color_3 >> 5) & 0x7) * 1000 / 7;
+                        int green = ((config.color_3 >> 2) & 0x7) * 1000 / 7;
+                        int blue = (config.color_3 & 0x3) * 1000 / 3;
+                        init_color(COLOR_CYAN, red, green, blue);             // Variables
+                    }
+                    
+                    if (config.color_4 > 0) {
+                        int red = ((config.color_4 >> 5) & 0x7) * 1000 / 7;
+                        int green = ((config.color_4 >> 2) & 0x7) * 1000 / 7;
+                        int blue = (config.color_4 & 0x3) * 1000 / 3;
+                        init_color(11, red, green, blue);                      // Functions
+                    }
+                    
+                    if (config.color_6 > 0) {
+                        int red = ((config.color_6 >> 5) & 0x7) * 1000 / 7;
+                        int green = ((config.color_6 >> 2) & 0x7) * 1000 / 7;
+                        int blue = (config.color_6 & 0x3) * 1000 / 3;
+                        init_color(10, red, green, blue);                      // Parentheses
+                    }
+                    
+                    if (config.color_7 > 0) {
+                        int red = ((config.color_7 >> 5) & 0x7) * 1000 / 7;
+                        int green = ((config.color_7 >> 2) & 0x7) * 1000 / 7;
+                        int blue = (config.color_7 & 0x3) * 1000 / 3;
+                        init_color(12, red, green, blue);                      // Strings
+                    }
+                    
+                    if (config.color_8 > 0) {
+                        int red = ((config.color_8 >> 5) & 0x7) * 1000 / 7;
+                        int green = ((config.color_8 >> 2) & 0x7) * 1000 / 7;
+                        int blue = (config.color_8 & 0x3) * 1000 / 3;
+                        init_color(13, red, green, blue);                      // Typedefs
+                    }
                     
                     done = 1;
                     break;

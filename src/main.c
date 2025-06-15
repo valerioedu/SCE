@@ -626,8 +626,8 @@ int main(int argc, char* argv[]) {
             exit(0);
         }
     }
-    init_editor();
     load_config(&config);
+    init_editor();
     init_lines();
     display_info();
     if (open_file_browser) {
