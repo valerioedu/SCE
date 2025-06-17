@@ -94,6 +94,40 @@ void detect_variables(char* line) {
         temp[comment_2p] = '\0';
         working_line = temp;
     }
+
+    char* line_ptr = working_line;
+    while (*line_ptr && isspace((unsigned char)*line_ptr)) {
+        line_ptr++;
+    }
+
+    if (strncmp(line_ptr, "#define", 7) == 0) {
+        char* define_ptr = line_ptr + 7;
+        
+        while (*define_ptr && isspace((unsigned char)*define_ptr)) {
+            define_ptr++;
+        }
+        
+        if (*define_ptr && (isalpha((unsigned char)*define_ptr) || *define_ptr == '_')) {
+            char* macro_name_start = define_ptr;
+            char* macro_name_end = macro_name_start;
+            
+            while (*macro_name_end && (isalnum((unsigned char)*macro_name_end) || *macro_name_end == '_')) {
+                macro_name_end++;
+            }
+            
+            if (macro_name_end > macro_name_start) {
+                int name_len = macro_name_end - macro_name_start;
+                char* macro_name = malloc(name_len + 1);
+                if (macro_name) {
+                    strncpy(macro_name, macro_name_start, name_len);
+                    macro_name[name_len] = '\0';
+                    
+                    save_variables(macro_name);
+                    free(macro_name);
+                }
+            }
+        }
+    }
     
     if (variables && scan_in_progress) {
         for (size_t i = 0; i < variables_count; i++) {
