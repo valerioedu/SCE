@@ -33,8 +33,6 @@ int line_count = 1;
 int current_line = 0;
 int current_col = 0;
 int start_line = 0;
-char file_name[512] = {0};int current_col = 0;
-int start_line = 0;
 char file_name[512] = {0};
 char* text = NULL;
 size_t text_capacity = 0;
