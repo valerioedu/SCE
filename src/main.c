@@ -614,7 +614,7 @@ void init_editor() {
         init_color(10, 1000, 1000, 0);  // Bright yellow for functions
         init_color(11, 800, 800, 0);    // Dark yellow for parentheses
         init_color(12, 1000, 500, 0);   // Orange for strings
-        init_color(13, 700, 150, 250);
+        init_color(13, 0, 1000, 600);
     }
     
     init_pair(1, 8, COLOR_BLACK);   // Dark blue for type keywords
