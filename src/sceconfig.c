@@ -12,7 +12,7 @@
 
 #define MAX_LINE_LENGTH 256
 #define CONFIG_FILE_NAME ".sceconfig"
-#define MAX_CONFIG_ITEMS 14
+#define MAX_CONFIG_ITEMS 15
 #define MAX_VALUE_LENGTH 32
 
 /*
@@ -625,7 +625,14 @@ void save_config(const EditorConfig *config) {
 static void trim_string(char *str) {
     if (!str) return;
     
-    while(isspace((unsigned char)*str)) str++;
+    char *start = str;
+    while(isspace((unsigned char)*start)) {
+        start++;
+    }
+    
+    if (start != str) {
+        memmove(str, start, strlen(start) + 1);
+    }
     
     if(*str == 0) return;
     
