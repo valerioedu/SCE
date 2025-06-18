@@ -11,20 +11,30 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: macOS
+          - name: macOS (x64)
+            os: macos-12
+            artifact_suffix: macOS-x64
+          - name: macOS (ARM64)
             os: macos-latest
-            artifact_suffix: macOS
-          - name: Ubuntu
+            artifact_suffix: macOS-arm64
+
+          - name: Ubuntu (x64)
             os: ubuntu-latest
-            artifact_suffix: Linux-Ubuntu
-          - name: Fedora
+            artifact_suffix: Linux-Ubuntu-x64
+          - name: Ubuntu (ARM64)
+            os: ubuntu-latest
+            artifact_suffix: Linux-Ubuntu-arm64
+            arch: aarch64
+
+          - name: Fedora (x64)
             os: ubuntu-latest
             container: fedora:latest
-            artifact_suffix: Linux-Fedora
-          - name: Arch
+            artifact_suffix: Linux-Fedora-x64
+            
+          - name: Arch (x64)
             os: ubuntu-latest
             container: archlinux:latest
-            artifact_suffix: Linux-Arch
+            artifact_suffix: Linux-Arch-x64
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
@@ -35,21 +45,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Dependencies (Fedora)
-        if: matrix.container == 'fedora:latest'
-        run: dnf install -y make cmake gcc gcc-c++ pkg-config ncurses-devel check-devel git
-
-      - name: Install Dependencies (Arch)
-        if: matrix.container == 'archlinux:latest'
-        run: |
-          pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed base-devel cmake pkg-config ncurses check git
-
-      - name: Make build script executable
-        run: chmod +x build.sh
+      - name: Set up QEMU for ARM build
+        if: matrix.arch == 'aarch64'
+        uses: docker/setup-qemu-action@v3
 
       - name: Build Project
-        run: ./build.sh
+        run: |
+          set -e # Exit immediately if a command fails
+          chmod +x build.sh
+
+          if [ "${{ matrix.arch }}" == "aarch64" ]; then
+            docker run --rm -v ${{ github.workspace }}:/ws --workdir=/ws \
+              arm64v8/ubuntu:22.04 \
+              ./build.sh
+          else
+            ./build.sh
+          fi
 
       - name: Prepare Release Artifacts
         run: |
@@ -62,4 +73,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: sce-${{ github.ref_name }}-${{ matrix.artifact_suffix }}.tar.gz
+          files: sce-${{ github.ref_name }}-
