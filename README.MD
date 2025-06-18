@@ -8,7 +8,7 @@ SCE, pronounced C, is a lightweight, terminal-based code editor built with ncurs
 
 - Syntax highlighting for C/C++
 - File browser with directory navigation
-- Variable detection and highlighting
+- Variable and type definition detection and highlighting
 - Automatic indentation
 - Undo/redo functionality
 - Search and replace
