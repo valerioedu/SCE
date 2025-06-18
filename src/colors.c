@@ -29,6 +29,13 @@ const char* purple_keywords[] = {
     "if", "else", "switch", "case", "default", "for", "while", "do", "goto", "continue", "break", "return", "#define", "#include", "#ifndef", "ifdef", "#endif", "#if"
 };
 
+const char* c_primitive_types[] = {
+    "void", "int", "char", "short", "long", "float", "double",
+    "size_t", "int8_t", "int16_t", "int32_t", "int64_t",
+    "uint8_t", "uint16_t", "uint32_t", "uint64_t",
+    "bool", "int8_t", "int16_t", "int32_t", "int64_t", "size_t", "intptr_t", "uintptr_t"
+};
+
 const int blue_keywords_count = sizeof(blue_keywords) / sizeof(blue_keywords[0]);
 const int purple_keywords_count = sizeof(purple_keywords) / sizeof(purple_keywords[0]);
 
