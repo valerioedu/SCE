@@ -20,6 +20,18 @@ static char pending_alias[128] = "";
 static char pending_tag[128] = "";
 static int struct_depth = 0;
 
+void cleanup_typedefs() {
+    if (!typedefs) return;
+
+    for (size_t i = 0; i < typedefs_count; i++) {
+        free(typedefs[i]);
+    }
+
+    free(typedefs);
+    typedefs = NULL;
+    typedefs_count = typedefs_capacity = 0;
+}
+
 void begin_variable_scan() {
     if (variables) {
         for (size_t i = 0; i < variables_count; i++) {
@@ -106,18 +118,6 @@ static void save_typedef(const char* name) {
     }
 
     typedefs[typedefs_count++] = strdup(name);
-}
-
-void cleanup_typedefs() {
-    if (!typedefs) return;
-
-    for (size_t i = 0; i < typedefs_count; i++) {
-        free(typedefs[i]);
-    }
-
-    free(typedefs);
-    typedefs = NULL;
-    typedefs_count = typedefs_capacity = 0;
 }
 
 void detect_variables(char* line) {
