@@ -22,7 +22,6 @@ add_library(test_support STATIC
     ../src/library.c
     ../src/cc.c
     ../src/console.c
-    ../src/cfiles.c
     ../src/arg.c
     ../src/sceconfig.c
     ../src/git.c
