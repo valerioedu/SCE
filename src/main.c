@@ -130,6 +130,7 @@ void update_screen_content(int start_line) {
         KeywordInfo variable_info = check_variables(lines[i]);
         KeywordInfo quotes_info = color_quotes(lines[i]);
         KeywordInfo comments_info = color_comments(lines[i]);
+        KeywordInfo typedef_info  = check_typedefs(lines[i]);
 
         for (int j = horizontal_offset; j < strlen(lines[i]) && j - horizontal_offset < display_width; j++) {
             move(screen_line, line_offset + j - horizontal_offset);
@@ -189,6 +190,16 @@ void update_screen_content(int start_line) {
                     for (int k = 0; k < parentheses_info.count; k++) {
                         if (j >= parentheses_info.keywords[k].start && j < parentheses_info.keywords[k].end) {
                             attron(COLOR_PAIR(4));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!colored) {
+                    for (int k = 0; k < typedef_info.count; k++) {
+                        if (j >= typedef_info.keywords[k].start && j < typedef_info.keywords[k].end) {
+                            attron(COLOR_PAIR(8));
                             colored = true;
                             break;
                         }

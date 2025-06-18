@@ -11,6 +11,8 @@
 
 extern char** variables;
 extern size_t variables_count;
+extern char **typedefs;
+extern size_t typedefs_count;
 
 void save_variables(char* var);
 void detect_variables(char* line);

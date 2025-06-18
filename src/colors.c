@@ -309,6 +309,17 @@ KeywordInfo check_variables(char* line) {
     return total_info;
 }
 
+KeywordInfo check_typedefs(char* line) {
+    KeywordInfo total = {0};
+    for (size_t i = 0; i < typedefs_count && total.count < MAX_KEYWORDS; i++) {
+        KeywordInfo info = check_keyword(line, typedefs[i]);
+        for (int k = 0; k < info.count && total.count < MAX_KEYWORDS; k++) {
+            total.keywords[total.count++] = info.keywords[k];
+        }
+    }
+    return total;
+}
+
 KeywordInfo check_syntax(char* line) {
     KeywordInfo total_info = {0};
     KeywordInfo quotes_info = color_quotes(line);
@@ -318,8 +329,10 @@ KeywordInfo check_syntax(char* line) {
     KeywordInfo parentheses_info = color_parentheses(line);
     KeywordInfo variable_info = check_variables(line);
     KeywordInfo comments_info = color_comments(line);
-    KeywordInfo all_infos[] = {blue_info, purple_info, function_info, parentheses_info, variable_info, quotes_info, comments_info};
-    for (int i = 0; i < 7; i++) {
+    KeywordInfo typedef_info  = check_typedefs(line);
+    KeywordInfo all_infos[] = {blue_info, purple_info, function_info, 
+        parentheses_info, variable_info, quotes_info, comments_info, typedef_info};
+    for (int i = 0; i < 8; i++) {
         for (int j = 0; j < all_infos[i].count && total_info.count < MAX_KEYWORDS; j++) {
             total_info.keywords[total_info.count++] = all_infos[i].keywords[j];
         }

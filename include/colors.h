@@ -38,5 +38,6 @@ KeywordInfo check_variables(char* line);
 KeywordInfo check_syntax(char* line);
 KeywordInfo color_quotes(char* line);
 KeywordInfo color_comments(char* line);
+KeywordInfo check_typedefs(char* line);
 
 #endif
