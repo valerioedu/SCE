@@ -12,7 +12,7 @@
 
 #define MAX_LINE_LENGTH 256
 #define CONFIG_FILE_NAME ".sceconfig"
-#define MAX_CONFIG_ITEMS 16
+#define MAX_CONFIG_ITEMS 14
 #define MAX_VALUE_LENGTH 32
 
 /*
@@ -213,7 +213,6 @@ void config_editor() {
     current_config.color_6 = config.color_6;
     current_config.color_7 = config.color_7;
     current_config.color_8 = config.color_8;
-    current_config.color_9 = config.color_9;
     
     if (config.default_path != NULL) {
         current_config.default_path = strdup(config.default_path);
@@ -226,16 +225,15 @@ void config_editor() {
         {"parenthesis_autocomplete", "Auto-complete parentheses (0=off, 1=on)", "", 1},
         {"quotations_autocomplete", "Auto-complete quotes (0=off, 1=on)", "", 1},
         {"autosave", "File autosave (0=off, 1=on)", "", 1},
-        {"color_0", "Comments color (0-255, -1=default)", "", 0},
-        {"color_1", "Types color (0-255, -1=default)", "", 0},
-        {"color_2", "Control flow color (0-255, -1=default)", "", 0},
-        {"color_3", "Variables color (0-255, -1=default)", "", 0},
-        {"color_4", "Functions color (0-255, -1=default)", "", 0},
-        {"color_5", "Numbers color (0-255, -1=default)", "", 0},
-        {"color_6", "Parentheses color (0-255, -1=default)", "", 0},
-        {"color_7", "Strings color (0-255, -1=default)", "", 0},
-        {"color_8", "Typedef color (0-255, -1=default)", "", 0},
-        {"color_9", "Escape sequences color (0-255, -1=default)", "", 0},
+        {"color_0", "Comments color (0-255, 0=default)", "", 0},
+        {"color_1", "Types color (0-255, 0=default)", "", 0},
+        {"color_2", "Control flow color (0-255, 0=default)", "", 0},
+        {"color_3", "Variables color (0-255, 0=default)", "", 0},
+        {"color_4", "Functions color (0-255, 0=default)", "", 0},
+        {"color_5", "Numbers color (0-255, 0=default)", "", 0},
+        {"color_6", "Parentheses color (0-255, 0=default)", "", 0},
+        {"color_7", "Strings color (0-255, 0=default)", "", 0},
+        {"color_8", "Typedef color (0-255, 0=default)", "", 0},
         {"path", "Default file path", "", 2}
     };
     
@@ -252,8 +250,7 @@ void config_editor() {
     sprintf(options[10].value, "%d", current_config.color_6);
     sprintf(options[11].value, "%d", current_config.color_7);
     sprintf(options[12].value, "%d", current_config.color_8);
-    sprintf(options[13].value, "%d", current_config.color_9);
-    strncpy(options[14].value, current_config.default_path ? current_config.default_path : "", MAX_VALUE_LENGTH - 1);
+    strncpy(options[13].value, current_config.default_path ? current_config.default_path : "", MAX_VALUE_LENGTH - 1);
     
     int current_item = 0;
     int editing = 0;
@@ -399,7 +396,6 @@ void config_editor() {
                     current_config.color_6 = atoi(options[10].value);
                     current_config.color_7 = atoi(options[11].value);
                     current_config.color_8 = atoi(options[12].value);
-                    current_config.color_9 = atoi(options[13].value);
                     
                     if (current_config.default_path) {
                         free(current_config.default_path);
@@ -421,7 +417,6 @@ void config_editor() {
                     config.color_6 = current_config.color_6;
                     config.color_7 = current_config.color_7;
                     config.color_8 = current_config.color_8;
-                    config.color_9 = current_config.color_9;
                     
                     if (config.default_path) {
                         free(config.default_path);
@@ -519,7 +514,6 @@ void load_config(EditorConfig *config) {
     config->color_6 = 0;   //Parentheses
     config->color_7 = 0;   //Strings
     config->color_8 = 0;   //Typedef
-    config->color_9 = 0;   //Escape sequences
     
     FILE *config_file = fopen(get_config_file_path(), "r");
     if (!config_file) return;
@@ -573,8 +567,6 @@ void load_config(EditorConfig *config) {
             config->color_7 = parse_integer(value, 0);
         } else if (strcmp(key, "color_8") == 0) {
             config->color_8 = parse_integer(value, 0);
-        } else if (strcmp(key, "color_9") == 0) {
-            config->color_9 = parse_integer(value, 0);
         } else if (strcmp(key, "path") == 0) {
             if (value && strlen(value) > 0) {
                 if (config->default_path) {
@@ -604,6 +596,7 @@ void save_config(const EditorConfig *config) {
     fprintf(config_file, "autosave=%d\n\n", config->autosave ? 1 : 0);
     
     fprintf(config_file, "# color sets are based on vs code\n");
+    fprintf(config_file, "# color 0: comments;          vs code dark green\n\n");
     fprintf(config_file, "# color 1: types;             vs code blue\n");
     fprintf(config_file, "# color 2: control flow;      vs code purple\n");
     fprintf(config_file, "# color 3: variables;         vs code cyan\n");
@@ -611,9 +604,7 @@ void save_config(const EditorConfig *config) {
     fprintf(config_file, "# color 5: numbers;           vs code light green\n");
     fprintf(config_file, "# color 6: parentheses;       vs code variable\n");
     fprintf(config_file, "# color 7: strings;           vs code orange\n");
-    fprintf(config_file, "# color 8: typedef (c);       vs code green\n");
-    fprintf(config_file, "# color 9: escape sequences;  vs code dark yellow\n");
-    fprintf(config_file, "# color 0: comments;          vs code dark green\n\n");
+    fprintf(config_file, "# color 8: type definitions;       vs code green\n");
     
     fprintf(config_file, "color_0=%d\n", config->color_0);
     fprintf(config_file, "color_1=%d\n", config->color_1);
@@ -624,7 +615,6 @@ void save_config(const EditorConfig *config) {
     fprintf(config_file, "color_6=%d\n", config->color_6);
     fprintf(config_file, "color_7=%d\n", config->color_7);
     fprintf(config_file, "color_8=%d\n", config->color_8);
-    fprintf(config_file, "color_9=%d\n\n", config->color_9);
     
     fprintf(config_file, "# default path for files\n");
     fprintf(config_file, "path=%s\n", config->default_path ? config->default_path : "");
