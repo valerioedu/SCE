@@ -40,6 +40,16 @@ const int blue_keywords_count = sizeof(blue_keywords) / sizeof(blue_keywords[0])
 const int purple_keywords_count = sizeof(purple_keywords) / sizeof(purple_keywords[0]);
 
 int inside_multiline_comment = 0;
+int inside_quote = 0;
+
+static int is_inside_quotes(const char* line, int pos) {
+    int in_single = 0, in_double = 0;
+    for (int i = 0; i < pos; i++) {
+        if (line[i] == '\'' && (i == 0 || line[i-1] != '\\')) in_single = !in_single;
+        if (line[i] == '"' && (i == 0 || line[i-1] != '\\')) in_double = !in_double;
+    }
+    return in_single || in_double;
+}
 
 KeywordInfo color_comments(char* line) {
     KeywordInfo total_info = {0};
@@ -47,12 +57,15 @@ KeywordInfo color_comments(char* line) {
     
     char* single_comment = strstr(line, "//");
     if (single_comment && !inside_multiline_comment) {
-        if (total_info.count < MAX_KEYWORDS) {
-            total_info.keywords[total_info.count].start = single_comment - line;
-            total_info.keywords[total_info.count].end = line_len;
-            total_info.count++;
+        int pos = single_comment - line;
+        if (!is_inside_quotes(line, pos)) {
+            if (total_info.count < MAX_KEYWORDS) {
+                total_info.keywords[total_info.count].start = pos;
+                total_info.keywords[total_info.count].end = line_len;
+                total_info.count++;
+            }
+            return total_info;
         }
-        return total_info;
     }
     
     if (inside_multiline_comment) {
