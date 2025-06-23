@@ -226,7 +226,7 @@ void load_file(const char* filepath) {
         line_count++;
     }
     for (int i = 0; i < line_count; i++) {
-        detect_variables(lines[i]);
+        detect_variables(lines[i], i);
     }
     fclose(file);
     if (line_count == 0) {

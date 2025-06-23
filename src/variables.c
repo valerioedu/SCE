@@ -5,16 +5,14 @@
 #include <stdbool.h>
 #include <string.h>
 
-char** variables = NULL;
+Identifier* variables = NULL;
 size_t variables_capacity = 0;
 size_t variables_count = 0;
 
-bool* variables_found = NULL;
-bool scan_in_progress = false;
-
-char** typedefs = NULL;
+Identifier* typedefs = NULL;
 size_t typedefs_capacity = 0;
 size_t typedefs_count = 0;
+
 int typedef_waiting = 0;
 static char pending_alias[128] = "";
 static char pending_tag[128] = "";
@@ -22,11 +20,9 @@ static int struct_depth = 0;
 
 void cleanup_typedefs() {
     if (!typedefs) return;
-
     for (size_t i = 0; i < typedefs_count; i++) {
-        free(typedefs[i]);
+        free(typedefs[i].name);
     }
-
     free(typedefs);
     typedefs = NULL;
     typedefs_count = typedefs_capacity = 0;
@@ -35,32 +31,66 @@ void cleanup_typedefs() {
 void begin_variable_scan() {
     if (variables) {
         for (size_t i = 0; i < variables_count; i++) {
-            free(variables[i]);
+            free(variables[i].name);
         }
         variables_count = 0;
     }
-    
     cleanup_typedefs();
     typedef_waiting = 0;
     pending_alias[0] = '\0';
     pending_tag[0] = '\0';
     struct_depth = 0;
-    if (variables_found) free(variables_found);
-    variables_found = calloc(variables_capacity, sizeof(bool));
-    scan_in_progress = true;
 }
 
-void finish_variable_scan() {
-    if (!scan_in_progress || !variables_found) return;
+void save_variable(const char* name, int line_num) {
+    if (!name || !(isalpha((unsigned char)name[0]) || name[0] == '_')) return;
 
+    for (size_t i = 0; i < variables_count; i++) {
+        if (variables[i].declaration_line == line_num && strcmp(variables[i].name, name) == 0) {
+            return;
+        }
+    }
+
+    if (variables_count >= variables_capacity) {
+        size_t new_capacity = variables_capacity == 0 ? 16 : variables_capacity * 2;
+        Identifier* new_vars = realloc(variables, new_capacity * sizeof(Identifier));
+        if (!new_vars) return;
+        variables = new_vars;
+        variables_capacity = new_capacity;
+    }
+
+    variables[variables_count].name = strdup(name);
+    variables[variables_count].declaration_line = line_num;
+    variables_count++;
+}
+
+void save_typedef(const char* name, int line_num) {
+    if (!name || !*name) return;
+
+    for (size_t i = 0; i < typedefs_count; i++) {
+        if (strcmp(typedefs[i].name, name) == 0) return;
+    }
+
+    if (typedefs_count >= typedefs_capacity) {
+        size_t new_cap = typedefs_capacity == 0 ? 16 : typedefs_capacity * 2;
+        Identifier* tmp = realloc(typedefs, new_cap * sizeof(Identifier));
+        if (!tmp) return;
+        typedefs = tmp;
+        typedefs_capacity = new_cap;
+    }
+
+    typedefs[typedefs_count].name = strdup(name);
+    typedefs[typedefs_count].declaration_line = line_num;
+    typedefs_count++;
+}
+
+void remove_declarations_on_line(int line_num) {
     size_t i = 0;
     while (i < variables_count) {
-        if (!variables_found[i]) {
-            free(variables[i]);
-
-            for (size_t j = i; j < variables_count - 1; j++) {
-                variables[j] = variables[j + 1];
-                variables_found[j] = variables_found[j + 1];
+        if (variables[i].declaration_line == line_num) {
+            free(variables[i].name);
+            if (i < variables_count - 1) {
+                memmove(&variables[i], &variables[i + 1], (variables_count - i - 1) * sizeof(Identifier));
             }
             variables_count--;
         } else {
@@ -68,59 +98,27 @@ void finish_variable_scan() {
         }
     }
 
-    free(variables_found);
-    variables_found = NULL;
-    scan_in_progress = false;
+    i = 0;
+    while (i < typedefs_count) {
+        if (typedefs[i].declaration_line == line_num) {
+            free(typedefs[i].name);
+            if (i < typedefs_count - 1) {
+                memmove(&typedefs[i], &typedefs[i + 1], (typedefs_count - i - 1) * sizeof(Identifier));
+            }
+            typedefs_count--;
+        } else {
+            i++;
+        }
+    }
 }
 
-void save_variables(char* var) {
-    if (variables == NULL) {
-        variables_capacity = 16;
-        variables = malloc(variables_capacity * sizeof(char*));
-        if (variables == NULL) return;
-        memset(variables, 0, variables_capacity * sizeof(char*));
-    }
-
-    if (!var || !(isalpha((unsigned char)var[0]) || var[0] == '_')) return;
-
-    if (variables_count >= variables_capacity) {
-        size_t new_capacity = variables_capacity * 2;
-        char** new_vars = realloc(variables, new_capacity * sizeof(char*));
-        if (new_vars) {
-            variables = new_vars;
-            variables_capacity = new_capacity;
-        } else return;
-    }
-
-    variables[variables_count++] = strdup(var);
+void rescan_line_for_declarations(int line_num) {
+    if (line_num < 0 || line_num >= line_count) return;
+    remove_declarations_on_line(line_num);
+    detect_variables(lines[line_num], line_num);
 }
 
-static void save_typedef(const char* name) {
-    if (!name || !*name) return;
-
-    if (!typedefs) {
-        typedefs_capacity = 16;
-        typedefs = malloc(typedefs_capacity * sizeof(char*));
-        if (!typedefs) return;
-        memset(typedefs, 0, typedefs_capacity * sizeof(char*));
-    }
-
-    for (size_t i = 0; i < typedefs_count; i++) {
-        if (strcmp(typedefs[i], name) == 0) return;
-    }
-
-    if (typedefs_count >= typedefs_capacity) {
-        size_t new_cap = typedefs_capacity * 2;
-        char** tmp = realloc(typedefs, new_cap * sizeof(char*));
-        if (!tmp) return;
-        typedefs = tmp;
-        typedefs_capacity = new_cap;
-    }
-
-    typedefs[typedefs_count++] = strdup(name);
-}
-
-void detect_variables(char* line) {
+void detect_variables(char* line, int line_num) {
     if (inside_multiline_comment) return;
     
     char temp[MAX_COLS];
@@ -159,7 +157,7 @@ void detect_variables(char* line) {
             if (len > 0 && len < sizeof(pending_alias)) {
                 strncpy(pending_alias, start, len);
                 pending_alias[len] = '\0';
-                save_typedef(pending_alias);
+                save_typedef(pending_alias, line_num);
             }
         } else {
             typedef_waiting = 1;
@@ -202,10 +200,10 @@ void detect_variables(char* line) {
                         if (len < sizeof(pending_alias)) {
                             strncpy(pending_alias, alias_start, len);
                             pending_alias[len] = '\0';
-                            save_typedef(pending_alias);
+                            save_typedef(pending_alias, line_num);
                         }
                     } else if (pending_tag[0] != '\0') {
-                        save_typedef(pending_tag);
+                        save_typedef(pending_tag, line_num);
                     }
                     typedef_waiting = 0;
                     break;
@@ -236,7 +234,7 @@ void detect_variables(char* line) {
                                 if (var_name) {
                                     strncpy(var_name, token, nlen);
                                     var_name[nlen] = '\0';
-                                    save_variables(var_name);
+                                    save_variable(var_name, line_num);
                                     free(var_name);
                                 }
                             }
@@ -268,7 +266,7 @@ void detect_variables(char* line) {
                 if (macro_name) {
                     strncpy(macro_name, macro_name_start, name_len);
                     macro_name[name_len] = '\0';
-                    save_variables(macro_name);
+                    save_variable(macro_name, line_num);
                     free(macro_name);
                 }
             }
@@ -309,7 +307,7 @@ void detect_variables(char* line) {
                             if (strcmp(var_name, blue_keywords[j]) == 0) { is_keyword = true; break; }
                         }
 
-                        if (!is_keyword) save_variables(var_name);
+                        if (!is_keyword) save_variable(var_name, line_num);
                         free(var_name);
                     }
                 }
@@ -322,20 +320,20 @@ void detect_variables(char* line) {
     }
     for (size_t tt = 0; tt < typedefs_count; tt++) {
         char* type_pos = working_line;
-        while ((type_pos = strstr(type_pos, typedefs[tt])) != NULL) {
+        while ((type_pos = strstr(type_pos, typedefs[tt].name)) != NULL) {
             bool is_start = (type_pos == working_line
                  || (!isalnum(*(type_pos-1)) && *(type_pos-1) != '_'));
 
-            bool is_end = (!*(type_pos + strlen(typedefs[tt]))
-             || (!isalnum(*(type_pos + strlen(typedefs[tt])))
-              && *(type_pos + strlen(typedefs[tt])) != '_'));
+            bool is_end = (!*(type_pos + strlen(typedefs[tt].name))
+             || (!isalnum(*(type_pos + strlen(typedefs[tt].name)))
+              && *(type_pos + strlen(typedefs[tt].name)) != '_'));
 
             if (!is_start || !is_end) {
                 type_pos++;
                 continue;
             }
 
-            char* after_type = type_pos + strlen(typedefs[tt]);
+            char* after_type = type_pos + strlen(typedefs[tt].name);
             while (*after_type && (isspace((unsigned char)*after_type) || *after_type == '*')) after_type++;
             while (*after_type && *after_type != ';') {
                 while (*after_type && !isalnum((unsigned char)*after_type) && *after_type != '_') after_type++;
@@ -349,7 +347,7 @@ void detect_variables(char* line) {
                     if (var_name) {
                         strncpy(var_name, var_start, name_len);
                         var_name[name_len] = '\0';
-                        save_variables(var_name);
+                        save_variable(var_name, line_num);
                         free(var_name);
                     }
                 }
@@ -365,7 +363,7 @@ void detect_variables(char* line) {
 void cleanup_variables() {
     if (variables) {
         for (size_t i = 0; i < variables_count; i++) {
-            free(variables[i]);
+            free(variables[i].name);
         }
         free(variables);
         variables = NULL;

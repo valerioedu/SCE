@@ -300,37 +300,61 @@ KeywordInfo check_variables(char* line) {
     char* word_start = line;
     char* word_end;
     while (*word_start && total_info.count < MAX_KEYWORDS) {
-        while (*word_start && !isalnum(*word_start) && *word_start != '_') {
+        if (isalpha((unsigned char)*word_start) || *word_start == '_') {
+            word_end = word_start;
+            while (isalnum((unsigned char)*word_end) || *word_end == '_') {
+                word_end++;
+            }
+            char temp[MAX_COLS];
+            int len = word_end - word_start;
+            strncpy(temp, word_start, len);
+            temp[len] = '\0';
+
+            for (size_t i = 0; i < variables_count; i++) {
+                if (strcmp(variables[i].name, temp) == 0) {
+                    total_info.keywords[total_info.count].start = word_start - line;
+                    total_info.keywords[total_info.count].end = word_end - line;
+                    total_info.count++;
+                    break;
+                }
+            }
+            word_start = word_end;
+        } else {
             word_start++;
         }
-        if (!*word_start) break;
-        word_end = word_start;
-        while (*word_end && (isalnum(*word_end) || *word_end == '_')) {
-            word_end++;
-        }
-        for (int i = 0; i < variables_count; i++) {
-            if (strncmp(word_start, variables[i], word_end - word_start) == 0 &&
-                strlen(variables[i]) == (size_t)(word_end - word_start)) {
-                total_info.keywords[total_info.count].start = word_start - line;
-                total_info.keywords[total_info.count].end = word_end - line;
-                total_info.count++;
-                break;
-            }
-        }
-        word_start = word_end;
     }
     return total_info;
 }
 
 KeywordInfo check_typedefs(char* line) {
-    KeywordInfo total = {0};
-    for (size_t i = 0; i < typedefs_count && total.count < MAX_KEYWORDS; i++) {
-        KeywordInfo info = check_keyword(line, typedefs[i]);
-        for (int k = 0; k < info.count && total.count < MAX_KEYWORDS; k++) {
-            total.keywords[total.count++] = info.keywords[k];
+    KeywordInfo total_info = {0};
+    char* word_start = line;
+    char* word_end;
+    while (*word_start && total_info.count < MAX_KEYWORDS) {
+        if (isalpha((unsigned char)*word_start) || *word_start == '_') {
+            word_end = word_start;
+            while (isalnum((unsigned char)*word_end) || *word_end == '_') {
+                word_end++;
+            }
+            char temp[MAX_COLS];
+            int len = word_end - word_start;
+            strncpy(temp, word_start, len);
+            temp[len] = '\0';
+
+            for (size_t i = 0; i < typedefs_count; i++) {
+                if (strcmp(typedefs[i].name, temp) == 0) {
+                    total_info.keywords[total_info.count].start = word_start - line;
+                    total_info.keywords[total_info.count].end = word_end - line;
+                    total_info.count++;
+                    break;
+                }
+            }
+            word_start = word_end;
+        } else {
+            word_start++;
         }
     }
-    return total;
+    return total_info;
 }
 
 KeywordInfo check_syntax(char* line) {

@@ -9,16 +9,25 @@
 #include "cfiles.h"
 #include "library.h"
 
-extern char** variables;
+typedef struct {
+    char* name;
+    int declaration_line;
+} Identifier;
+
+extern Identifier* variables;
+extern size_t variables_capacity;
 extern size_t variables_count;
-extern char **typedefs;
+
+extern Identifier* typedefs;
+extern size_t typedefs_capacity;
 extern size_t typedefs_count;
 
-void save_variables(char* var);
-void detect_variables(char* line);
-void cleanup_variables();
-void init_lines();
+extern int typedef_waiting;
+
 void begin_variable_scan();
-void finish_variable_scan();
+void detect_variables(char* line, int line_num);
+void cleanup_variables();
+void cleanup_typedefs();
+void rescan_line_for_declarations(int line_num);
 
 #endif

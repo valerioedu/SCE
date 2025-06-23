@@ -8,6 +8,7 @@ void insert_char(char c) {
         memmove(&lines[current_line][current_col + 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
         lines[current_line][current_col] = c;
         current_col++;
+        rescan_line_for_declarations(current_line);
     }
 }
 

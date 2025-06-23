@@ -27,7 +27,6 @@ typedef struct EditorConfig {
     int color_6;
     int color_7;
     int color_8;
-    int color_9;
     bool parenthesis_autocomplete;
     bool quotations_autocomplete;
     char* default_path;
@@ -65,5 +64,6 @@ void cleanup_lines();
 void ensure_lines_capacity(size_t needed_lines);
 void ensure_text_capacity(size_t needed_size);
 void cleanup_text();
+void init_lines();
 
 #endif
