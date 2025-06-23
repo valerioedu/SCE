@@ -1,4 +1,5 @@
 #include "library.h"
+#include "variables.h"
 
 bool open_file_browser = false;
 
