@@ -29,6 +29,7 @@ typedef struct EditorConfig {
     int color_8;
     bool parenthesis_autocomplete;
     bool quotations_autocomplete;
+    bool expandtab;
     char* default_path;
     bool autosave;
 } EditorConfig;

@@ -360,7 +360,7 @@ void editor() {
             need_redraw = true;
             break;
         case '\t':
-            tab();
+            insert_char(c);
             need_redraw = true;
             time++;
             autosave();

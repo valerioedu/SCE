@@ -12,7 +12,7 @@
 
 #define MAX_LINE_LENGTH 256
 #define CONFIG_FILE_NAME ".sceconfig"
-#define MAX_CONFIG_ITEMS 15
+#define MAX_CONFIG_ITEMS 16
 #define MAX_VALUE_LENGTH 32
 
 extern EditorConfig config;
@@ -194,6 +194,7 @@ void config_editor() {
     
     EditorConfig current_config = {0};
     
+    current_config.expandtab = config.expandtab;
     current_config.tab_size = config.tab_size;
     current_config.parenthesis_autocomplete = config.parenthesis_autocomplete;
     current_config.quotations_autocomplete = config.quotations_autocomplete;
@@ -215,7 +216,8 @@ void config_editor() {
     }
     
     ConfigOption options[MAX_CONFIG_ITEMS] = {
-        {"tab_size", "Number of spaces per tab", "", 0},
+        {"expandtab", "Spaces insertion for tabs (0=off, 1=on) WORK IN PROGRESS", "", 1},
+        {"tab_size", "Number of visual spaces per tab", "", 0},
         {"parenthesis_autocomplete", "Auto-complete parentheses (0=off, 1=on)", "", 1},
         {"quotations_autocomplete", "Auto-complete quotes (0=off, 1=on)", "", 1},
         {"autosave", "File autosave (0=off, 1=on)", "", 1},
@@ -231,20 +233,21 @@ void config_editor() {
         {"path", "Default file path", "", 2}
     };
     
-    sprintf(options[0].value, "%d", current_config.tab_size);
-    sprintf(options[1].value, "%d", current_config.parenthesis_autocomplete ? 1 : 0);
-    sprintf(options[2].value, "%d", current_config.quotations_autocomplete ? 1 : 0);
-    sprintf(options[3].value, "%d", current_config.autosave);
-    sprintf(options[4].value, "%d", current_config.color_0);
-    sprintf(options[5].value, "%d", current_config.color_1);
-    sprintf(options[6].value, "%d", current_config.color_2);
-    sprintf(options[7].value, "%d", current_config.color_3);
-    sprintf(options[8].value, "%d", current_config.color_4);
-    sprintf(options[9].value, "%d", current_config.color_5);
-    sprintf(options[10].value, "%d", current_config.color_6);
-    sprintf(options[11].value, "%d", current_config.color_7);
-    sprintf(options[12].value, "%d", current_config.color_8);
-    strncpy(options[13].value, current_config.default_path ? current_config.default_path : "", MAX_VALUE_LENGTH - 1);
+    sprintf(options[0].value, "%d", current_config.expandtab);
+    sprintf(options[1].value, "%d", current_config.tab_size);
+    sprintf(options[2].value, "%d", current_config.parenthesis_autocomplete ? 1 : 0);
+    sprintf(options[3].value, "%d", current_config.quotations_autocomplete ? 1 : 0);
+    sprintf(options[4].value, "%d", current_config.autosave);
+    sprintf(options[5].value, "%d", current_config.color_0);
+    sprintf(options[6].value, "%d", current_config.color_1);
+    sprintf(options[7].value, "%d", current_config.color_2);
+    sprintf(options[8].value, "%d", current_config.color_3);
+    sprintf(options[9].value, "%d", current_config.color_4);
+    sprintf(options[10].value, "%d", current_config.color_5);
+    sprintf(options[11].value, "%d", current_config.color_6);
+    sprintf(options[12].value, "%d", current_config.color_7);
+    sprintf(options[13].value, "%d", current_config.color_8);
+    strncpy(options[14].value, current_config.default_path ? current_config.default_path : "", MAX_VALUE_LENGTH - 1);
     
     int current_item = 0;
     int editing = 0;
@@ -364,8 +367,8 @@ void config_editor() {
                     char* result_path = config_file_browser(previous_path);
                     
                     if (result_path != NULL) {
-                        strncpy(options[13].value, result_path, MAX_VALUE_LENGTH - 1);
-                        options[13].value[MAX_VALUE_LENGTH - 1] = '\0';
+                        strncpy(options[14].value, result_path, MAX_VALUE_LENGTH - 1);
+                        options[14].value[MAX_VALUE_LENGTH - 1] = '\0';
                         
                         if (current_config.default_path) {
                             free(current_config.default_path);
@@ -377,27 +380,29 @@ void config_editor() {
                 }
                     break;
                 case KEY_F(10):
-                    current_config.tab_size = atoi(options[0].value);
-                    current_config.parenthesis_autocomplete = atoi(options[1].value) != 0;
-                    current_config.quotations_autocomplete = atoi(options[2].value) != 0;
-                    current_config.autosave = atoi(options[3].value);
-                    current_config.color_0 = atoi(options[4].value);
-                    current_config.color_1 = atoi(options[5].value);
-                    current_config.color_2 = atoi(options[6].value);
-                    current_config.color_3 = atoi(options[7].value);
-                    current_config.color_4 = atoi(options[8].value);
-                    current_config.color_5 = atoi(options[9].value);
-                    current_config.color_6 = atoi(options[10].value);
-                    current_config.color_7 = atoi(options[11].value);
-                    current_config.color_8 = atoi(options[12].value);
+                    current_config.expandtab = atoi(options[0].value) != 0;
+                    current_config.tab_size = atoi(options[1].value);
+                    current_config.parenthesis_autocomplete = atoi(options[2].value) != 0;
+                    current_config.quotations_autocomplete = atoi(options[3].value) != 0;
+                    current_config.autosave = atoi(options[4].value);
+                    current_config.color_0 = atoi(options[5].value);
+                    current_config.color_1 = atoi(options[6].value);
+                    current_config.color_2 = atoi(options[7].value);
+                    current_config.color_3 = atoi(options[8].value);
+                    current_config.color_4 = atoi(options[9].value);
+                    current_config.color_5 = atoi(options[10].value);
+                    current_config.color_6 = atoi(options[11].value);
+                    current_config.color_7 = atoi(options[12].value);
+                    current_config.color_8 = atoi(options[13].value);
                     
                     if (current_config.default_path) {
                         free(current_config.default_path);
                     }
-                    current_config.default_path = strdup(options[13].value);
+                    current_config.default_path = strdup(options[14].value);
                     
                     save_config(&current_config);
                     
+                    config.expandtab = current_config.expandtab;
                     config.tab_size = current_config.tab_size;
                     config.parenthesis_autocomplete = current_config.parenthesis_autocomplete;
                     config.quotations_autocomplete = current_config.quotations_autocomplete;
@@ -494,6 +499,7 @@ void config_editor() {
 
 void load_config(EditorConfig *config) {
     //Set default configuration values
+    config->expandtab = true;
     config->tab_size = 4;
     config->parenthesis_autocomplete = true;
     config->quotations_autocomplete = true;
@@ -531,7 +537,9 @@ void load_config(EditorConfig *config) {
         trim_string(key);
         trim_string(value);
         
-        if (strcmp(key, "tab_size") == 0) {
+        if (strcmp(key, "expandtab") == 0) {
+            config->expandtab = parse_boolean(value);
+        } else if (strcmp(key, "tab_size") == 0) {
             config->tab_size = parse_integer(value, 4);
         } else if (strcmp(key, "autocomplete") == 0) {
             int autocomplete = parse_integer(value, 1);
@@ -579,8 +587,11 @@ void save_config(const EditorConfig *config) {
     if (!config_file) {
         return;
     }
+
+    fprintf(config_file, "# file insertion of spaces instead of \\t\n");
+    fprintf(config_file, "expandtab=%d\n\n", config->expandtab);
     
-    fprintf(config_file, "# size for tabs (spaces)\n");
+    fprintf(config_file, "# visual size for tabs (spaces)\n");
     fprintf(config_file, "tab_size=%d\n\n", config->tab_size);
     
     fprintf(config_file, "# specific autocompletion settings\n");
@@ -628,7 +639,7 @@ static void trim_string(char *str) {
         memmove(str, start, strlen(start) + 1);
     }
     
-    if(*str == 0) return;
+    if (*str == 0) return;
     
     char *end = str + strlen(str) - 1;
     while(end > str && isspace((unsigned char)*end)) end--;

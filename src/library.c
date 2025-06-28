@@ -4,18 +4,33 @@
 bool open_file_browser = false;
 
 void insert_char(char c) {
-    save_undo_state();
-    if (current_col < MAX_COLS - 1) {
-        memmove(&lines[current_line][current_col + 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
-        lines[current_line][current_col] = c;
-        current_col++;
-        rescan_line_for_declarations(current_line);
+    if (current_col < MAX_COLS - 1 && strlen(lines[current_line]) < MAX_COLS - 1) {
+        if (c == '\t' && current_col > MAX_COLS - TABS_SIZE) return;
+        else if (c == '\t' && current_col < MAX_COLS - TABS_SIZE) {
+            save_undo_state();
+            if (config.expandtab) {
+                int spaces = TABS_SIZE - (current_col % TABS_SIZE);
+                for (int i = 0; i < spaces; i++) {
+                    memmove(&lines[current_line][current_col + 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
+                    lines[current_line][current_col] = ' ';
+                    current_col++;
+                }
+            } else {        // TODO: Implement better \t handling, now copy expandtab
+                int spaces = TABS_SIZE - (current_col % TABS_SIZE);
+                for (int i = 0; i < spaces; i++) {
+                    memmove(&lines[current_line][current_col + 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
+                    lines[current_line][current_col] = ' ';
+                    current_col++;
+                }
+            } 
+        } else {
+            save_undo_state();
+            memmove(&lines[current_line][current_col + 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
+            lines[current_line][current_col] = c;
+            current_col++;
+        }
     }
-}
-
-void tab() {
-    if (current_col % TABS_SIZE == 0) for (int i = 0; i < TABS_SIZE; i++) insert_char(' ');
-    else while (current_col % TABS_SIZE != 0) insert_char(' ');
+    rescan_line_for_declarations(current_line);
 }
 
 void ensure_text_capacity(size_t needed_size) {
