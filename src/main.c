@@ -35,6 +35,8 @@ size_t text_capacity = 0;
 bool in_memory = false;
 int time = 0;
 
+uint16_t max_col = 0;
+
 void autosave() {
     if (time % 100 != 0 || config.autosave == false ) return;
     autosave_file();
@@ -380,30 +382,38 @@ void editor() {
         case KEY_UP:
             if (current_line > 0) {
                 current_line--;
-                if (current_col > strlen(lines[current_line])) current_col = strlen(lines[current_line]);
+                if (max_col > strlen(lines[current_line])) current_col = strlen(lines[current_line]);
+                else current_col = max_col;
                 need_redraw = true;
             }
             break;
         case KEY_DOWN:
             if (current_line < line_count - 1) {
                 current_line++;
-                if (current_col > strlen(lines[current_line])) current_col = strlen(lines[current_line]);
+                if (max_col > strlen(lines[current_line])) current_col = strlen(lines[current_line]);
+                else current_col = max_col;
                 need_redraw = true;
             }
             break;
         case KEY_LEFT:
-            if (current_col > 0) current_col--;
-            else if (current_col == 0 && current_line > 0) {
+            if (current_col > 0) {
+                current_col--;
+                max_col = current_col;
+            } else if (current_col == 0 && current_line > 0) {
                 current_line--;
                 current_col = strlen(lines[current_line]);
+                max_col = current_col;
                 need_redraw = true;
             }
             break;
         case KEY_RIGHT:
-            if (current_col < strlen(lines[current_line])) current_col++;
-            else if (current_col == strlen(lines[current_line]) && current_line < line_count - 1) {
+            if (current_col < strlen(lines[current_line])) {
+                current_col++;
+                max_col = current_col;
+            } else if (current_col == strlen(lines[current_line]) && current_line < line_count - 1) {
                 current_line++;
                 current_col = 0;
+                max_col = 0;
                 need_redraw = true;
             }
             break;
