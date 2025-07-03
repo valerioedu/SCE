@@ -35,6 +35,8 @@ size_t text_capacity = 0;
 bool in_memory = false;
 int time = 0;
 
+bool editing_multiple_cursors = false;
+
 uint16_t max_col = 0;
 
 void autosave() {
@@ -205,6 +207,33 @@ void update_screen_content(int start_line) {
                 attroff(COLOR_PAIR(3)); attroff(COLOR_PAIR(4));
                 attroff(COLOR_PAIR(5)); attroff(COLOR_PAIR(6));
                 attroff(COLOR_PAIR(7)); attroff(COLOR_PAIR(8));
+            }
+        }
+    }
+
+    if (cursor_count > 0) {
+        for (int i = 0; i < cursor_count; i++) {
+            int screen_row = cursors[i].row - start_line;
+            int screen_col = cursors[i].col - horizontal_offset + 6;
+
+            if (screen_row >= 0 && screen_row < row - 1 &&
+                screen_col >= 6 && screen_col < col) {
+                move(screen_row, screen_col);
+                attron(A_REVERSE | A_BOLD);
+                int ch = ' ';
+
+                if (cursors[i].col < strlen(lines[cursors[i].row])) {
+                    ch = lines[cursors[i].row][cursors[i].col];
+                }
+
+                addch(ch);
+                if (cursors[i].row == current_line && cursors[i].col == current_col) {
+                    move(screen_row, screen_col);
+                    attroff(A_REVERSE | A_BOLD);
+                    addch(ch);
+                } else {
+                    attroff(A_REVERSE | A_BOLD);
+                }
             }
         }
     }
@@ -521,6 +550,8 @@ void editor() {
         case 546: ctrl_left_arrow(lines[current_line]); break;
         case 561: ctrl_right_arrow(lines[current_line]); break;
         case 18: save_cursor(current_line, current_col); break;
+        case 2: cleanup_cursors(); need_redraw = true;   break;
+        case 5: editing_multiple_cursors = !editing_multiple_cursors; break;
         case 567: ctrl_up(); need_redraw = true; break;
         case 526: ctrl_down(); need_redraw = true; break;
         case KEY_RESIZE: apply_resize(); need_redraw = true; break;
@@ -532,7 +563,7 @@ void editor() {
             current_col = strlen(lines[current_line]);
             need_redraw = true;
             break;
-        default:
+        default: {
             if (c >= 32 && c <= 126) {
                 insert_char(c);
                 if (checks(c)) {
@@ -542,9 +573,10 @@ void editor() {
                 }
                 need_redraw = true;
             }
-                time++;
-                autosave();
+            time++;
+            autosave();
             break;
+        }
     }
 
     getmaxyx(stdscr, rows, cols);

@@ -6,11 +6,6 @@
 #include "macros.h"
 #include "library.h"
 
-typedef struct Cursor {
-    int row;
-    int col;
-} Cursor;
-
 Cursor* cursors = NULL;
 int cursor_count = 0;
 int cursor_capacity = 0;
@@ -427,6 +422,15 @@ void save_cursor(int line, int col) {
 
     cursors[cursor_count++] = cur;
     sort_cursors_by_row();
+}
+
+void cleanup_cursors() {
+    if (cursors) {
+        free(cursors);
+        cursors = NULL;
+    }
+    cursor_count = 0;
+    cursor_capacity = 0;
 }
 
 void ctrl_up() {

@@ -56,9 +56,9 @@ extern EditorConfig config;
 extern bool open_file_browser;
 extern char* selected_path_from_browser;
 extern bool in_memory;
+extern bool editing_multiple_cursors;
 
 void insert_char(char c);
-void tab();
 void transcribe_to_text();
 void update_screen_content(int start_line);
 void cleanup_lines();
@@ -66,5 +66,6 @@ void ensure_lines_capacity(size_t needed_lines);
 void ensure_text_capacity(size_t needed_size);
 void cleanup_text();
 void init_lines();
+void insert_char_at_position(char c, int line, int col);
 
 #endif
