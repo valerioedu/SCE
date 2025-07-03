@@ -55,6 +55,38 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "Installing Check unit testing framework..."
         brew install check
     fi
+elif [[ "$OSTYPE" == "FreeBSD"* ]] || [[ "$OSTYPE" == "NetBSD"* ]]; then
+    echo "Detected BSD system."
+    echo "Checking dependencies..."
+
+    if ! command -v pkg &> /dev/null; then
+        echo "Error: pkg command not found. Please install dependencies manually:"
+        echo "- cmake"
+        echo "- pkgconf"
+        echo "- ncurses"
+        echo "- check"
+        exit 1
+    fi
+
+    if ! command -v cmake &> /dev/null; then
+        echo "Installing cmake..."
+        sudo pkg install -y cmake
+    fi
+
+    if ! command -v pkg-config &> /dev/null; then
+        echo "Installing pkgconf..."
+        sudo pkg install -y pkgconf
+    fi
+    
+    if ! pkg-config --exists ncurses; then
+        echo "Installing ncurses development library..."
+        sudo pkg install -y ncurses
+    fi
+
+    if ! pkg-config --exists check; then
+        echo "Installing Check unit testing framework..."
+        sudo pkg install -y check
+    fi
 else
     PKG_MANAGER=$(detect_package_manager)
     echo "Using package manager: $PKG_MANAGER"
