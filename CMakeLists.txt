@@ -65,6 +65,7 @@ if(BUILD_TESTING)
     
     install(TARGETS sce_lib DESTINATION lib)
 else()
+    add_executable(SCE src/main.c ${LIB_SOURCES})
     target_link_libraries(SCE ${NCURSES_LIBRARIES})
 endif()
 
