@@ -1,114 +1,200 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
-REM ============================================================================
-REM  SCE Editor Build Script for Windows
-REM ============================================================================
-echo SCE Editor Build Script for Windows
+echo SCE Editor Build Script (Windows)
 echo ===================================
 
-REM --- Check for Administrator privileges for installation ---
-net session >nul 2>&1
-if %errorLevel% == 0 (
-    echo Running with Administrator privileges.
-) else (
-    echo Administrator privileges are required for dependency and final installation.
-    echo Please re-run this script as an Administrator.
+:: Check if we're in a Windows environment
+if not "%OS%"=="Windows_NT" (
+    echo This script is designed for Windows only.
+    exit /b 1
+)
+
+:: Check for required tools
+echo Checking dependencies...
+
+:: Check for CMake
+where cmake >nul 2>&1
+if %errorlevel% neq 0 (
+    echo CMake not found. Please install CMake and add it to your PATH.
+    echo Download from: https://cmake.org/download/
+    echo.
+    echo Alternative: Install Visual Studio with C++ tools which includes CMake
     pause
     exit /b 1
 )
 
-REM --- Check for dependencies ---
-echo Checking for dependencies...
-
-REM Check for winget
-where /q winget
-if %errorLevel% neq 0 (
-    echo winget is not installed or not in PATH.
-    echo Please install the App Installer from the Microsoft Store:
-    echo ms-windows-store://pdp/?productid=9NBLGGH4NNS1
+:: Check for Visual Studio Build Tools or Visual Studio
+where cl >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Visual Studio compiler (cl.exe) not found.
+    echo Please install one of the following:
+    echo - Visual Studio 2019 or later with C++ tools
+    echo - Visual Studio Build Tools
+    echo - Or run this script from a Visual Studio Developer Command Prompt
+    echo.
+    echo You can also try running: "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+    echo (adjust path for your VS version)
     pause
     exit /b 1
 )
 
-REM Check for Git
-where /q git
-if %errorLevel% neq 0 (
-    echo Git not found. Installing with winget...
-    winget install --id Git.Git -e --source winget
-) else (
-    echo Git found.
+:: Check for Git (optional but recommended)
+where git >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Warning: Git not found. Some features may not work properly.
+    echo Consider installing Git from: https://git-scm.com/download/win
 )
 
-REM Check for CMake
-where /q cmake
-if %errorLevel% neq 0 (
-    echo CMake not found. Installing with winget...
-    winget install --id Kitware.CMake -e --source winget
-) else (
-    echo CMake found.
-)
-
-REM Check for Visual Studio Build Tools
-echo Checking for Visual Studio Build Tools (C/C++ compiler)...
-call "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath > vs_path.tmp
-set /p VS_PATH=<vs_path.tmp
-del vs_path.tmp
-
-if not defined VS_PATH (
-    echo Visual Studio Build Tools not found.
-    echo Please install "Desktop development with C++" from the Visual Studio Installer.
-    echo You can download it here: https://visualstudio.microsoft.com/downloads/
-    pause
-    exit /b 1
-)
-echo Visual Studio Build Tools found at %VS_PATH%
-
-REM --- Setup build directory ---
+:: Clean up old build directory
 if exist "build" (
     echo Removing old build directory...
-    rmdir /s /q build
+    rmdir /s /q "build" 2>nul
+    if exist "build" (
+        echo Warning: Could not remove old build directory completely
+    )
 )
-echo Setting up new build directory...
+
+echo Setting up build directory...
 mkdir build
+if not exist "build" (
+    echo Failed to create build directory
+    exit /b 1
+)
+
 cd build
 
-REM --- Configure and Build ---
-set BUILD_TEST_FLAG=""
-if /i "%1" == "--test" set BUILD_TEST_FLAG=-DBUILD_TESTING=ON
-if /i "%1" == "-t" set BUILD_TEST_FLAG=-DBUILD_TESTING=ON
-
-if defined BUILD_TEST_FLAG (
-    echo Testing mode enabled.
+:: Set up sceconfig directory
+if not exist "%USERPROFILE%\.sceconfig" (
+    echo Setting up sceconfig directory...
+    mkdir "%USERPROFILE%\.sceconfig"
 )
 
-echo Configuring project with CMake...
-cmake %BUILD_TEST_FLAG% ..
+if exist "..\.sceconfig" (
+    echo Moving sceconfig file into its directory...
+    copy "..\.sceconfig" "%USERPROFILE%\.sceconfig\" >nul
+)
+
+:: Parse command line arguments
+set BUILD_TEST_FLAG=
+set NO_INSTALL=0
+
+:parse_args
+if "%~1"=="" goto :done_parsing
+if /i "%~1"=="--test" (
+    set BUILD_TEST_FLAG=-DBUILD_TESTING=ON
+    echo Testing mode enabled.
+) else if /i "%~1"=="-t" (
+    set BUILD_TEST_FLAG=-DBUILD_TESTING=ON
+    echo Testing mode enabled.
+) else if /i "%~1"=="--no-install" (
+    set NO_INSTALL=1
+)
+shift
+goto :parse_args
+
+:done_parsing
+
+:: Try to detect Visual Studio version and architecture
+if not defined CMAKE_GENERATOR (
+    :: Try VS 2022 first
+    if exist "C:\Program Files\Microsoft Visual Studio\2022" (
+        set CMAKE_GENERATOR="Visual Studio 17 2022"
+        set CMAKE_ARCH=-A x64
+    ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019" (
+        set CMAKE_GENERATOR="Visual Studio 16 2019"
+        set CMAKE_ARCH=-A x64
+    ) else (
+        echo Using default generator
+        set CMAKE_GENERATOR=
+        set CMAKE_ARCH=
+    )
+)
+
+echo Configuring project...
+if defined CMAKE_GENERATOR (
+    echo Using generator: %CMAKE_GENERATOR%
+    cmake %BUILD_TEST_FLAG% %CMAKE_GENERATOR% %CMAKE_ARCH% ..
+) else (
+    cmake %BUILD_TEST_FLAG% ..
+)
+
+if %errorlevel% neq 0 (
+    echo CMake configuration failed!
+    cd ..
+    pause
+    exit /b 1
+)
 
 echo Building project...
 cmake --build . --config Release
-if %errorLevel% neq 0 (
-    echo Build failed.
+
+if %errorlevel% neq 0 (
+    echo Build failed!
+    cd ..
+    pause
     exit /b 1
 )
 
-REM --- Run Tests if requested ---
-if defined BUILD_TEST_FLAG (
+:: Run tests if requested
+if not "%BUILD_TEST_FLAG%"=="" (
     echo Running tests...
-    ctest -C Release
+    ctest --output-on-failure -C Release
+    
+    if %NO_INSTALL% equ 1 (
+        echo Tests completed. Skipping installation.
+        cd ..
+        pause
+        exit /b 0
+    )
 )
 
-REM --- Install ---
+:: Install (copy to a reasonable location)
 echo Installing SCE editor...
-cmake --install . --config Release
-if %errorLevel% neq 0 (
-    echo Installation failed.
+
+:: Create installation directory
+set INSTALL_DIR=%LOCALAPPDATA%\SCE
+if not exist "%INSTALL_DIR%" (
+    mkdir "%INSTALL_DIR%"
+)
+
+:: Copy executable
+if exist "bin\Release\SCE.exe" (
+    copy "bin\Release\SCE.exe" "%INSTALL_DIR%\" >nul
+) else if exist "Release\SCE.exe" (
+    copy "Release\SCE.exe" "%INSTALL_DIR%\" >nul
+) else if exist "SCE.exe" (
+    copy "SCE.exe" "%INSTALL_DIR%\" >nul
+) else (
+    echo Could not find SCE.exe to install
+    cd ..
+    pause
     exit /b 1
 )
+
+:: Add to PATH (user PATH, not system PATH)
+echo Adding SCE to user PATH...
+for /f "tokens=2*" %%a in ('reg query "HKCU\Environment" /v PATH 2^>nul') do set "USER_PATH=%%b"
+if not defined USER_PATH set "USER_PATH="
+
+:: Check if already in PATH
+echo !USER_PATH! | find /i "%INSTALL_DIR%" >nul
+if %errorlevel% neq 0 (
+    if defined USER_PATH (
+        reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!USER_PATH!;%INSTALL_DIR%" /f >nul
+    ) else (
+        reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "%INSTALL_DIR%" /f >nul
+    )
+    echo SCE added to user PATH. You may need to restart your command prompt.
+) else (
+    echo SCE is already in PATH.
+)
+
+cd ..
 
 echo.
 echo Installation complete!
-echo You can find the executable in the installation directory.
-echo Add it to your PATH to run 'SCE' from anywhere.
-
-endlocal
+echo SCE has been installed to: %INSTALL_DIR%
+echo You can now run SCE from the command line (after restarting your command prompt).
+echo.
+pause
