@@ -76,7 +76,7 @@ SCE -v
 - F1: Help screen
 - F2: Info page
 - F3: File explorer
-- F4: Save file
+- F4 / Ctrl+S: Save file
 - F7: Git status window
 - F9: Open console
 - Ctrl+F: Search within file
@@ -91,7 +91,7 @@ SCE -v
 
 - Alt+Right Arrow: Goes to the end of the line
 - Alt+Left Arrow:  Goes to the start of the line
-- Esc: Exit editor
+- Esc / Ctrl+Q: Exit editor
 - Tab: Insert tab
 
 ## Multiple Cursors and Bookmarks

@@ -382,6 +382,7 @@ void editor() {
             time++;
             autosave();
             break;
+        case 19:
         case KEY_F(4):
             save_file();
             need_redraw = true;
@@ -396,6 +397,7 @@ void editor() {
             time++;
             autosave();
             break;
+        case 17:
         case ESCAPE:
             endwin();
             exit(0);
