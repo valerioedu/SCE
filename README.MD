@@ -51,8 +51,8 @@ brew install sce
 ### Build from source
 ```bash
 # Clone the repository
-git clone https://github.com/valerioedu/SCE2
-cd SCE2
+git clone https://github.com/valerioedu/SCE
+cd SCE
 
 # Build using the provided script
 chmod +x build.sh
