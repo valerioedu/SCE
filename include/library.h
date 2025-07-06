@@ -8,7 +8,7 @@
 
 #include "macros.h"
 
-#define MAX_LINES 32*1024
+#define MAX_LINES 4294967296
 #define MAX_COLS 256
 #define ESCAPE 27
 
