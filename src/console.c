@@ -97,13 +97,20 @@ void console() {
         else if (strcmp(tokens[0], "exit") == 0 || strcmp(tokens[0], "quit") == 0) exit_command = true;
         else if (strcmp(tokens[0], "load") == 0) autosaved_load();
         else if (strcmp(tokens[0], "goto") == 0) {
-            if (token_count == 2 && (strcmp(tokens[1], "help")) || (strcmp(tokens[1], "-h"))) {
+            if (token_count == 2 && ((strcmp(tokens[1], "help") == 0) || (strcmp(tokens[1], "-h") == 0))) {
                 int rows,cols;
                 getmaxyx(stdscr, rows,cols);
                 move(rows -1, 0);
                 clrtoeol();
                 mvprintw(rows -1, 3, "goto use: goto <Lines> <Cols>");
                 getch();
+            }
+
+            if (token_count == 2 && (strcmp(tokens[1], "end") == 0)) {
+                current_line = line_count - 1;
+                if (current_line < 0) current_line = 0;
+                current_col = strlen(lines[current_line]);
+                update_screen_content(current_line);
             }
 
             if (token_count == 3) {

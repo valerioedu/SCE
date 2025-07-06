@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(SCE C)
+project(SCE VERSION 1.0.0 LANGUAGES C)
 
 add_compile_options(
     -Wno-unused-result
@@ -68,6 +68,8 @@ else()
     add_executable(SCE src/main.c ${LIB_SOURCES})
     target_link_libraries(SCE ${NCURSES_LIBRARIES})
 endif()
+
+target_compile_definitions(SCE PRIVATE "-DPROJECT_VERSION=\"${PROJECT_VERSION}\"")
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/CMakeLists.txt")
     add_subdirectory(benchmarks)

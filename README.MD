@@ -114,6 +114,7 @@ Multiple cursors allow you to quickly jump between different positions in your f
 - exit/quit: exits the program
 - load: loads last automatic save
 - goto \<Lines\> \<Cols\>: move to (Lines, Cols) position
+- goto end: move to the end of the file
 
 ![Goto Example](screenshots/Screenshot%202025-06-08%20114142.png)
 

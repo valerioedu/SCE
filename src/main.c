@@ -150,6 +150,7 @@ void update_screen_content(int start_line) {
                         break;
                     }
                 }
+
                 if (!colored) {
                     for (int k = 0; k < quotes_info.count; k++) {
                         if (j >= quotes_info.keywords[k].start && j < quotes_info.keywords[k].end) {
@@ -159,6 +160,7 @@ void update_screen_content(int start_line) {
                         }
                     }
                 }
+
                 if (!colored) {
                     for (int k = 0; k < blue_info.count; k++) {
                         if (j >= blue_info.keywords[k].start && j < blue_info.keywords[k].end) {
@@ -168,6 +170,7 @@ void update_screen_content(int start_line) {
                         }
                     }
                 }
+
                 if (!colored) {
                     for (int k = 0; k < purple_info.count; k++) {
                         if (j >= purple_info.keywords[k].start && j < purple_info.keywords[k].end) {
@@ -177,6 +180,7 @@ void update_screen_content(int start_line) {
                         }
                     }
                 }
+
                 if (!colored) {
                     for (int k = 0; k < function_info.count; k++) {
                         if (j >= function_info.keywords[k].start && j < function_info.keywords[k].end) {
@@ -186,6 +190,7 @@ void update_screen_content(int start_line) {
                         }
                     }
                 }
+
                 if (!colored) {
                     for (int k = 0; k < parentheses_info.count; k++) {
                         if (j >= parentheses_info.keywords[k].start && j < parentheses_info.keywords[k].end) {
@@ -195,6 +200,7 @@ void update_screen_content(int start_line) {
                         }
                     }
                 }
+
                 if (!colored) {
                     for (int k = 0; k < typedef_info.count; k++) {
                         if (j >= typedef_info.keywords[k].start && j < typedef_info.keywords[k].end) {
@@ -204,6 +210,7 @@ void update_screen_content(int start_line) {
                         }
                     }
                 }
+
                 if (!colored) {
                     for (int k = 0; k < variable_info.count; k++) {
                         if (j >= variable_info.keywords[k].start && j < variable_info.keywords[k].end) {
@@ -696,7 +703,7 @@ int main(int argc, char* argv[]) {
         undo_history[i].line_count = 0;
     }
 
-    for (int i = 0; i < line_count; i++) detect_variables(lines[i], i);
+    if (endswith(file_name, ".c")) for (int i = 0; i < line_count; i++) detect_variables(lines[i], i);
 
     display_lines();
     update_screen_content(0);
