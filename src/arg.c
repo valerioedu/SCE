@@ -14,8 +14,11 @@ void print_usage() {
 }
 
 void print_version() {
-    printf("SCE (Simple-Code-Editor) version 1.0\n");
-    printf("Copyright (c) 2025\n");
+    printf("SCE (Simple-Code-Editor) version 1.0.0\n");
+    printf("Copyright (C) 2025 Valerioedu\n");
+    printf("This program comes with ABSOLUTELY NO WARRANTY.\n");
+    printf("This is free software, and you are welcome to redistribute it\n");
+    printf("under certain conditions; see the GNU GPL v3 license for details.\n");
 }
 
 bool is_directory(const char* path) {
