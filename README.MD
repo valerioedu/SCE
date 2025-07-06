@@ -36,6 +36,18 @@ SCE, pronounced C, is a lightweight, terminal-based code editor built with ncurs
 
 But don't worry, the build script will check and install them for you!
 
+### Homebrew (for macOS and Linux)
+
+You can install SCE using Homebrew.
+
+```bash
+# First, tap the repository
+brew tap valerioedu/sce
+
+# Now, install SCE
+brew install sce
+```
+
 ### Build from source
 ```bash
 # Clone the repository
