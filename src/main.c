@@ -94,6 +94,16 @@ void cleanup_lines() {
     lines = NULL;
 }
 
+bool endswith(const char *str, const char *suffix) {
+    if (!str || !suffix) return false;
+
+    size_t len_str = strlen(str);
+    size_t len_suffix = strlen(suffix);
+    if (len_suffix > len_str) return false;
+
+    return strcmp(str + len_str - len_suffix, suffix) == 0;
+}
+
 void update_screen_content(int start_line) {
     int row, col;
     getmaxyx(stdscr, row, col);
@@ -115,98 +125,108 @@ void update_screen_content(int start_line) {
 
         char* line_content = lines[current_file_line];
 
-        KeywordInfo blue_info = check_blue_keywords(line_content);
-        KeywordInfo purple_info = check_purple_keywords(line_content);
-        KeywordInfo function_info = check_functions(line_content);
-        KeywordInfo parentheses_info = color_parentheses(line_content);
-        KeywordInfo variable_info = check_variables(line_content);
-        KeywordInfo quotes_info = color_quotes(line_content);
-        KeywordInfo comments_info = color_comments(line_content);
-        KeywordInfo typedef_info = check_typedefs(line_content);
+        if (endswith(file_name, ".c") || endswith(file_name, ".h") 
+            || endswith(file_name, ".cpp") || endswith(file_name, ".cc")
+            || endswith(file_name, ".hh") || endswith(file_name, ".hpp")
+            || endswith(file_name, ".cxx") || endswith(file_name, ".hxx")) {
+            KeywordInfo blue_info = check_blue_keywords(line_content);
+            KeywordInfo purple_info = check_purple_keywords(line_content);
+            KeywordInfo function_info = check_functions(line_content);
+            KeywordInfo parentheses_info = color_parentheses(line_content);
+            KeywordInfo variable_info = check_variables(line_content);
+            KeywordInfo quotes_info = color_quotes(line_content);
+            KeywordInfo comments_info = color_comments(line_content);
+            KeywordInfo typedef_info = check_typedefs(line_content);
 
-        for (int j = horizontal_offset; j < strlen(line_content) && (j - horizontal_offset) < display_width; j++) {
-            move(i, line_offset + j - horizontal_offset);
+            for (int j = horizontal_offset; j < strlen(line_content) && (j - horizontal_offset) < display_width; j++) {
+                move(i, line_offset + j - horizontal_offset);
 
-            bool colored = false;
+                bool colored = false;
 
-            for (int k = 0; k < comments_info.count; k++) {
-                if (j >= comments_info.keywords[k].start && j < comments_info.keywords[k].end) {
-                    attron(COLOR_PAIR(7));
-                    colored = true;
-                    break;
-                }
-            }
-            if (!colored) {
-                for (int k = 0; k < quotes_info.count; k++) {
-                    if (j >= quotes_info.keywords[k].start && j < quotes_info.keywords[k].end) {
-                        attron(COLOR_PAIR(6));
+                for (int k = 0; k < comments_info.count; k++) {
+                    if (j >= comments_info.keywords[k].start && j < comments_info.keywords[k].end) {
+                        attron(COLOR_PAIR(7));
                         colored = true;
                         break;
                     }
                 }
-            }
-            if (!colored) {
-                for (int k = 0; k < blue_info.count; k++) {
-                    if (j >= blue_info.keywords[k].start && j < blue_info.keywords[k].end) {
-                        attron(COLOR_PAIR(1));
-                        colored = true;
-                        break;
+                if (!colored) {
+                    for (int k = 0; k < quotes_info.count; k++) {
+                        if (j >= quotes_info.keywords[k].start && j < quotes_info.keywords[k].end) {
+                            attron(COLOR_PAIR(6));
+                            colored = true;
+                            break;
+                        }
                     }
                 }
-            }
-            if (!colored) {
-                for (int k = 0; k < purple_info.count; k++) {
-                    if (j >= purple_info.keywords[k].start && j < purple_info.keywords[k].end) {
-                        attron(COLOR_PAIR(2));
-                        colored = true;
-                        break;
+                if (!colored) {
+                    for (int k = 0; k < blue_info.count; k++) {
+                        if (j >= blue_info.keywords[k].start && j < blue_info.keywords[k].end) {
+                            attron(COLOR_PAIR(1));
+                            colored = true;
+                            break;
+                        }
                     }
                 }
-            }
-            if (!colored) {
-                for (int k = 0; k < function_info.count; k++) {
-                    if (j >= function_info.keywords[k].start && j < function_info.keywords[k].end) {
-                        attron(COLOR_PAIR(3));
-                        colored = true;
-                        break;
+                if (!colored) {
+                    for (int k = 0; k < purple_info.count; k++) {
+                        if (j >= purple_info.keywords[k].start && j < purple_info.keywords[k].end) {
+                            attron(COLOR_PAIR(2));
+                            colored = true;
+                            break;
+                        }
                     }
                 }
-            }
-            if (!colored) {
-                for (int k = 0; k < parentheses_info.count; k++) {
-                    if (j >= parentheses_info.keywords[k].start && j < parentheses_info.keywords[k].end) {
-                        attron(COLOR_PAIR(4));
-                        colored = true;
-                        break;
+                if (!colored) {
+                    for (int k = 0; k < function_info.count; k++) {
+                        if (j >= function_info.keywords[k].start && j < function_info.keywords[k].end) {
+                            attron(COLOR_PAIR(3));
+                            colored = true;
+                            break;
+                        }
                     }
                 }
-            }
-            if (!colored) {
-                for (int k = 0; k < typedef_info.count; k++) {
-                    if (j >= typedef_info.keywords[k].start && j < typedef_info.keywords[k].end) {
-                        attron(COLOR_PAIR(8));
-                        colored = true;
-                        break;
+                if (!colored) {
+                    for (int k = 0; k < parentheses_info.count; k++) {
+                        if (j >= parentheses_info.keywords[k].start && j < parentheses_info.keywords[k].end) {
+                            attron(COLOR_PAIR(4));
+                            colored = true;
+                            break;
+                        }
                     }
                 }
-            }
-            if (!colored) {
-                for (int k = 0; k < variable_info.count; k++) {
-                    if (j >= variable_info.keywords[k].start && j < variable_info.keywords[k].end) {
-                        attron(COLOR_PAIR(5));
-                        colored = true;
-                        break;
+                if (!colored) {
+                    for (int k = 0; k < typedef_info.count; k++) {
+                        if (j >= typedef_info.keywords[k].start && j < typedef_info.keywords[k].end) {
+                            attron(COLOR_PAIR(8));
+                            colored = true;
+                            break;
+                        }
                     }
                 }
-            }
+                if (!colored) {
+                    for (int k = 0; k < variable_info.count; k++) {
+                        if (j >= variable_info.keywords[k].start && j < variable_info.keywords[k].end) {
+                            attron(COLOR_PAIR(5));
+                            colored = true;
+                            break;
+                        }
+                    }
+                }
 
-            addch(line_content[j]);
+                addch(line_content[j]);
 
-            if (colored) {
-                attroff(COLOR_PAIR(1)); attroff(COLOR_PAIR(2));
-                attroff(COLOR_PAIR(3)); attroff(COLOR_PAIR(4));
-                attroff(COLOR_PAIR(5)); attroff(COLOR_PAIR(6));
-                attroff(COLOR_PAIR(7)); attroff(COLOR_PAIR(8));
+                if (colored) {
+                    attroff(COLOR_PAIR(1)); attroff(COLOR_PAIR(2));
+                    attroff(COLOR_PAIR(3)); attroff(COLOR_PAIR(4));
+                    attroff(COLOR_PAIR(5)); attroff(COLOR_PAIR(6));
+                    attroff(COLOR_PAIR(7)); attroff(COLOR_PAIR(8));
+                }
+            }
+        } else {
+            int len = strlen(line_content);
+            if (horizontal_offset < len) {
+                mvaddnstr(i, line_offset, line_content + horizontal_offset, display_width);
             }
         }
     }
