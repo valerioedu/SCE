@@ -5,6 +5,8 @@
     #include <curses.h>
 #else
     #include <ncurses.h>
+    #include <dirent.h>
+    #include <unistd.h>
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,9 +15,7 @@
 #include "library.h"
 #include "variables.h"
 
-#include <dirent.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <errno.h>
 
 #define MAX_PATH 1024
