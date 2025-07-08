@@ -5,6 +5,7 @@
     #include <curses.h>
     #include <windows.h>
     #define getcwd(__buf, __size) _getcwd(__buf, __size)
+    #define strcasecmp _stricmp
 #else
     #include <ncurses.h>
 #endif

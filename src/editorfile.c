@@ -1,4 +1,5 @@
 #include "editorfile.h"
+#include "arg.h"
 
 /*
 *   +-----------------------------------------------+
@@ -186,6 +187,13 @@ char* filesystem(const char* dir_path) {
 }
 
 void load_file(const char* filepath) {
+#ifdef _WIN32
+    if (!loadfile) {
+        loadfile = true;
+        return;
+    }
+#endif
+
     FILE* file = fopen(filepath, "r");
     if (file == NULL) {
         mvprintw(LINES-1, 0, "Error: Unable to open file %s", filepath);
@@ -476,7 +484,7 @@ void autosave_file() {
     
     snprintf(autosave_path, MAX_PATH, "%s/.sceconfig/save.sce", home_dir);
     
-    if (access(autosave_path, F_OK) == 0) remove(autosave_path);
+    //if (access(autosave_path, F_OK) == 0) remove(autosave_path);
     
     FILE *fp = fopen(autosave_path, "w");
     if (fp == NULL) return;
@@ -503,7 +511,7 @@ void autosaved_load() {
     box(dialog, 0, 0);
     wattron(dialog, A_BOLD);
     
-    if (access(autosave_path, F_OK) == 0) {
+    /*if (access(autosave_path, F_OK) == 0) {
         mvwprintw(dialog, 0, 20, " Autosave Found ");
         wattroff(dialog, A_BOLD);
         mvwprintw(dialog, 2, 2, "Loading autosaved file...");
@@ -514,7 +522,7 @@ void autosaved_load() {
         mvwprintw(dialog, 0, 20, " No Autosave ");
         wattroff(dialog, A_BOLD);
         mvwprintw(dialog, 2, 2, "Autosaved file not found.");
-    }
+    }*/
     
     mvwprintw(dialog, 4, 20, "Press any key to continue");
     wrefresh(dialog);

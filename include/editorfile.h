@@ -3,6 +3,8 @@
 
 #ifdef _WIN32
     #include <curses.h>
+    #include <sys/stat.h>
+    #include <dirent.h>
 #else
     #include <ncurses.h>
     #include <dirent.h>

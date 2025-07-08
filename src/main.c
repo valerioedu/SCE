@@ -352,7 +352,9 @@ void display_lines() {
 
 void apply_resize() {
     timeout(0);
+#ifndef _WIN32
     if (resizeterm(0, 0) == ERR) return;
+#endif
     clear();
 
     int rows, cols;
@@ -389,8 +391,14 @@ void editor() {
     int row, col;
     getmaxyx(stdscr, row, col);
     
+    mvprintw(rows/2, cols/2, "%d", c);
+    
     switch (c) {
+#ifdef _WIN32
+        case 330:
+#else
         case KEY_DC:
+#endif
             save_undo_state();
             if (current_col < strlen(lines[current_line])) {
                 memmove(&lines[current_line][current_col], 
@@ -479,7 +487,11 @@ void editor() {
                 need_redraw = true;
             }
             break;
+#ifdef _WIN32
+        case 13:
+#else
         case '\n':
+#endif
             save_undo_state();
             ensure_lines_capacity(line_count + 1);
             bool between_braces = false;
@@ -532,8 +544,12 @@ void editor() {
             time++;
             autosave();
             break;
+#ifdef _WIN32
+        case 8:
+#else
         case 127:
         case KEY_BACKSPACE:
+#endif
             save_undo_state();
             if (current_col > 0) {
                 memmove(&lines[current_line][current_col - 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
@@ -578,16 +594,33 @@ void editor() {
             }
             break;
         case KEY_F(9): console(); break;
-        case 6: ctrl_f(); break;
+        case 6: ctrl_f(); need_redraw = true; break;
         case 26: ctrl_z(); break;
+#ifdef _WIN32
+        case 443: ctrl_left_arrow(lines[current_line]); break;
+        case 444: ctrl_right_arrow(lines[current_line]); break;
+#else
         case 546: ctrl_left_arrow(lines[current_line]); break;
         case 561: ctrl_right_arrow(lines[current_line]); break;
+#endif
         case 18: save_cursor(current_line, current_col); break;
         case 2: cleanup_cursors(); need_redraw = true;   break;
         case 5: editing_multiple_cursors = !editing_multiple_cursors; break;
+        case KEY_RESIZE: apply_resize(); need_redraw = true; break;
+#ifdef _WIN32
+        case 480: ctrl_up(); need_redraw = true; break;
+        case 481: ctrl_down(); need_redraw = true; break;
+        case 493:                   // Alt+Left - Go to start of line, provisional
+            current_col = 0;
+            need_redraw = true;
+            break;
+        case 492:                   // Alt+Right - Go to end of line, provisional
+            current_col = strlen(lines[current_line]);
+            need_redraw = true;
+            break;
+#else
         case 567: ctrl_up(); need_redraw = true; break;
         case 526: ctrl_down(); need_redraw = true; break;
-        case KEY_RESIZE: apply_resize(); need_redraw = true; break;
         case 544:                   // Alt+Left - Go to start of line, provisional
             current_col = 0;
             need_redraw = true;
@@ -596,6 +629,7 @@ void editor() {
             current_col = strlen(lines[current_line]);
             need_redraw = true;
             break;
+#endif
         default: {
             if (c >= 32 && c <= 126) {
                 insert_char(c);

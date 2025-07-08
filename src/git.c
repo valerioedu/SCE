@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
 #ifdef _WIN32
     #include <curses.h>
+    #define popen _popen
+    #define pclose _pclose
+    #include <direct.h>
+    #define chdir _chdir
 #else
     #include <ncurses.h>
     #include <unistd.h>

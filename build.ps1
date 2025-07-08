@@ -2,8 +2,11 @@
 
 $ProjectName = "SCE Editor"
 $PDCursesVersion = "4.5.2"
+$direntVersion = "1.25"
 $PDCursesUrl = "https://github.com/Bill-Gray/PDCursesMod/archive/refs/tags/v4.5.2.zip"
+$direntUrl = "https://github.com/tronkko/dirent/archive/refs/tags/1.25.zip"
 $PDCursesDir = "$($PSScriptRoot)/PDCursesMod"
+$direntDir = "$($PSScriptRoot)/dirent"
 
 function Test-CommandExists {
     param($command)
@@ -42,6 +45,15 @@ if (-not (Test-Path $vsInstallerPath)) {
     Write-Host "Visual Studio Build Tools detected."
 }
 
+Write-Host "Checking for Microsoft Visual C++ Redistributable..."
+$vcRedistCheck = winget list --id Microsoft.VCRedist.2015+.x64 2>$null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Microsoft Visual C++ Redistributable not found. Installing latest version..."
+    winget install --id Microsoft.VCRedist.2015+.x64 -e --accept-package-agreements --accept-source-agreements
+} else {
+    Write-Host "Microsoft Visual C++ Redistributable is installed."
+}
+
 if (-not (Test-Path $PDCursesDir)) {
     Write-Host "Downloading PDCursesMod..."
     $zipPath = "$($env:TEMP)\pdcurses.zip"
@@ -52,6 +64,18 @@ if (-not (Test-Path $PDCursesDir)) {
     Remove-Item $zipPath
 } else {
     Write-Host "PDCursesMod directory already exists."
+}
+
+if (-not (Test-Path $direntDir)) {
+    Write-Host "Downloading dirent..."
+    $zipPath = "$($env:TEMP)\dirent.zip"
+    Invoke-WebRequest -Uri $direntUrl -OutFile $zipPath
+    Write-Host "Extracting dirent..."
+    Expand-Archive -Path $zipPath -DestinationPath $PSScriptRoot
+    Rename-Item -Path "$($PSScriptRoot)/dirent-$($direntVersion)" -NewName "dirent"
+    Remove-Item $zipPath
+} else {
+    Write-Host "dirent directory already exists."
 }
 
 if (Test-Path "build") {

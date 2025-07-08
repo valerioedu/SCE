@@ -54,3 +54,5 @@ dkms.conf
 /build/
 .sceconfig
 /.vscode
+/PDCursesMod
+/dirent
