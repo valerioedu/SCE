@@ -3,7 +3,11 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <ncurses.h>
+#ifdef _WIN32
+    #include <curses.h>
+#else
+    #include <ncurses.h>
+#endif
 
 #include "git.h"
 #include "macros.h"
