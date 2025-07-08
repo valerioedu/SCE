@@ -32,7 +32,7 @@ if(WIN32)
     )
     
     if(MSVC)
-        add_compile_options(/W3 /wd4005)
+        add_compile_options(/W4 /wd4005)
     endif()
     
 else()
