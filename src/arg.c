@@ -1,6 +1,10 @@
 #include "arg.h"
 #include "library.h"
-#include <sys/stat.h>
+#ifdef _WIN32
+
+#else
+    #include <sys/stat.h>
+#endif
 #include "git.h"
 
 void print_usage() {
