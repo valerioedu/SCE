@@ -3,6 +3,8 @@
 
 #ifdef _WIN32
     #include <curses.h>
+    #include <win32.h>
+    #define getcwd(__buf, __size) _getcwd(__buf, __size)
 #else
     #include <ncurses.h>
 #endif
