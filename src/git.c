@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/wait.h>
 #ifdef _WIN32
     #include <curses.h>
 #else
     #include <ncurses.h>
+    #include <unistd.h>
 #endif
 
 #include "git.h"
