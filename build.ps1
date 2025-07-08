@@ -1,6 +1,7 @@
 #Requires -RunAsAdministrator
 
 $ProjectName = "SCE Editor"
+$PDCursesVersion = "4.5.2"
 $PDCursesUrl = "https://github.com/Bill-Gray/PDCursesMod/archive/refs/tags/v4.5.2.zip"
 $PDCursesDir = "$($PSScriptRoot)/PDCursesMod"
 
