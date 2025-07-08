@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.14)
 project(SCE VERSION 1.0.0 LANGUAGES C)
 
-add_compile_options(
-    -Wno-unused-result
-    -Wno-format-truncation
-    -Wno-zero-length
-)
+if (NOT WIN32)
+    add_compile_options(
+        -Wno-unused-result
+        -Wno-format-truncation
+        -Wno-zero-length
+    )
+endif()
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
