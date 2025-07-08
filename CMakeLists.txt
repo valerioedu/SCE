@@ -12,15 +12,31 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 option(BUILD_TESTING "Build tests" OFF)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(NCURSES REQUIRED ncurses)
+if(WIN32)
+    set(PDCURSES_DIR ${PDCURSES_DIR} CACHE PATH "Path to PDCursesMod source directory")
+    if(NOT EXISTS "${PDCURSES_DIR}/curses.h")
+        message(FATAL_ERROR "PDCursesMod not found at specified path: ${PDCURSES_DIR}. Please check the path.")
+    endif()
+    include_directories(${PDCURSES_DIR})
 
-if(BUILD_TESTING)
-    pkg_check_modules(CHECK check)
+    file(GLOB PDCURSES_SOURCES
+        "${PDCURSES_DIR}/pdcurses/*.c"
+        "${PDCURSES_DIR}/wincon/*.c"
+    )
+
+    add_compile_definitions(PDCURSES)
+else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(NCURSES REQUIRED ncurses)
+    include_directories(${NCURSES_INCLUDE_DIRS})
+    link_directories(${NCURSES_LIBRARY_DIRS})
 endif()
 
-include_directories(include ${NCURSES_INCLUDE_DIRS} src)
-link_directories(${NCURSES_LIBRARY_DIRS})
+if(BUILD_TESTING)
+    if (NOT WIN32)
+        pkg_check_modules(CHECK check)
+    endif()
+endif()
 
 set(LIB_SOURCES
     src/editorfile.c
