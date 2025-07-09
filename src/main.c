@@ -695,6 +695,16 @@ void init_editor() {
     keypad(stdscr, TRUE);
     noecho();
     start_color();
+#ifdef _WIN32
+    init_pair(1, COLOR_BLUE, COLOR_BLACK);      // Blue for type keywords
+    init_pair(2, COLOR_MAGENTA, COLOR_BLACK);   // Magenta for purple keywords
+    init_pair(3, COLOR_YELLOW, COLOR_BLACK);    // Yellow for functions
+    init_pair(4, COLOR_YELLOW, COLOR_BLACK);    // Yellow for parentheses
+    init_pair(5, COLOR_CYAN, COLOR_BLACK);      // Cyan for variables
+    init_pair(6, COLOR_RED, COLOR_BLACK);       // Red for strings
+    init_pair(7, COLOR_GREEN, COLOR_BLACK);     // Green for comments
+    init_pair(8, COLOR_GREEN, COLOR_BLACK);     // Green for typedefs
+#else
     if (can_change_color()) {
         init_color(8, 150, 250, 900);       // Dark blue
         init_color(9, 600, 0, 600);     // Purple
@@ -712,6 +722,7 @@ void init_editor() {
     init_pair(6, 12, COLOR_BLACK);      // Orange for strings
     init_pair(7, COLOR_GREEN, COLOR_BLACK); // Green for comments
     init_pair(8, 13, COLOR_BLACK); // Light green for typedefs potentially
+#endif
 }
 
 int main(int argc, char* argv[]) {    

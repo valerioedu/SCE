@@ -18,7 +18,7 @@ SCE, pronounced C, is a lightweight, terminal-based code editor built with ncurs
 - Automatic window resizing
 - Configuration Editor
 - Git integration
-- Cross-platform (Linux and macOS compatible)
+- Cross-platform (Linux, macOS, Windows and BSD)
 - Multiple cursors
 - Multiple bookmarks
 - Automatic saving
@@ -27,12 +27,13 @@ SCE, pronounced C, is a lightweight, terminal-based code editor built with ncurs
 
 ### Dependencies
 
-- ncurses
+- ncurses (Unix Systems) or PDCursesMod (Windows)
 - cmake
 - pkg-config
 - C compiler
 - git (optional, for Git integration features)
 - Homebrew for macOS
+- MSVC and Visual studio cmake for Windows, which need to be installed manually
 
 But don't worry, the build script will check and install them for you!
 
@@ -49,9 +50,12 @@ brew install sce
 ```
 
 ### Build from source
+
+#### Unix Systems
+
 ```bash
 # Clone the repository
-git clone https://github.com/valerioedu/SCE
+git clone -b v1.1.0 https://github.com/valerioedu/SCE
 cd SCE
 
 # Build using the provided script
@@ -59,7 +63,28 @@ chmod +x build.sh
 ./build.sh              #or sudo ./build.sh
 ```
 
+#### Windows
+
+```bash
+# Clone the repository
+git clone -b v1.1.0 https://github.com/valerioedu/SCE
+cd SCE
+
+# Build using the provided script (requires administrator privileges)
+./build.ps1
+```
+
 The build script will handle the installation of dependencies, compilation, and system installation.
+
+## Windows Support
+
+SCE now supports Windows through PDCursesMod. Please note the following Windows-specific limitations:
+
+- Git Integration: Git features are currently a work in progress on Windows
+- Color Customization: Custom colors are limited on Windows due to PDCurses limitations
+- Terminal Commands: Some terminal commands may behave differently on Windows
+
+These features are being actively developed and will be improved in future releases.
 
 ## Usage
 
@@ -219,6 +244,13 @@ With only ~2 MB of resident memory used even while editing substantial source fi
 ### Compatible Operating Systems
 - Linux distributions (Debian, Ubuntu, Kali Linux, Fedora, Arch)
 - macOS 10.13 or later
+- Windows 10/11 with PowerShell
+
+## Aknowledgements
+SCE would not be possible without these valuable libraries:
+
+- [PDCursesMod](https://github.com/Bill-Gray/PDCursesMod) by Bill Gray - A wonderful curses implementation for Windows
+- [dirent](https://github.com/tronkko/dirent) by Toni Ronkko - An exceptional port for the dirent header
 
 ## License
 
