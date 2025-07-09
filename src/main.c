@@ -1,4 +1,8 @@
-#include <ncurses.h>
+#ifdef _WIN32
+    #include <curses.h>
+#else
+    #include <ncurses.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -290,6 +294,7 @@ void update_status_bar() {
         getcwd(file_dir, MAX_PATH);
     }
 
+#ifndef _WIN32
     if (is_git_repository(file_dir)) {
         const char* repo_name = git_get_repo_name_in_dir(file_dir);
         const char* branch = git_get_branch_in_dir(file_dir);
@@ -303,6 +308,7 @@ void update_status_bar() {
         mvprintw(row - 1, git_pos, "[%s:%s@%s]", repo_name, branch, user);
         attroff(A_BOLD);
     }
+#endif
 
     if (file_name[0] != '\0') {
         char display_name[64] = {0};
@@ -348,7 +354,9 @@ void display_lines() {
 
 void apply_resize() {
     timeout(0);
+#ifndef _WIN32
     if (resizeterm(0, 0) == ERR) return;
+#endif
     clear();
 
     int rows, cols;
@@ -386,7 +394,11 @@ void editor() {
     getmaxyx(stdscr, row, col);
     
     switch (c) {
+#ifdef _WIN32
+        case 330:
+#else
         case KEY_DC:
+#endif
             save_undo_state();
             if (current_col < strlen(lines[current_line])) {
                 memmove(&lines[current_line][current_col], 
@@ -475,7 +487,11 @@ void editor() {
                 need_redraw = true;
             }
             break;
+#ifdef _WIN32
+        case 13:
+#else
         case '\n':
+#endif
             save_undo_state();
             ensure_lines_capacity(line_count + 1);
             bool between_braces = false;
@@ -528,8 +544,12 @@ void editor() {
             time++;
             autosave();
             break;
+#ifdef _WIN32
+        case 8:
+#else
         case 127:
         case KEY_BACKSPACE:
+#endif
             save_undo_state();
             if (current_col > 0) {
                 memmove(&lines[current_line][current_col - 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
@@ -553,6 +573,9 @@ void editor() {
             time++;
             autosave();
             break;
+#ifdef _WIN32
+        case KEY_F(7): show_git_wip_window("GIT - WIP!"); break;
+#else
         case KEY_F(7): {
             char file_dir[MAX_PATH] = {0};
             if (file_name[0] != '\0') {
@@ -573,17 +596,35 @@ void editor() {
             need_redraw = true;
             }
             break;
+#endif
         case KEY_F(9): console(); break;
-        case 6: ctrl_f(); break;
+        case 6: ctrl_f(); need_redraw = true; break;
         case 26: ctrl_z(); break;
+#ifdef _WIN32
+        case 443: ctrl_left_arrow(lines[current_line]); break;
+        case 444: ctrl_right_arrow(lines[current_line]); break;
+#else
         case 546: ctrl_left_arrow(lines[current_line]); break;
         case 561: ctrl_right_arrow(lines[current_line]); break;
+#endif
         case 18: save_cursor(current_line, current_col); break;
         case 2: cleanup_cursors(); need_redraw = true;   break;
         case 5: editing_multiple_cursors = !editing_multiple_cursors; break;
+        case KEY_RESIZE: apply_resize(); need_redraw = true; break;
+#ifdef _WIN32
+        case 480: ctrl_up(); need_redraw = true; break;
+        case 481: ctrl_down(); need_redraw = true; break;
+        case 493:                   // Alt+Left - Go to start of line, provisional
+            current_col = 0;
+            need_redraw = true;
+            break;
+        case 492:                   // Alt+Right - Go to end of line, provisional
+            current_col = strlen(lines[current_line]);
+            need_redraw = true;
+            break;
+#else
         case 567: ctrl_up(); need_redraw = true; break;
         case 526: ctrl_down(); need_redraw = true; break;
-        case KEY_RESIZE: apply_resize(); need_redraw = true; break;
         case 544:                   // Alt+Left - Go to start of line, provisional
             current_col = 0;
             need_redraw = true;
@@ -592,6 +633,7 @@ void editor() {
             current_col = strlen(lines[current_line]);
             need_redraw = true;
             break;
+#endif
         default: {
             if (c >= 32 && c <= 126) {
                 insert_char(c);
@@ -653,6 +695,16 @@ void init_editor() {
     keypad(stdscr, TRUE);
     noecho();
     start_color();
+#ifdef _WIN32
+    init_pair(1, COLOR_BLUE, COLOR_BLACK);      // Blue for type keywords
+    init_pair(2, COLOR_MAGENTA, COLOR_BLACK);   // Magenta for purple keywords
+    init_pair(3, COLOR_YELLOW, COLOR_BLACK);    // Yellow for functions
+    init_pair(4, COLOR_YELLOW, COLOR_BLACK);    // Yellow for parentheses
+    init_pair(5, COLOR_CYAN, COLOR_BLACK);      // Cyan for variables
+    init_pair(6, COLOR_RED, COLOR_BLACK);       // Red for strings
+    init_pair(7, COLOR_GREEN, COLOR_BLACK);     // Green for comments
+    init_pair(8, COLOR_GREEN, COLOR_BLACK);     // Green for typedefs
+#else
     if (can_change_color()) {
         init_color(8, 150, 250, 900);       // Dark blue
         init_color(9, 600, 0, 600);     // Purple
@@ -670,6 +722,7 @@ void init_editor() {
     init_pair(6, 12, COLOR_BLACK);      // Orange for strings
     init_pair(7, COLOR_GREEN, COLOR_BLACK); // Green for comments
     init_pair(8, 13, COLOR_BLACK); // Light green for typedefs potentially
+#endif
 }
 
 int main(int argc, char* argv[]) {    

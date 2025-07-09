@@ -1,9 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <ncurses.h>
+#ifdef _WIN32
+    #include <curses.h>
+    #define popen _popen
+    #define pclose _pclose
+    #include <direct.h>
+    #define chdir _chdir
+#else
+    #include <ncurses.h>
+    #include <unistd.h>
+#endif
 
 #include "git.h"
 #include "macros.h"
@@ -43,8 +50,13 @@ char* execute_git_command_in_dir(const char* path, const char* command) {
     static char buffer[BUFFER_SIZE];
     char full_command[MAX_COMMAND_LENGTH];
     
+#ifdef _WIN32
     snprintf(full_command, MAX_COMMAND_LENGTH, 
-             "cd \"%s\" && git %s 2>&1", path, command);
+             "cd /D \"%s\" && git %s 2>&1", path, command);
+#else
+        snprintf(full_command, MAX_COMMAND_LENGTH, 
+                 "cd \"%s\" && git %s 2>&1", path, command);
+#endif
     
     FILE* pipe = popen(full_command, "r");
     if (!pipe) return "ERROR: Git command execution failed";
@@ -83,8 +95,13 @@ char* execute_git_command(const char* command) {
 bool is_git_repository(const char* path) {
     if (in_memory) return false;
     char command[MAX_COMMAND_LENGTH];
+#ifdef _WIN32
+    snprintf(command, MAX_COMMAND_LENGTH, 
+             "cd /D \"%s\" && git rev-parse --is-inside-work-tree >nul 2>&1", path);
+#else
     snprintf(command, MAX_COMMAND_LENGTH, 
              "cd \"%s\" && git rev-parse --is-inside-work-tree > /dev/null 2>&1", path);
+#endif
     return system(command) == 0;
 }
 
@@ -136,9 +153,15 @@ void git_parse_status_in_dir(const char* path) {
     }
     
     char line[BUFFER_SIZE];
+    char command[MAX_COMMAND_LENGTH];
     status_count = 0;
     
-    FILE* pipe = popen(execute_git_command_in_dir(path, "status --porcelain"), "r");
+#ifdef _WIN32
+    snprintf(command, MAX_COMMAND_LENGTH, "cd /D \"%s\" && git status --porcelain", path);
+#else
+    snprintf(command, MAX_COMMAND_LENGTH, "cd \"%s\" && git status --porcelain", path);
+#endif
+    FILE* pipe = popen(command, "r");
     if (!pipe) return;
     
     while (fgets(line, BUFFER_SIZE, pipe) && status_count < MAX_STATUS_ITEMS) {
@@ -260,9 +283,17 @@ void git_parse_history_in_dir(const char* path) {
     }
     
     char line[BUFFER_SIZE];
+    char command[MAX_COMMAND_LENGTH];
     commit_count = 0;
     
-    FILE* pipe = popen(execute_git_command_in_dir(path, "log --pretty=format:\"%H|%an|%ad|%s\" --date=short"), "r");
+#ifdef _WIN32
+    snprintf(command, MAX_COMMAND_LENGTH, 
+             "cd /D \"%s\" && git log --pretty=format:\"%%H|%%an|%%ad|%%s\" --date=short", path);
+#else
+    snprintf(command, MAX_COMMAND_LENGTH, 
+             "cd \"%s\" && git log --pretty=format:\"%%H|%%an|%%ad|%%s\" --date=short", path);
+#endif
+    FILE* pipe = popen(command, "r");
     if (!pipe) return;
     
     while (fgets(line, BUFFER_SIZE, pipe) && commit_count < MAX_COMMITS) {
@@ -757,3 +788,22 @@ void update_git_status_current() {
     git_get_repo_name();
     git_get_user();
 }
+
+#ifdef _WIN32
+    void show_git_wip_window(const char* title) {
+        WINDOW* win;
+        
+        win = newwin(LINES - 4, COLS - 4, 2, 2);
+        
+        wclear(win);
+        box(win, 0, 0);
+        
+        mvwprintw(win, 0, (COLS - strlen(title) - 4) / 2, " %s ", title);
+        mvwprintw(win, (LINES - 4) / 2, (COLS - 20) / 2, "Git - Work In Progress!");
+        mvwprintw(win, LINES - 6, 2, "Press any key to return");
+        
+        wrefresh(win);
+        wgetch(win);
+        delwin(win);
+    }
+#endif

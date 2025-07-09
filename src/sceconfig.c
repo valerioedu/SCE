@@ -1,4 +1,8 @@
-#include <ncurses.h>
+#ifdef _WIN32
+    #include <curses.h>
+#else
+    #include <ncurses.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -312,6 +316,9 @@ void config_editor() {
             }
 
             switch (ch) {
+#ifdef _WIN32
+                case 13:
+#endif
                 case '\n':
                 case KEY_ENTER:
                     if (strlen(options[current_item].value) == 0) {
@@ -355,6 +362,9 @@ void config_editor() {
                 case KEY_DOWN:
                     current_item = (current_item + 1) % (MAX_CONFIG_ITEMS - 1);
                     break;
+#ifdef _WIN32
+                case 13:
+#endif
                 case '\n':
                 case KEY_ENTER:
                 if (current_item == 13) {

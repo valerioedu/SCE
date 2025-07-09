@@ -1,4 +1,7 @@
-# size for tabs (spaces)
+# file insertion of spaces instead of \t
+expandtab=1
+
+# visual size for tabs (spaces)
 tab_size=4
 
 # specific autocompletion settings
@@ -10,6 +13,7 @@ autosave=1
 
 # color sets are based on vs code
 # color 0: comments;          vs code dark green
+
 # color 1: types;             vs code blue
 # color 2: control flow;      vs code purple
 # color 3: variables;         vs code cyan
@@ -17,17 +21,15 @@ autosave=1
 # color 5: numbers;           vs code light green
 # color 6: parentheses;       vs code variable
 # color 7: strings;           vs code orange
-# color 8: typedef (c);       vs code green
-
+# color 8: type definitions;       vs code green
 color_0=0
 color_1=0
-color_2=0
+color_2=120
 color_3=0
 color_4=0
 color_5=0
 color_6=0
 color_7=0
 color_8=0
-
 # default path for files
 path=

@@ -1,4 +1,13 @@
 #include "editorfile.h"
+#include "arg.h"
+
+#ifdef _WIN32
+    #include <Windows.h>
+    #include <direct.h>
+    #define access _access
+    #define F_OK 0
+    #define mkdir(path, mode) _mkdir(path)
+#endif
 
 /*
 *   +-----------------------------------------------+
@@ -186,6 +195,13 @@ char* filesystem(const char* dir_path) {
 }
 
 void load_file(const char* filepath) {
+#ifdef _WIN32
+    if (!loadfile) {
+        loadfile = true;
+        return;
+    }
+#endif
+
     FILE* file = fopen(filepath, "r");
     if (file == NULL) {
         mvprintw(LINES-1, 0, "Error: Unable to open file %s", filepath);

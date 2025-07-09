@@ -1,7 +1,14 @@
 #ifndef LIBRARY_H
 #define LIBRARY_H
 
-#include <ncurses.h>
+#ifdef _WIN32
+    #include <curses.h>
+    #include <windows.h>
+    #define getcwd(__buf, __size) _getcwd(__buf, __size)
+    #define strcasecmp _stricmp
+#else
+    #include <ncurses.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

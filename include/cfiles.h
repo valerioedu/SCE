@@ -1,7 +1,11 @@
 #ifndef CFILES_H
 #define CFILES_H
 
-#include <ncurses.h>
+#ifdef _WIN32
+    #include <curses.h>
+#else
+    #include <ncurses.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

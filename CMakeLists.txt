@@ -1,26 +1,56 @@
 cmake_minimum_required(VERSION 3.14)
-project(SCE VERSION 1.0.0 LANGUAGES C)
-
-add_compile_options(
-    -Wno-unused-result
-    -Wno-format-truncation
-    -Wno-zero-length
-)
+project(SCE VERSION 1.1.0 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 option(BUILD_TESTING "Build tests" OFF)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(NCURSES REQUIRED ncurses)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-if(BUILD_TESTING)
-    pkg_check_modules(CHECK check)
+if(WIN32)
+    add_subdirectory(dirent)
+    set(PDCURSES_DIR ${PDCURSES_DIR} CACHE PATH "Path to PDCursesMod source directory")
+    if(NOT EXISTS "${PDCURSES_DIR}/curses.h")
+        message(FATAL_ERROR "PDCursesMod not found at specified path: ${PDCURSES_DIR}. Please check the path.")
+    endif()
+    
+    include_directories(
+        ${CMAKE_SOURCE_DIR}/include
+        ${PDCURSES_DIR}
+    )
+    
+    file(GLOB PDCURSES_SOURCES
+        "${PDCURSES_DIR}/pdcurses/*.c"
+        "${PDCURSES_DIR}/wincon/*.c"
+    )
+    
+    add_compile_definitions(
+        PDCURSES=1
+        _CRT_SECURE_NO_WARNINGS=1
+        WIN32_LEAN_AND_MEAN=1
+    )
+    
+    if(MSVC)
+        add_compile_options(/W0 /wd4005)
+    endif()
+    
+else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(NCURSES REQUIRED ncurses)
+    include_directories(
+        ${CMAKE_SOURCE_DIR}/include
+        ${NCURSES_INCLUDE_DIRS}
+    )
+    link_directories(${NCURSES_LIBRARY_DIRS})
+    
+    add_compile_options(
+        -Wno-unused-result
+        -Wno-format-truncation
+        -Wno-zero-length
+    )
 endif()
-
-include_directories(include ${NCURSES_INCLUDE_DIRS} src)
-link_directories(${NCURSES_LIBRARY_DIRS})
 
 set(LIB_SOURCES
     src/editorfile.c
@@ -36,37 +66,42 @@ set(LIB_SOURCES
     src/git.c
 )
 
-#   +----------------------------------------+
-#   | TODO: separate tests in multiple files |
-#   +----------------------------------------+
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
 if(BUILD_TESTING)
     add_library(sce_lib SHARED ${LIB_SOURCES})
-
-    if(APPLE)
-        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+    
+    if(WIN32)
+        target_sources(sce_lib PRIVATE ${PDCURSES_SOURCES})
+        target_link_libraries(sce_lib user32 advapi32 winmm)
+    else()
+        target_link_libraries(sce_lib ${NCURSES_LIBRARIES})
+        if(APPLE)
+            set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+        endif()
     endif()
-
-    target_link_libraries(sce_lib ${NCURSES_LIBRARIES})
     
     add_executable(SCE src/main.c)
     target_link_libraries(SCE sce_lib)
     
     enable_testing()
     
-    if(CHECK_FOUND)
-        add_subdirectory(tests)
-    else()
-        message(WARNING "Check not found, tests will not be built")
+    if(NOT WIN32)
+        pkg_check_modules(CHECK check)
+        if(CHECK_FOUND)
+            add_subdirectory(tests)
+        else()
+            message(WARNING "Check not found, tests will not be built")
+        endif()
     endif()
     
     install(TARGETS sce_lib DESTINATION lib)
 else()
-    add_executable(SCE src/main.c ${LIB_SOURCES})
-    target_link_libraries(SCE ${NCURSES_LIBRARIES})
+    if(WIN32)
+        add_executable(SCE src/main.c ${LIB_SOURCES} ${PDCURSES_SOURCES})
+        target_link_libraries(SCE dirent user32 advapi32 winmm)
+    else()
+        add_executable(SCE src/main.c ${LIB_SOURCES})
+        target_link_libraries(SCE ${NCURSES_LIBRARIES})
+    endif()
 endif()
 
 target_compile_definitions(SCE PRIVATE "-DPROJECT_VERSION=\"${PROJECT_VERSION}\"")
