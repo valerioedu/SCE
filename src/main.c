@@ -294,6 +294,7 @@ void update_status_bar() {
         getcwd(file_dir, MAX_PATH);
     }
 
+#ifndef _WIN32
     if (is_git_repository(file_dir)) {
         const char* repo_name = git_get_repo_name_in_dir(file_dir);
         const char* branch = git_get_branch_in_dir(file_dir);
@@ -307,6 +308,7 @@ void update_status_bar() {
         mvprintw(row - 1, git_pos, "[%s:%s@%s]", repo_name, branch, user);
         attroff(A_BOLD);
     }
+#endif
 
     if (file_name[0] != '\0') {
         char display_name[64] = {0};
@@ -390,8 +392,6 @@ void editor() {
     bool need_redraw = false;
     int row, col;
     getmaxyx(stdscr, row, col);
-    
-    mvprintw(rows/2, cols/2, "%d", c);
     
     switch (c) {
 #ifdef _WIN32
@@ -573,6 +573,9 @@ void editor() {
             time++;
             autosave();
             break;
+#ifdef _WIN32
+        case KEY_F(7): show_git_wip_window("GIT - WIP!"); break;
+#else
         case KEY_F(7): {
             char file_dir[MAX_PATH] = {0};
             if (file_name[0] != '\0') {
@@ -593,6 +596,7 @@ void editor() {
             need_redraw = true;
             }
             break;
+#endif
         case KEY_F(9): console(); break;
         case 6: ctrl_f(); need_redraw = true; break;
         case 26: ctrl_z(); break;

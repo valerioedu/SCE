@@ -1,13 +1,5 @@
 #include "colors.h"
 
-/*
-*   +-----------------------------+
-*   | TODO: Implement typedefs    |
-*   |                             |
-*   | Implement preprocessor defs |
-*   +-----------------------------+
-*/
-
 const char* blue_keywords[] = { 
     "void", "char", "short", "int", "long", "float", "double",
     

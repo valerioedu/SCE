@@ -1,7 +1,9 @@
 #ifdef _WIN32
     #include <curses.h>
+    #define BSP 8
 #else
     #include <ncurses.h>
+        #define BSP 7
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,7 +21,11 @@ void terminal() {
     def_prog_mode();
     endwin();
 
+#ifdef _WIN32
+    system("powershell");
+#else
     system("bash");
+#endif
 
     reset_prog_mode();
     refresh();
@@ -44,7 +50,7 @@ void console() {
     do {
         c = getch();
     
-        if ((c == 7) && i > 0) {
+        if ((c == BSP) && i > 0) {
             i--;
             buffer[i] = '\0';
         }
@@ -76,7 +82,11 @@ void console() {
             attroff(COLOR_PAIR(10));
             return;
         }
+#ifdef _WIN32
+    } while (c != 13 && c != ESCAPE && i < 24);
+#else
     } while (c != '\n' && c != ESCAPE && i < 24);
+#endif
 
     attroff(COLOR_PAIR(10));
 

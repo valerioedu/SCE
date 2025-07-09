@@ -3,6 +3,10 @@
 
 #include <stdbool.h>
 
+#ifdef _WIN32
+    void show_git_wip_window(const char* title);
+#endif
+
 char* execute_git_command_in_dir(const char* path, const char* command);
 char* execute_git_command(const char* command);
 bool is_git_repository(const char* path);

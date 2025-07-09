@@ -34,7 +34,6 @@ function Install-Dependency {
 Write-Host "SCE Editor Build Script for Windows"
 Write-Host "==================================="
 
-Install-Dependency -Name "cmake" -WingetId "Kitware.CMake"
 Install-Dependency -Name "git" -WingetId "Git.Git"
 
 $vsInstallerPath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
@@ -43,6 +42,28 @@ if (-not (Test-Path $vsInstallerPath)) {
     winget install --id Microsoft.VisualStudio.2022.BuildTools --override "--wait --quiet --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64" -e
 } else {
     Write-Host "Visual Studio Build Tools detected."
+    
+    $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+    if (Test-Path $vswhere) {
+        $vsInstallation = & $vswhere -latest -property installationPath
+        
+        if ($vsInstallation) {
+            Write-Host "Found Visual Studio installation at: $vsInstallation"
+            
+            $cmakeInstalled = & $vswhere -latest -requires "Microsoft.VisualStudio.Component.VC.CMake.Project" -property installationPath
+            
+            if ($cmakeInstalled) {
+                Write-Host "CMake tools are already installed."
+            } else {
+                Write-Host "Installing CMake tools..."
+                & $vsInstallerPath modify --installPath "$vsInstallation" --add Microsoft.VisualStudio.Component.VC.CMake.Project --quiet
+            }
+        } else {
+            Write-Host "No Visual Studio installation found."
+        }
+    } else {
+        Write-Host "vswhere not found. Cannot detect Visual Studio installation."
+    }
 }
 
 Write-Host "Checking for Microsoft Visual C++ Redistributable..."

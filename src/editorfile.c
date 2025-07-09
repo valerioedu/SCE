@@ -1,6 +1,14 @@
 #include "editorfile.h"
 #include "arg.h"
 
+#ifdef _WIN32
+    #include <Windows.h>
+    #include <direct.h>
+    #define access _access
+    #define F_OK 0
+    #define mkdir(path, mode) _mkdir(path)
+#endif
+
 /*
 *   +-----------------------------------------------+
 *   | TODO: implement better logic for default path |
@@ -484,7 +492,7 @@ void autosave_file() {
     
     snprintf(autosave_path, MAX_PATH, "%s/.sceconfig/save.sce", home_dir);
     
-    //if (access(autosave_path, F_OK) == 0) remove(autosave_path);
+    if (access(autosave_path, F_OK) == 0) remove(autosave_path);
     
     FILE *fp = fopen(autosave_path, "w");
     if (fp == NULL) return;
@@ -511,7 +519,7 @@ void autosaved_load() {
     box(dialog, 0, 0);
     wattron(dialog, A_BOLD);
     
-    /*if (access(autosave_path, F_OK) == 0) {
+    if (access(autosave_path, F_OK) == 0) {
         mvwprintw(dialog, 0, 20, " Autosave Found ");
         wattroff(dialog, A_BOLD);
         mvwprintw(dialog, 2, 2, "Loading autosaved file...");
@@ -522,7 +530,7 @@ void autosaved_load() {
         mvwprintw(dialog, 0, 20, " No Autosave ");
         wattroff(dialog, A_BOLD);
         mvwprintw(dialog, 2, 2, "Autosaved file not found.");
-    }*/
+    }
     
     mvwprintw(dialog, 4, 20, "Press any key to continue");
     wrefresh(dialog);
