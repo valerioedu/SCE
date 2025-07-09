@@ -15,7 +15,8 @@ confirm() {
     fi
     
     read -p "$message $prompt " response
-    response=${response,,}
+    
+    response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
     
     if [ -z "$response" ]; then
         response=$default
