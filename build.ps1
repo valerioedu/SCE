@@ -59,10 +59,30 @@ if (-not (Test-Path $vsInstallerPath)) {
                 & $vsInstallerPath modify --installPath "$vsInstallation" --add Microsoft.VisualStudio.Component.VC.CMake.Project --quiet
             }
         } else {
-            Write-Host "No Visual Studio installation found."
+            Write-Host "No Visual Studio installation found. Installing Visual Studio Build Tools..."
+            winget install --id Microsoft.VisualStudio.2022.BuildTools --override "--wait --quiet --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.CMake.Project" -e
+            
+            Start-Sleep -Seconds 5
+            $vsInstallation = & $vswhere -latest -property installationPath
+            if ($vsInstallation) {
+                Write-Host "Visual Studio Build Tools installation successful."
+            } else {
+                Write-Error "Visual Studio Build Tools installation failed. Please install manually from https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022"
+                exit 1
+            }
         }
     } else {
-        Write-Host "vswhere not found. Cannot detect Visual Studio installation."
+        Write-Host "vswhere not found. This indicates Visual Studio Build Tools may not be properly installed."
+        Write-Host "Attempting to reinstall Visual Studio Build Tools..."
+        winget install --id Microsoft.VisualStudio.2022.BuildTools --override "--wait --quiet --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.CMake.Project" -e --force
+        
+        Start-Sleep -Seconds 5
+        if (Test-Path $vswhere) {
+            Write-Host "Visual Studio Build Tools installation successful."
+        } else {
+            Write-Error "Visual Studio Build Tools installation failed. Please install manually from https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022"
+            exit 1
+        }
     }
 }
 
