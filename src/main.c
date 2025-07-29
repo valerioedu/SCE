@@ -768,7 +768,7 @@ int main(int argc, char* argv[]) {
             exit(0);
         } else if (strcmp(argv[i], "uninstall") == 0) {
 #ifdef _WIN32
-            printf("Uninstall - Windowa WIP\n")
+            printf("Uninstall - Windowa WIP\n");
 #else
             uninstall_sce();
 #endif
