@@ -24,4 +24,4 @@ jobs:
       run: ./build.sh
       
     - name: Run SCE
-      run: SCE -h
+      run: sce -h
