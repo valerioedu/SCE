@@ -63,11 +63,20 @@ KeywordInfo color_comments(char* line) {
     if (inside_multiline_comment) {
         char* end = strstr(line, "*/");
         if (end) {
-            inside_multiline_comment = 0;
-            if (total_info.count < MAX_KEYWORDS) {
-                total_info.keywords[total_info.count].start = 0;
-                total_info.keywords[total_info.count].end = (end - line) + 2;
-                total_info.count++;
+            int pos = end - line;
+            if (!is_inside_quotes(line, pos)) {
+                inside_multiline_comment = 0;
+                if (total_info.count < MAX_KEYWORDS) {
+                    total_info.keywords[total_info.count].start = 0;
+                    total_info.keywords[total_info.count].end = (end - line) + 2;
+                    total_info.count++;
+                }
+            } else {
+                if (total_info.count < MAX_KEYWORDS) {
+                    total_info.keywords[total_info.count].start = 0;
+                    total_info.keywords[total_info.count].end = line_len;
+                    total_info.count++;
+                }
             }
         } else {
             if (total_info.count < MAX_KEYWORDS) {
@@ -79,19 +88,32 @@ KeywordInfo color_comments(char* line) {
     } else {
         char* start = strstr(line, "/*");
         if (start) {
-            char* end = strstr(start + 2, "*/");
-            if (end) {
-                if (total_info.count < MAX_KEYWORDS) {
-                    total_info.keywords[total_info.count].start = start - line;
-                    total_info.keywords[total_info.count].end = (end - line) + 2;
-                    total_info.count++;
-                }
-            } else {
-                inside_multiline_comment = 1;
-                if (total_info.count < MAX_KEYWORDS) {
-                    total_info.keywords[total_info.count].start = start - line;
-                    total_info.keywords[total_info.count].end = line_len;
-                    total_info.count++;
+            int start_pos = start - line;
+            if (!is_inside_quotes(line, start_pos)) {
+                char* end = strstr(start + 2, "*/");
+                if (end) {
+                    int end_pos = end - line;
+                    if (!is_inside_quotes(line, end_pos)) {
+                        if (total_info.count < MAX_KEYWORDS) {
+                            total_info.keywords[total_info.count].start = start_pos;
+                            total_info.keywords[total_info.count].end = end_pos + 2;
+                            total_info.count++;
+                        }
+                    } else {
+                        inside_multiline_comment = 1;
+                        if (total_info.count < MAX_KEYWORDS) {
+                            total_info.keywords[total_info.count].start = start_pos;
+                            total_info.keywords[total_info.count].end = line_len;
+                            total_info.count++;
+                        }
+                    }
+                } else {
+                    inside_multiline_comment = 1;
+                    if (total_info.count < MAX_KEYWORDS) {
+                        total_info.keywords[total_info.count].start = start_pos;
+                        total_info.keywords[total_info.count].end = line_len;
+                        total_info.count++;
+                    }
                 }
             }
         }
