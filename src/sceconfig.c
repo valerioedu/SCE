@@ -16,7 +16,7 @@
 
 #define MAX_LINE_LENGTH 256
 #define CONFIG_FILE_NAME ".sceconfig"
-#define MAX_CONFIG_ITEMS 16
+#define MAX_CONFIG_ITEMS 17
 #define MAX_VALUE_LENGTH 32
 
 extern EditorConfig config;
@@ -191,20 +191,12 @@ char* config_file_browser(const char* start_path) {
 }
 
 void config_editor() {
-    printf("DEBUG: config.color_2 = %d\n", config.color_2);
-    
-    EditorConfig current_config = {0};
-    printf("DEBUG: current_config.color_2 after init = %d\n", current_config.color_2);
-    
-    current_config.color_2 = config.color_2;
-    printf("DEBUG: current_config.color_2 after assignment = %d\n", current_config.color_2);
-    getc(stdin);
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
 
     def_prog_mode();
     
-    //EditorConfig current_config = {0};
+    EditorConfig current_config = {0};
     
     current_config.expandtab = config.expandtab;
     current_config.tab_size = config.tab_size;
