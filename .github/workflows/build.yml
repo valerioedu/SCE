@@ -21,7 +21,7 @@ jobs:
       run: chmod +x build.sh
       
     - name: Build project
-      run: yes | ./build.sh
+      run: ./build.sh --yes
       
     - name: Run SCE
       run: SCE -h

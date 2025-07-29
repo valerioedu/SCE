@@ -3,9 +3,20 @@
 echo "SCE Editor Build Script"
 echo "======================="
 
+AUTO_YES=0
+for arg in "$@"; do
+    if [ "$arg" == "--yes" ] || [ "$arg" == "--ci" ]; then
+        AUTO_YES=1
+    fi
+done
+
 confirm() {
     local message="$1"
     local default="${2:-y}"
+
+    if [ "$AUTO_YES" -eq 1 ]; then
+        return 0
+    fi
     
     local prompt
     if [ "$default" = "y" ]; then
