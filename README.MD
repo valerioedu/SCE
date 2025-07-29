@@ -204,6 +204,7 @@ The shell script will automatically create a .sceconfig directory in your home e
 ### Configurable Options:
 
 - **Tab Size**: Number of spaces for tab indentation
+- **Line Numbers**: Toggle sideview of the line numbers
 - **Parentheses Autocompletion**: Toggle automatic closing of parentheses
 - **Quotes Autocompletion**: Toggle automatic closing of quotation marks
 - **Automatic Saving**: Toggle automatic saving
