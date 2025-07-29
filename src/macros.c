@@ -313,7 +313,10 @@ void save_undo_state() {
 void ctrl_z() {
     if (undo_position <= 0) return;
 
-    undo_position--;
+    if (undo_position == undo_count) {
+        save_undo_state();
+        undo_position = undo_count - 1;
+    } else undo_position--;
 
     line_count = undo_history[undo_position].line_count;
     current_line = undo_history[undo_position].cursor_line;
@@ -327,9 +330,25 @@ void ctrl_z() {
     int start_line = (current_line > LINES / 2) 
                      ? current_line - LINES / 2 : 0;
     update_screen_content(start_line);
+}
 
-    move(current_line - start_line, 6 + current_col);
-    refresh();
+void ctrl_y() {
+    if (undo_position >= undo_count - 1) return;
+
+    undo_position++;
+    
+    line_count = undo_history[undo_position].line_count;
+    current_line = undo_history[undo_position].cursor_line;
+    current_col = undo_history[undo_position].cursor_col;
+
+    for (int i = 0; i < line_count; i++) {
+        strncpy(lines[i], undo_history[undo_position].lines[i], MAX_COLS - 1);
+        lines[i][MAX_COLS - 1] = '\0';
+    }
+
+    int start_line = (current_line > LINES / 2) 
+                     ? current_line - LINES / 2 : 0;
+    update_screen_content(start_line);
 }
 
 void cleanup_undo_history() {

@@ -19,5 +19,6 @@ void save_cursor(int line, int col);
 void ctrl_up();
 void ctrl_down();
 void cleanup_cursors();
+void ctrl_y();
 
 #endif

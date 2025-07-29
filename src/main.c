@@ -629,6 +629,7 @@ void editor() {
         case KEY_F(9): console(); break;
         case 6: ctrl_f(); need_redraw = true; break;
         case 26: ctrl_z(); break;
+        case 25: ctrl_y(); break;
 #ifdef _WIN32
         case 443: ctrl_left_arrow(lines[current_line]); break;
         case 444: ctrl_right_arrow(lines[current_line]); break;

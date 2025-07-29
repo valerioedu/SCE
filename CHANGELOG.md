@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Line numbers setting for line numbers visualization
 - sce command: now SCE can be ran with the command sce
+- Ctrl+y: restore change
 
 ### Changed
 - Improved deletion with automatic tab recognition

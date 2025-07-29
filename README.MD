@@ -118,6 +118,7 @@ SCE -v
 - F9: Open console
 - Ctrl+F: Search within file
 - Ctrl+Z: Undo
+- Ctrl+Y: Redo
 - Ctrl+R: Save current cursor
 - Ctrl+B: Clear saved cursors
 - Ctrl+E: Edit saved cursors/current cursor
