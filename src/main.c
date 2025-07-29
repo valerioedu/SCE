@@ -114,7 +114,11 @@ void update_screen_content(int start_line) {
 
     inside_multiline_comment = 0;
 
-    int line_offset = 6;
+    int line_offset;
+
+    if (config.line_numbers) line_offset = 6;
+    else line_offset = 0;
+
     int display_width = col - line_offset;
 
     for (int i = 0; i < row - 1; i++) {
@@ -125,7 +129,8 @@ void update_screen_content(int start_line) {
 
         if (current_file_line >= line_count) continue;
 
-        mvprintw(i, 0, "%4d: ", current_file_line + 1);
+        if (config.line_numbers) mvprintw(i, 0, "%4d: ", current_file_line + 1);
+
 
         char* line_content = lines[current_file_line];
 
@@ -245,7 +250,10 @@ void update_screen_content(int start_line) {
     if (cursor_count > 0) {
         for (int i = 0; i < cursor_count; i++) {
             int screen_row = cursors[i].row - start_line;
-            int screen_col = cursors[i].col - horizontal_offset + 6;
+            int screen_col;
+
+            if (config.line_numbers) screen_col= cursors[i].col - horizontal_offset + 6;
+            else screen_col = cursors[i].col - horizontal_offset;
 
             if (screen_row >= 0 && screen_row < row - 1 &&
                 screen_col >= 6 && screen_col < col) {
@@ -327,7 +335,11 @@ void display_lines() {
     int row, col;
     getmaxyx(stdscr, row, col);
 
-    int line_offset = 6;
+    int line_offset;
+
+    if (config.line_numbers) line_offset = 6;
+    else line_offset = 0;
+
     int max_display_lines = row - 1;
 
     int start_line = 0;
@@ -371,7 +383,9 @@ void apply_resize() {
         else start_line = current_line - max_display_lines / 2;
     }
 
-    int visible_cols = cols - 6;
+    int visible_cols;
+
+    if (config.line_numbers) visible_cols = cols - 6;
 
     if (current_col < horizontal_offset) horizontal_offset = current_col;
     else if (current_col >= horizontal_offset + visible_cols) horizontal_offset = current_col - visible_cols + 1;
@@ -379,7 +393,8 @@ void apply_resize() {
     update_screen_content(start_line);
     update_status_bar();
 
-    move(current_line - start_line, 6 + current_col - horizontal_offset);
+    if (config.line_numbers) move(current_line - start_line, 6 + current_col - horizontal_offset);
+    else move(current_line - start_line, current_col - horizontal_offset);
 
     refresh();
 }
@@ -558,6 +573,8 @@ void editor() {
                 if (lines[current_line][current_col - i - 1] != ' ') tabcanc = false; 
             }
 
+            if (current_col % TABS_SIZE) tabcanc = false;
+
             if (current_col > 0) {
                 int idx = TABS_SIZE - 1;
 
@@ -663,7 +680,9 @@ void editor() {
     }
 
     getmaxyx(stdscr, rows, cols);
-    int visible_width = cols - 6;
+    int visible_width;
+    if(config.line_numbers) visible_width = cols - 6;
+    else visible_width = cols;
     
     if (current_col < horizontal_offset) {
         horizontal_offset = current_col;
@@ -686,13 +705,15 @@ void editor() {
         }
     }
     
-    move(screen_line, 6 + current_col - horizontal_offset);
+    if (config.line_numbers) move(screen_line, 6 + current_col - horizontal_offset);
+    else move(screen_line, current_col - horizontal_offset);
     
     if (need_redraw) update_screen_content(start_line);
     
     update_status_bar();
     
-    move(screen_line, 6 + current_col - horizontal_offset);
+    if (config.line_numbers) move(screen_line, 6 + current_col - horizontal_offset);
+    else move(screen_line, current_col - horizontal_offset);
     
     curs_set(1);
     

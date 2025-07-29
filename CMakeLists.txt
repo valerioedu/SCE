@@ -113,3 +113,21 @@ else()
 endif()
 
 install(TARGETS SCE DESTINATION bin)
+
+if(NOT WIN32)
+    install(CODE "
+        execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink SCE sce
+                       WORKING_DIRECTORY \${CMAKE_INSTALL_PREFIX}/bin)
+        message(STATUS \"Created symlink: sce -> SCE\")
+    ")
+endif()
+
+if(WIN32)
+    install(CODE "
+        file(COPY \${CMAKE_INSTALL_PREFIX}/bin/SCE.exe 
+             DESTINATION \${CMAKE_INSTALL_PREFIX}/bin)
+        file(RENAME \${CMAKE_INSTALL_PREFIX}/bin/SCE.exe 
+                   \${CMAKE_INSTALL_PREFIX}/bin/sce.exe)
+        message(STATUS \"Created copy: sce.exe\")
+    ")
+endif()

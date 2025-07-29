@@ -191,18 +191,27 @@ char* config_file_browser(const char* start_path) {
 }
 
 void config_editor() {
+    printf("DEBUG: config.color_2 = %d\n", config.color_2);
+    
+    EditorConfig current_config = {0};
+    printf("DEBUG: current_config.color_2 after init = %d\n", current_config.color_2);
+    
+    current_config.color_2 = config.color_2;
+    printf("DEBUG: current_config.color_2 after assignment = %d\n", current_config.color_2);
+    getc(stdin);
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
 
     def_prog_mode();
     
-    EditorConfig current_config = {0};
+    //EditorConfig current_config = {0};
     
     current_config.expandtab = config.expandtab;
     current_config.tab_size = config.tab_size;
     current_config.parenthesis_autocomplete = config.parenthesis_autocomplete;
     current_config.quotations_autocomplete = config.quotations_autocomplete;
     current_config.autosave = config.autosave;
+    current_config.line_numbers = config.line_numbers;
     current_config.color_0 = config.color_0;
     current_config.color_1 = config.color_1;
     current_config.color_2 = config.color_2;
@@ -219,12 +228,13 @@ void config_editor() {
         current_config.default_path = strdup("");
     }
     
-    ConfigOption options[MAX_CONFIG_ITEMS] = {
+    ConfigOption options[] = {
         {"expandtab", "Spaces insertion for tabs (0=off, 1=on) WORK IN PROGRESS", "", 1},
         {"tab_size", "Number of visual spaces per tab", "", 0},
         {"parenthesis_autocomplete", "Auto-complete parentheses (0=off, 1=on)", "", 1},
         {"quotations_autocomplete", "Auto-complete quotes (0=off, 1=on)", "", 1},
         {"autosave", "File autosave (0=off, 1=on)", "", 1},
+        {"line_numbers", "Show line numbers (0=off, 1=on)", "", 1},
         {"color_0", "Comments color (0-255, 0=default)", "", 0},
         {"color_1", "Types color (0-255, 0=default)", "", 0},
         {"color_2", "Control flow color (0-255, 0=default)", "", 0},
@@ -242,16 +252,17 @@ void config_editor() {
     sprintf(options[2].value, "%d", current_config.parenthesis_autocomplete ? 1 : 0);
     sprintf(options[3].value, "%d", current_config.quotations_autocomplete ? 1 : 0);
     sprintf(options[4].value, "%d", current_config.autosave);
-    sprintf(options[5].value, "%d", current_config.color_0);
-    sprintf(options[6].value, "%d", current_config.color_1);
-    sprintf(options[7].value, "%d", current_config.color_2);
-    sprintf(options[8].value, "%d", current_config.color_3);
-    sprintf(options[9].value, "%d", current_config.color_4);
-    sprintf(options[10].value, "%d", current_config.color_5);
-    sprintf(options[11].value, "%d", current_config.color_6);
-    sprintf(options[12].value, "%d", current_config.color_7);
-    sprintf(options[13].value, "%d", current_config.color_8);
-    strncpy(options[14].value, current_config.default_path ? current_config.default_path : "", MAX_VALUE_LENGTH - 1);
+    sprintf(options[5].value, "%d", current_config.line_numbers ? 1 : 0);
+    sprintf(options[6].value, "%d", current_config.color_0);
+    sprintf(options[7].value, "%d", current_config.color_1);
+    sprintf(options[8].value, "%d", current_config.color_2);
+    sprintf(options[9].value, "%d", current_config.color_3);
+    sprintf(options[10].value, "%d", current_config.color_4);
+    sprintf(options[11].value, "%d", current_config.color_5);
+    sprintf(options[12].value, "%d", current_config.color_6);
+    sprintf(options[13].value, "%d", current_config.color_7);
+    sprintf(options[14].value, "%d", current_config.color_8);
+    strncpy(options[15].value, current_config.default_path ? current_config.default_path : "", MAX_VALUE_LENGTH - 1);
     
     int current_item = 0;
     int editing = 0;
@@ -367,7 +378,7 @@ void config_editor() {
 #endif
                 case '\n':
                 case KEY_ENTER:
-                if (current_item == 13) {
+                if (current_item == 15) {
                     char* previous_path = NULL;
                     
                     if (current_config.default_path && strlen(current_config.default_path) > 0) {
@@ -377,8 +388,8 @@ void config_editor() {
                     char* result_path = config_file_browser(previous_path);
                     
                     if (result_path != NULL) {
-                        strncpy(options[14].value, result_path, MAX_VALUE_LENGTH - 1);
-                        options[14].value[MAX_VALUE_LENGTH - 1] = '\0';
+                        strncpy(options[15].value, result_path, MAX_VALUE_LENGTH - 1);
+                        options[15].value[MAX_VALUE_LENGTH - 1] = '\0';
                         
                         if (current_config.default_path) {
                             free(current_config.default_path);
@@ -395,20 +406,21 @@ void config_editor() {
                     current_config.parenthesis_autocomplete = atoi(options[2].value) != 0;
                     current_config.quotations_autocomplete = atoi(options[3].value) != 0;
                     current_config.autosave = atoi(options[4].value);
-                    current_config.color_0 = atoi(options[5].value);
-                    current_config.color_1 = atoi(options[6].value);
-                    current_config.color_2 = atoi(options[7].value);
-                    current_config.color_3 = atoi(options[8].value);
-                    current_config.color_4 = atoi(options[9].value);
-                    current_config.color_5 = atoi(options[10].value);
-                    current_config.color_6 = atoi(options[11].value);
-                    current_config.color_7 = atoi(options[12].value);
-                    current_config.color_8 = atoi(options[13].value);
+                    current_config.line_numbers = atoi(options[5].value) != 0;
+                    current_config.color_0 = atoi(options[6].value);
+                    current_config.color_1 = atoi(options[7].value);
+                    current_config.color_2 = atoi(options[8].value);
+                    current_config.color_3 = atoi(options[9].value);
+                    current_config.color_4 = atoi(options[10].value);
+                    current_config.color_5 = atoi(options[11].value);
+                    current_config.color_6 = atoi(options[12].value);
+                    current_config.color_7 = atoi(options[13].value);
+                    current_config.color_8 = atoi(options[14].value);
                     
                     if (current_config.default_path) {
                         free(current_config.default_path);
                     }
-                    current_config.default_path = strdup(options[14].value);
+                    current_config.default_path = strdup(options[15].value);
                     
                     save_config(&current_config);
                     
@@ -417,6 +429,7 @@ void config_editor() {
                     config.parenthesis_autocomplete = current_config.parenthesis_autocomplete;
                     config.quotations_autocomplete = current_config.quotations_autocomplete;
                     config.autosave = current_config.autosave;
+                    config.line_numbers = current_config.line_numbers;
                     config.color_0 = current_config.color_0;
                     config.color_1 = current_config.color_1;
                     config.color_2 = current_config.color_2;
@@ -514,6 +527,7 @@ void load_config(EditorConfig *config) {
     config->parenthesis_autocomplete = true;
     config->quotations_autocomplete = true;
     config->autosave = true;
+    config->line_numbers = true;
     
     config->color_0 = 0;   //Comments
     config->color_1 = 0;   //Types
@@ -561,6 +575,8 @@ void load_config(EditorConfig *config) {
             config->quotations_autocomplete = parse_boolean(value);
         } else if (strcmp(key, "autosave") == 0) {
             config->autosave = parse_boolean(value);
+        } else if (strcmp(key, "line_numbers") == 0) {
+            config->line_numbers = parse_boolean(value);
         } else if (strcmp(key, "color_0") == 0) {
             config->color_0 = parse_integer(value, 0);
         } else if (strcmp(key, "color_1") == 0) {
@@ -607,8 +623,12 @@ void save_config(const EditorConfig *config) {
     fprintf(config_file, "# specific autocompletion settings\n");
     fprintf(config_file, "parenthesis_autocomplete=%d\n", config->parenthesis_autocomplete ? 1 : 0);
     fprintf(config_file, "quotations_autocomplete=%d\n\n", config->quotations_autocomplete ? 1 : 0);
+    
     fprintf(config_file, "# automatic file saving\n");
     fprintf(config_file, "autosave=%d\n\n", config->autosave ? 1 : 0);
+    
+    fprintf(config_file, "# show line numbers\n");
+    fprintf(config_file, "line_numbers=%d\n\n", config->line_numbers ? 1 : 0);
     
     fprintf(config_file, "# color sets are based on vs code\n");
     fprintf(config_file, "# color 0: comments;          vs code dark green\n\n");

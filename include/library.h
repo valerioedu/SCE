@@ -39,6 +39,7 @@ typedef struct EditorConfig {
     bool expandtab;
     char* default_path;
     bool autosave;
+    bool line_numbers;
 } EditorConfig;
 
 typedef struct UndoState {

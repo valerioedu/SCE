@@ -9,6 +9,7 @@ void display_help() {
     mvprintw(row - 1, start, "press:   F1   for instructions about filesystem");
     mvprintw(row, start, "press:   F2   for instructions about macros");
     mvprintw(row + 1, start, "press:   esc   to exit");
+    mvprintw(row + 3, start, "run:     SCE uninstall   to delete SCE");
     int c = getch();
     if (c == ESCAPE) refresh();
 }

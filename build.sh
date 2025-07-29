@@ -29,6 +29,21 @@ confirm() {
     fi
 }
 
+if [ "$1" == "--cleanup" ] || [ "$2" == "--cleanup" ]; then
+    if confirm "Would you like to remove source files and build artifacts? This will keep only the installed application."; then
+        echo "Cleaning up source files and build artifacts..."
+        cd ..
+        rm -rf build
+        find . -type f -not -path "*/\.git/*" -not -path "*/\.sceconfig/*" \
+            -not -name "LICENSE" -not -name "README.MD" -not -name "CHANGELOG.md" \
+            -exec rm {} \; 2>/dev/null || \
+        sudo find . -type f -not -path "*/\.git/*" -not -path "*/\.sceconfig/*" \
+            -not -name "LICENSE" -not -name "README.MD" -not -name "CHANGELOG.md" \
+            -exec rm {} \;
+        echo "Cleanup complete. Only essential files remain."
+    fi
+fi
+
 if grep -q -E "Microsoft|WSL" /proc/version 2>/dev/null || [ -n "$WSL_DISTRO_NAME" ] || [ -f /proc/sys/fs/binfmt_misc/WSLInterop ]; then
     echo "WSL environment detected."
     if confirm "Fix clock skew by updating file timestamps?"; then
@@ -383,38 +398,5 @@ if confirm "Ready to build the SCE Editor. This will create or replace the build
     fi
 else
     echo "Build cancelled by user."
-    exit 0
-fi
-
-
-if [ "$1" == "--cleanup" ] || [ "$2" == "--cleanup" ]; then
-    if confirm "Would you like to remove source files and build artifacts? This will keep only the installed application."; then
-        echo "Cleaning up source files and build artifacts..."
-        cd ..
-        rm -rf build
-        find . -type f -not -path "*/\.git/*" -not -path "*/\.sceconfig/*" \
-            -not -name "LICENSE" -not -name "README.MD" -not -name "CHANGELOG.md" \
-            -exec rm {} \; 2>/dev/null || \
-        sudo find . -type f -not -path "*/\.git/*" -not -path "*/\.sceconfig/*" \
-            -not -name "LICENSE" -not -name "README.MD" -not -name "CHANGELOG.md" \
-            -exec rm {} \;
-        echo "Cleanup complete. Only essential files remain."
-    fi
-fi
-
-if [ "$1" == "--uninstall" ]; then
-    if confirm "Are you sure you want to uninstall SCE Editor?"; then
-        echo "Uninstalling SCE Editor..."
-        sudo rm -f /usr/local/bin/SCE
-        
-        if confirm "Would you like to keep your SCE configuration?"; then
-            echo "Keeping configuration in $HOME/.sceconfig"
-        else
-            echo "Removing configuration directory..."
-            rm -rf "$HOME/.sceconfig"
-        fi
-        
-        echo "SCE Editor has been uninstalled."
-    fi
     exit 0
 fi
