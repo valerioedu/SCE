@@ -551,11 +551,23 @@ void editor() {
         case KEY_BACKSPACE:
 #endif
             save_undo_state();
+
+            bool tabcanc = true;
+
+            for (int i = 0; i < TABS_SIZE; i++) {
+                if (lines[current_line][current_col - i - 1] != ' ') tabcanc = false; 
+            }
+
             if (current_col > 0) {
-                memmove(&lines[current_line][current_col - 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
-                current_col--;
-                rescan_line_for_declarations(current_line);
+                int idx = TABS_SIZE - 1;
+
+                do {
+                    memmove(&lines[current_line][current_col - 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
+                } while(idx-- && tabcanc);
+
+                current_col -= TABS_SIZE;
                 need_redraw = true;
+                rescan_line_for_declarations(current_line);
             } else if (current_line > 0) {
                 current_col = strlen(lines[current_line - 1]);
                 if (current_col + strlen(lines[current_line]) < MAX_COLS) {
@@ -732,6 +744,15 @@ int main(int argc, char* argv[]) {
             exit(0);
         } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
             print_version();
+            exit(0);
+        } else if (strcmp(argv[i], "--uninstall") == 0) {
+#ifdef _WIN32
+#else
+            int ret = system("buildsh=$(find / -type f -name build.sh 2>/dev/null | head -n 1); "
+                             "if [ -n \"$buildsh\" ]; then bash \"$buildsh\" --uninstall; "
+                             "else echo 'build.sh not found'; fi");
+            (void)ret;
+#endif
             exit(0);
         }
     }
