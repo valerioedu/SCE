@@ -563,9 +563,9 @@ void editor() {
 
                 do {
                     memmove(&lines[current_line][current_col - 1], &lines[current_line][current_col], strlen(lines[current_line]) - current_col + 1);
+                    current_col--;
                 } while(idx-- && tabcanc);
 
-                current_col -= TABS_SIZE;
                 need_redraw = true;
                 rescan_line_for_declarations(current_line);
             } else if (current_line > 0) {
