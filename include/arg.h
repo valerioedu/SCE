@@ -6,6 +6,8 @@
 
 #ifdef _WIN32
     extern bool loadfile;
+#else
+    void uninstall_sce();
 #endif
 
 void args(int argc, char* argv[]);

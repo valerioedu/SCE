@@ -111,6 +111,74 @@ void args(int argc, char* argv[]) {
 #endif
 
 #ifndef _WIN32
+    int confirm_action(const char* message) {
+        char response[10];
+        printf("%s [y/N]: ", message);
+        fflush(stdout);
+        
+        if (fgets(response, sizeof(response), stdin) == NULL) return 0;
+        
+        if (response[0] == 'y' || response[0] == 'Y') return 1;
+        return 0;
+    }
+
+    void uninstall_sce() {
+        printf("SCE Editor Uninstaller\n");
+        printf("=====================\n\n");
+        
+        if (!confirm_action("Are you sure you want to uninstall SCE Editor?")) {
+            printf("Uninstall cancelled.\n");
+            return;
+        }
+        
+        printf("Uninstalling SCE Editor...\n");
+        
+        int removed_binary = 0;
+        const char path[] = "/usr/local/bin/SCE"; 
+        struct stat st;
+        if (stat(path, &st) == 0) {
+            char command[256];
+            snprintf(command, sizeof(command), "sudo rm -f \"%s\"", path);
+            if (system(command) == 0) {
+                printf("Removed: %s\n", path);
+                removed_binary = 1;
+            } else {
+                printf("Failed to remove: %s\n", path);
+            }
+        }
+        
+        if (!removed_binary) {
+            printf("SCE binary not found in standard locations.\n");
+            printf("You may need to remove it manually from your custom installation path.\n");
+        }
+        
+        char config_path[512];
+        const char* home = getenv("HOME");
+        if (home) {
+            snprintf(config_path, sizeof(config_path), "%s/.sceconfig", home);
+            
+            struct stat st;
+            if (stat(config_path, &st) == 0 && S_ISDIR(st.st_mode)) {
+                if (confirm_action("Would you like to keep your SCE configuration?")) {
+                    printf("Keeping configuration in %s\n", config_path);
+                } else {
+                    char command[512];
+                    snprintf(command, sizeof(command), "rm -rf \"%s\"", config_path);
+                    if (system(command) == 0) {
+                        printf("Removed configuration directory: %s\n", config_path);
+                    } else {
+                        printf("Failed to remove configuration directory: %s\n", config_path);
+                    }
+                }
+            } else {
+                printf("Configuration directory not found at: %s\n", config_path);
+            }
+        }
+        
+        printf("\nSCE Editor has been uninstalled.\n");
+        printf("Thank you for using SCE Editor!\n");
+    }
+    
     bool is_directory(const char* path) {
         struct stat local_statbuf;
         if (stat(path, &local_statbuf) != 0) return false;

@@ -745,13 +745,10 @@ int main(int argc, char* argv[]) {
         } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
             print_version();
             exit(0);
-        } else if (strcmp(argv[i], "--uninstall") == 0) {
+        } else if (strcmp(argv[i], "uninstall") == 0) {
 #ifdef _WIN32
 #else
-            int ret = system("buildsh=$(find / -type f -name build.sh 2>/dev/null | head -n 1); "
-                             "if [ -n \"$buildsh\" ]; then bash \"$buildsh\" --uninstall; "
-                             "else echo 'build.sh not found'; fi");
-            (void)ret;
+            uninstall_sce();
 #endif
             exit(0);
         }
