@@ -1,3 +1,4 @@
+#ifndef _WIN32
 #include "variables.h"
 #include "colors.h"
 #include <ctype.h>
@@ -370,3 +371,4 @@ void cleanup_variables() {
     }
     cleanup_typedefs();
 }
+#endif

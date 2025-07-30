@@ -240,7 +240,9 @@ void update_screen_content(int start_line) {
                     attroff(COLOR_PAIR(7)); attroff(COLOR_PAIR(8));
                 }
             }
-        } else if (endswith(file_name, ".py")) {
+        } 
+#ifndef _WIN32        
+        else if (endswith(file_name, ".py")) {
             MatchInfo matches[10];
             int match_count = find_python_matches(line_content, matches, 10);
             
@@ -393,7 +395,9 @@ void update_screen_content(int start_line) {
                     attroff(COLOR_PAIR(color));
                 }
             }
-        } else {
+        }
+#endif        
+        else {
             int len = strlen(line_content);
             if (horizontal_offset < len) {
                 mvaddnstr(i, line_offset, line_content + horizontal_offset, display_width);

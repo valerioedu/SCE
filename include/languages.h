@@ -1,6 +1,6 @@
 #ifndef LANGUAGES_H
 #define LANGUAGES_H
-
+#ifndef _WIN32
 #include <regex.h>
 
 #include "library.h"
@@ -27,5 +27,5 @@ int find_go_matches(const char* line, MatchInfo* matches, int max_matches);
 int find_rust_matches(const char* line, MatchInfo* matches, int max_matches);
 int find_java_matches(const char* line, MatchInfo* matches, int max_matches);
 int find_javascript_matches(const char* line, MatchInfo* matches, int max_matches);
-
+#endif
 #endif
