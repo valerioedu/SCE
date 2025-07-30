@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.14)
-project(SCE VERSION 1.1.0 LANGUAGES C)
 project(SCE VERSION 1.1.1 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 11)
@@ -65,6 +64,7 @@ set(LIB_SOURCES
     src/arg.c
     src/sceconfig.c
     src/git.c
+    src/languages.c
 )
 
 if(BUILD_TESTING)

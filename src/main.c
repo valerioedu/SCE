@@ -18,6 +18,7 @@
 #include "arg.h"
 #include "sceconfig.h"
 #include "git.h"
+#include "languages.h"
 
 EditorConfig config = {0};
 int horizontal_offset = 0;
@@ -237,6 +238,159 @@ void update_screen_content(int start_line) {
                     attroff(COLOR_PAIR(3)); attroff(COLOR_PAIR(4));
                     attroff(COLOR_PAIR(5)); attroff(COLOR_PAIR(6));
                     attroff(COLOR_PAIR(7)); attroff(COLOR_PAIR(8));
+                }
+            }
+        } else if (endswith(file_name, ".py")) {
+            MatchInfo matches[10];
+            int match_count = find_python_matches(line_content, matches, 10);
+            
+            for (int j = horizontal_offset; j < strlen(line_content) && (j - horizontal_offset) < display_width; j++) {
+                move(i, line_offset + j - horizontal_offset);
+                
+                int color = get_color_at_position(matches, match_count, j);
+                
+                if (color >= 0) {
+                    attron(COLOR_PAIR(color));
+                }
+                
+                addch(line_content[j]);
+                
+                if (color >= 0) {
+                    attroff(COLOR_PAIR(color));
+                }
+            }
+        } else if (endswith(file_name, ".cs")) {
+            MatchInfo matches[15];
+            int match_count = find_csharp_matches(line_content, matches, 15);
+            
+            for (int j = horizontal_offset; j < strlen(line_content) && (j - horizontal_offset) < display_width; j++) {
+                move(i, line_offset + j - horizontal_offset);
+                
+                int color = get_color_at_position(matches, match_count, j);
+                
+                if (color >= 0) {
+                    attron(COLOR_PAIR(color));
+                }
+                
+                addch(line_content[j]);
+                
+                if (color >= 0) {
+                    attroff(COLOR_PAIR(color));
+                }
+            }
+        } else if (endswith(file_name, ".sh") || endswith(file_name, ".bash")) {
+            MatchInfo matches[12];
+            int match_count = find_bash_matches(line_content, matches, 12);
+            
+            for (int j = horizontal_offset; j < strlen(line_content) && (j - horizontal_offset) < display_width; j++) {
+                move(i, line_offset + j - horizontal_offset);
+                
+                int color = get_color_at_position(matches, match_count, j);
+                
+                if (color >= 0) {
+                    attron(COLOR_PAIR(color));
+                }
+                
+                addch(line_content[j]);
+                
+                if (color >= 0) {
+                    attroff(COLOR_PAIR(color));
+                }
+            }
+        } else if (endswith(file_name, ".ps1") || endswith(file_name, ".psm1")) {
+            MatchInfo matches[14];
+            int match_count = find_powershell_matches(line_content, matches, 14);
+            
+            for (int j = horizontal_offset; j < strlen(line_content) && (j - horizontal_offset) < display_width; j++) {
+                move(i, line_offset + j - horizontal_offset);
+                
+                int color = get_color_at_position(matches, match_count, j);
+                
+                if (color >= 0) {
+                    attron(COLOR_PAIR(color));
+                }
+                
+                addch(line_content[j]);
+                
+                if (color >= 0) {
+                    attroff(COLOR_PAIR(color));
+                }
+            }
+        } else if (endswith(file_name, ".go")) {
+            MatchInfo matches[13];
+            int match_count = find_go_matches(line_content, matches, 13);
+            
+            for (int j = horizontal_offset; j < strlen(line_content) && (j - horizontal_offset) < display_width; j++) {
+                move(i, line_offset + j - horizontal_offset);
+                
+                int color = get_color_at_position(matches, match_count, j);
+                
+                if (color >= 0) {
+                    attron(COLOR_PAIR(color));
+                }
+                
+                addch(line_content[j]);
+                
+                if (color >= 0) {
+                    attroff(COLOR_PAIR(color));
+                }
+            }
+        } else if (endswith(file_name, ".rs")) {
+            MatchInfo matches[16];
+            int match_count = find_rust_matches(line_content, matches, 16);
+            
+            for (int j = horizontal_offset; j < strlen(line_content) && (j - horizontal_offset) < display_width; j++) {
+                move(i, line_offset + j - horizontal_offset);
+                
+                int color = get_color_at_position(matches, match_count, j);
+                
+                if (color >= 0) {
+                    attron(COLOR_PAIR(color));
+                }
+                
+                addch(line_content[j]);
+                
+                if (color >= 0) {
+                    attroff(COLOR_PAIR(color));
+                }
+            }
+        } else if (endswith(file_name, ".java")) {
+            MatchInfo matches[14];
+            int match_count = find_java_matches(line_content, matches, 14);
+            
+            for (int j = horizontal_offset; j < strlen(line_content) && (j - horizontal_offset) < display_width; j++) {
+                move(i, line_offset + j - horizontal_offset);
+                
+                int color = get_color_at_position(matches, match_count, j);
+                
+                if (color >= 0) {
+                    attron(COLOR_PAIR(color));
+                }
+                
+                addch(line_content[j]);
+                
+                if (color >= 0) {
+                    attroff(COLOR_PAIR(color));
+                }
+            }
+        } else if (endswith(file_name, ".js") || endswith(file_name, ".jsx") || 
+                endswith(file_name, ".ts") || endswith(file_name, ".tsx")) {
+            MatchInfo matches[15];
+            int match_count = find_javascript_matches(line_content, matches, 15);
+            
+            for (int j = horizontal_offset; j < strlen(line_content) && (j - horizontal_offset) < display_width; j++) {
+                move(i, line_offset + j - horizontal_offset);
+                
+                int color = get_color_at_position(matches, match_count, j);
+                
+                if (color >= 0) {
+                    attron(COLOR_PAIR(color));
+                }
+                
+                addch(line_content[j]);
+                
+                if (color >= 0) {
+                    attroff(COLOR_PAIR(color));
                 }
             }
         } else {
@@ -755,7 +909,7 @@ void init_editor() {
     init_pair(5, COLOR_CYAN, COLOR_BLACK);  // Cyan for variables
     init_pair(6, 12, COLOR_BLACK);      // Orange for strings
     init_pair(7, COLOR_GREEN, COLOR_BLACK); // Green for comments
-    init_pair(8, 13, COLOR_BLACK); // Light green for typedefs potentially
+    init_pair(8, 13, COLOR_BLACK); // Light green for typedefs
 #endif
 }
 
