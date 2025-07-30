@@ -1,3 +1,4 @@
+#ifndef _WIN32
 #include "languages.h"
 
 #define CS_PATTERN_COUNT 15
@@ -394,3 +395,4 @@ int get_color_at_position(MatchInfo* matches, int match_count, int position) {
     }
     return -1;
 }
+#endif
