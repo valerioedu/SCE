@@ -108,7 +108,7 @@ Pattern PsPatterns[] = {
     {"\\b[A-Z][a-z]+-[A-Z][a-zA-Z]*\\b", 3}
 };
 
-#define GO_PATTERN_COUNT 13
+#define GO_PATTERN_COUNT 14
 
 Pattern GoPatterns[] = {
     // Control flow
@@ -138,10 +138,11 @@ Pattern GoPatterns[] = {
     {"`[^`]*`", 6}, // Raw strings
     
     // Parentheses
-    {"[(){}\\[\\]]", 4}
+    {"[(){}\\[\\]]", 4},
+    {"\\b[a-zA-Z_][a-zA-Z0-9_]*\\(", 3}
 };
 
-#define RUST_PATTERN_COUNT 16
+#define RUST_PATTERN_COUNT 17
 
 Pattern RustPatterns[] = {
     // Control flow
@@ -178,7 +179,8 @@ Pattern RustPatterns[] = {
     {"r#*\"[^\"]*\"#*", 6}, // Raw strings
     
     // Parentheses
-    {"[(){}\\[\\]]", 4}
+    {"[(){}\\[\\]]", 4},
+    {"\\b[a-zA-Z_][a-zA-Z0-9_]*\\(", 3}
 };
 
 #define JAVA_PATTERN_COUNT 14
@@ -253,7 +255,8 @@ Pattern JsPatterns[] = {
     {"/([^/\\\\\\n]|\\\\.)+/[gimsuvy]*", 6},
     
     // Parentheses
-    {"[(){}\\[\\]]", 4}
+    {"[(){}\\[\\]]", 4},
+    {"\\b[a-zA-Z_][a-zA-Z0-9_]*\\(", 3}
 };
 
 
