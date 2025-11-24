@@ -259,6 +259,7 @@ Pattern JsPatterns[] = {
     {"\\b[a-zA-Z_][a-zA-Z0-9_]*\\(", 3}
 };
 
+int find_matches_generic(const char* line, MatchInfo* matches, int max_matches, Pattern* patterns, int pattern_count);
 
 int find_csharp_matches(const char* line, MatchInfo* matches, int max_matches) {
     return find_matches_generic(line, matches, max_matches, CsPatterns, CS_PATTERN_COUNT);
